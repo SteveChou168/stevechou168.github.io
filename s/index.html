@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>拍拍背 — 匯入課程</title>
+<meta name="description" content="掃描 QR Code 匯入拍拍背課程">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700&family=Nunito:wght@600;700;800&display=swap');
+
+  :root {
+    --bg: #faf9f6;
+    --card: #ffffff;
+    --text: #1a1a1e;
+    --text-dim: #6b6b78;
+    --accent: #ff6b35;
+    --accent-hover: #e55a28;
+    --accent-soft: #fff0ea;
+    --border: #e8e8ec;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans TC', 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 400px;
+    animation: fadeUp 0.5s ease-out;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: 0 2px 24px rgba(0,0,0,0.06), 0 0 0 1px var(--border);
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: var(--accent-soft);
+    padding: 32px 24px 24px;
+    text-align: center;
+  }
+
+  .app-icon {
+    width: 72px; height: 72px;
+    border-radius: 18px;
+    background: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(255,107,53,0.3);
+  }
+
+  .app-icon svg { width: 36px; height: 36px; }
+
+  .app-name {
+    font-family: 'Nunito', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .app-tagline {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .course-info {
+    padding: 24px;
+  }
+
+  .course-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .course-name {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 16px;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+
+  .meta-item svg {
+    width: 16px; height: 16px;
+    flex-shrink: 0;
+    color: var(--accent);
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 24px;
+  }
+
+  .download-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .download-btn:hover { background: var(--accent-hover); }
+
+  .hint {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 16px;
+    line-height: 1.6;
+  }
+
+  .card-footer {
+    padding: 0 24px 24px;
+  }
+
+  /* Error state */
+  .error-state {
+    padding: 48px 24px;
+    text-align: center;
+  }
+  .error-state p {
+    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* Loading */
+  .loading {
+    padding: 48px 24px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  .studio-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+  }
+  .studio-link a {
+    color: var(--text-dim);
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="card" id="card">
+    <div class="loading" id="loading">解析課程資料中⋯⋯</div>
+  </div>
+  <div class="studio-link">
+    <a href="/Studio/">永動創意工作室</a>
+  </div>
+</div>
+
+<script>
+(function() {
+  const PLAY_URL = 'https://play.google.com/store/apps/details?id=com.paipaibei.app';
+  const SCHEME = 'snapeng://3/';
+
+  // Extract payload from URL path: /s/<payload> or /Studio/s/<payload>
+  const path = window.location.pathname;
+  const match = path.match(/\/s\/(.+)$/);
+
+  if (!match) {
+    showError();
+    return;
+  }
+
+  const payload = match[1];
+
+  // Try opening app first
+  tryOpenApp(payload);
+
+  // Decode and show landing page
+  try {
+    const binary = base64urlDecode(payload);
+    gunzip(binary).then(data => {
+      const course = parseCourse(data);
+      showCourse(course, payload);
+    }).catch(() => {
+      // If gunzip fails, try parsing raw (maybe not gzipped)
+      try {
+        const course = parseCourse(binary);
+        showCourse(course, payload);
+      } catch(e) {
+        showError();
+      }
+    });
+  } catch(e) {
+    showError();
+  }
+
+  function tryOpenApp(payload) {
+    // Try custom scheme
+    const intentUrl = `intent://3/${payload}#Intent;scheme=snapeng;package=com.paipaibei.app;end`;
+    const ua = navigator.userAgent.toLowerCase();
+
+    if (ua.includes('android')) {
+      // Android: use intent URL
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = intentUrl;
+      document.body.appendChild(iframe);
+      setTimeout(() => iframe.remove(), 2000);
+    } else if (ua.includes('iphone') || ua.includes('ipad')) {
+      // iOS: try custom scheme
+      window.location.href = SCHEME + payload;
+    }
+  }
+
+  function base64urlDecode(str) {
+    // base64url → base64
+    let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4) b64 += '=';
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+
+  async function gunzip(data) {
+    const ds = new DecompressionStream('gzip');
+    const writer = ds.writable.getWriter();
+    writer.write(data);
+    writer.close();
+    const reader = ds.readable.getReader();
+    const chunks = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+    }
+    const total = chunks.reduce((s, c) => s + c.length, 0);
+    const result = new Uint8Array(total);
+    let offset = 0;
+    for (const c of chunks) {
+      result.set(c, offset);
+      offset += c.length;
+    }
+    return result;
+  }
+
+  function parseCourse(buf) {
+    const view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+    let pos = 0;
+
+    const dictVersion = view.getUint8(pos); pos += 1;
+    const courseId = view.getUint32(pos); pos += 4;
+
+    const nameLen = view.getUint8(pos); pos += 1;
+    const name = new TextDecoder().decode(buf.slice(pos, pos + nameLen)); pos += nameLen;
+
+    const authorLen = view.getUint8(pos); pos += 1;
+    const author = authorLen > 0
+      ? new TextDecoder().decode(buf.slice(pos, pos + authorLen))
+      : '';
+    pos += authorLen;
+
+    const wordCount = view.getUint16(pos); pos += 2;
+
+    return { dictVersion, courseId, name, author, wordCount };
+  }
+
+  function showCourse(course, payload) {
+    document.getElementById('card').innerHTML = `
+      <div class="card-header">
+        <div class="app-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            <line x1="8" y1="7" x2="16" y2="7"/>
+            <line x1="8" y1="11" x2="13" y2="11"/>
+          </svg>
+        </div>
+        <div class="app-name">拍拍背</div>
+        <div class="app-tagline">拍照、製卡、分享</div>
+      </div>
+      <div class="course-info">
+        <div class="course-label">共享課程</div>
+        <div class="course-name">${esc(course.name)}</div>
+        <div class="meta-row">
+          ${course.author ? `
+          <div class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            ${esc(course.author)}
+          </div>` : ''}
+          <div class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+            ${course.wordCount} 個單字
+          </div>
+        </div>
+        <div class="divider"></div>
+      </div>
+      <div class="card-footer">
+        <a class="download-btn" href="${PLAY_URL}">下載拍拍背</a>
+        <p class="hint">下載後重新掃描 QR Code 即可匯入課程</p>
+      </div>
+    `;
+  }
+
+  function showError() {
+    document.getElementById('card').innerHTML = `
+      <div class="card-header">
+        <div class="app-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+        </div>
+        <div class="app-name">拍拍背</div>
+        <div class="app-tagline">拍照、製卡、分享</div>
+      </div>
+      <div class="error-state">
+        <p>無法解析課程連結。<br>請重新掃描 QR Code，或直接下載拍拍背。</p>
+      </div>
+      <div class="card-footer">
+        <a class="download-btn" href="${PLAY_URL}">下載拍拍背</a>
+      </div>
+    `;
+  }
+
+  function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+})();
+</script>
+</body>
+</html>
