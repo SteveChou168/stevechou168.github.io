@@ -3,6 +3,6 @@
   "target": {
     "namespace": "android_app",
     "package_name": "com.paipaibei.app",
-    "sha256_cert_fingerprints": ["__YOUR_SHA256_FINGERPRINT__"]
+    "sha256_cert_fingerprints": ["28:41:40:17:07:3F:2D:B5:B6:B3:C1:85:00:15:46:E1:E8:1D:C0:8E:12:8B:1D:2C:9A:E7:BA:0C:3C:FA:44:DA"]
   }
 }]
