@@ -81,6 +81,11 @@
   .app-item .name { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
   .app-item .tagline { font-size: 14px; color: var(--text-dim); }
 
+  .app-item .badge {
+    display: inline-block; margin-top: 10px;
+    font-size: 12px; color: var(--accent); letter-spacing: 1px; font-weight: 600;
+  }
+
   .links {
     display: flex; gap: 24px; flex-wrap: wrap;
   }
@@ -114,7 +119,21 @@
   </p>
 
   <div class="apps-section">
-    <h2>我們的應用程式</h2>
+    <h2>已上架</h2>
+    <div class="app-list">
+      <a class="app-item" href="https://play.google.com/store/apps/details?id=com.perpetualmotion.radical_lookup" style="text-decoration:none;color:inherit;">
+        <div class="name">手寫生字快查</div>
+        <div class="tagline">手寫就能查國字部首、注音、筆畫、釋義</div>
+        <div class="badge">Google Play ↗</div>
+      </a>
+      <a class="app-item" href="https://play.google.com/store/apps/details?id=com.yongdong.padplayer" style="text-decoration:none;color:inherit;">
+        <div class="name">Nido Player</div>
+        <div class="tagline">本機影音播放器，支援區網 NAS（SMB）串流</div>
+        <div class="badge">Google Play ↗</div>
+      </a>
+    </div>
+
+    <h2 style="margin-top:40px;">即將推出</h2>
     <div class="app-list">
       <div class="app-item">
         <div class="name">拍拍背</div>
@@ -127,18 +146,6 @@
       <div class="app-item">
         <div class="name">QR Code 工具</div>
         <div class="tagline">快速產生與掃描 QR Code</div>
-      </div>
-      <div class="app-item">
-        <a href="https://play.google.com/store/apps/details?id=com.perpetualmotion.radical_lookup" style="text-decoration:none;color:inherit;">
-        <div class="name">手寫生字快查</div>
-        <div class="tagline">手寫就能查國字部首、注音、筆畫、釋義</div>
-        </a>
-      </div>
-      <div class="app-item">
-        <a href="https://play.google.com/store/apps/details?id=com.yongdong.padplayer" style="text-decoration:none;color:inherit;">
-        <div class="name">Nido Player</div>
-        <div class="tagline">本機影音播放器，支援區網 NAS（SMB）串流</div>
-        </a>
       </div>
       <div class="app-item">
         <div class="name">英語時態速學</div>
