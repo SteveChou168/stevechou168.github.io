@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英語詞性教學</title>
+<style>
+:root{
+  --S-bg:#B5D4F4;--S-tx:#042C53;--S-lb:#185FA5;
+  --O-bg:#9FE1CB;--O-tx:#04342C;--O-lb:#0F6E56;
+  --V-bg:#F7C1C1;--V-tx:#501313;--V-lb:#A32D2D;
+  --PT-bg:#F09595;--PT-tx:#501313;--PT-lb:#791F1F;
+  --PP-bg:#E24B4A;--PP-tx:#FCEBEB;--PP-lb:#FCEBEB;
+  --J-bg:#C0DD97;--J-tx:#173404;--J-lb:#3B6D11;
+  --A-bg:#FAC775;--A-tx:#412402;--A-lb:#854F0B;
+  --C-bg:#CECBF6;--C-tx:#26215C;--C-lb:#534AB7;
+  --bg:#faf9f5;--card:#fff;--bd:#e6e3da;--ink:#2c2c2a;--mut:#76746c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  line-height:1.6;-webkit-text-size-adjust:100%}
+.wrap{max-width:720px;margin:0 auto;padding:24px 16px 60px}
+h1{font-size:24px;font-weight:700;margin:0 0 4px}
+.sub{color:var(--mut);font-size:14px;margin:0 0 24px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+.lg{cursor:pointer;border:1px solid var(--bd);border-radius:9px;padding:7px 12px;
+  font-size:14px;background:var(--card);display:flex;align-items:center;gap:7px;
+  font-weight:500;user-select:none;transition:.12s}
+.lg:hover{border-color:#bcb9ad}
+.lg.on{border:2px solid #378ADD;padding:6px 11px}
+.lg small{color:var(--mut);font-weight:400}
+.dot{width:14px;height:14px;border-radius:4px;flex:none}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;
+  padding:18px 20px;margin-bottom:18px}
+.card h3{margin:0 0 14px;font-size:16px;font-weight:700}
+.grp{font-size:13px;font-weight:700;color:var(--mut);margin:18px 0 4px;
+  border-top:1px dashed var(--bd);padding-top:14px}
+.grp:first-of-type{border-top:none;padding-top:0;margin-top:0}
+.sent{font-size:21px;line-height:2.4;margin:0}
+.pos{display:inline-flex;flex-direction:column;align-items:center;gap:2px;
+  margin:0 3px;vertical-align:top}
+.pos .w{padding:3px 10px;border-radius:8px;font-weight:600}
+.pos .t{font-size:11px;font-weight:600}
+.neu{color:#aaa8a0}
+.S .w{background:var(--S-bg);color:var(--S-tx)}.S .t{color:var(--S-lb)}
+.O .w{background:var(--O-bg);color:var(--O-tx)}.O .t{color:var(--O-lb)}
+.V .w{background:var(--V-bg);color:var(--V-tx)}.V .t{color:var(--V-lb)}
+.PT .w{background:var(--PT-bg);color:var(--PT-tx)}.PT .t{color:var(--PT-lb)}
+.PP .w{background:var(--PP-bg);color:var(--PP-tx)}.PP .t{color:var(--PP-lb)}
+.J .w{background:var(--J-bg);color:var(--J-tx)}.J .t{color:var(--J-lb)}
+.A .w{background:var(--A-bg);color:var(--A-tx)}.A .t{color:var(--A-lb)}
+.C .w{background:var(--C-bg);color:var(--C-tx)}.C .t{color:var(--C-lb)}
+.dim{opacity:.14}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 12px;
+  justify-items:center;font-size:19px;align-items:center}
+.hd{font-size:13px;color:var(--V-lb);font-weight:700}
+.vf{background:var(--V-bg);color:var(--V-tx);padding:3px 12px;border-radius:8px;font-weight:600}
+.note{font-size:13px;color:var(--mut);margin:14px 0 0}
+.btn{cursor:pointer;font-size:15px;font-weight:600;border:1px solid var(--bd);
+  background:var(--card);border-radius:10px;padding:9px 16px;transition:.12s}
+.btn:hover{border-color:#bcb9ad;background:#f3f1ea}
+.btn.primary{background:#378ADD;color:#fff;border-color:#378ADD}
+.btn.primary:hover{background:#2a73bd}
+.qrow{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.qsent{font-size:21px;line-height:2.4;min-height:48px}
+.qw{cursor:pointer;background:#efeee8;color:var(--ink);padding:4px 11px;
+  border-radius:8px;font-weight:600;border:none;font-size:20px;transition:.12s}
+.qw:hover{background:#e4e2da}
+.qw.done{cursor:default}
+.qw .qt{font-size:11px;font-weight:600;display:block;margin-top:1px;text-align:center}
+@media(max-width:480px){.sent,.qsent{font-size:18px}.qw{font-size:18px}.grid3{font-size:17px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>英語詞性教學</h1>
+  <p class="sub">點顏色看例句裡是哪些字。S 主詞、V 動詞、O 受詞，加上過去式 PT、過去分詞 PP。</p>
+
+  <div class="legend" id="legend">
+    <div class="lg" data-f="S"><span class="dot" style="background:var(--S-bg)"></span>主詞 S</div>
+    <div class="lg" data-f="V"><span class="dot" style="background:var(--V-bg)"></span>動詞 V</div>
+    <div class="lg" data-f="O"><span class="dot" style="background:var(--O-bg)"></span>受詞 O</div>
+    <div class="lg" data-f="PT"><span class="dot" style="background:var(--PT-bg)"></span>過去式 PT</div>
+    <div class="lg" data-f="PP"><span class="dot" style="background:var(--PP-bg)"></span>過去分詞 PP</div>
+    <div class="lg" data-f="J"><span class="dot" style="background:var(--J-bg)"></span>形容詞 adj</div>
+    <div class="lg" data-f="A"><span class="dot" style="background:var(--A-bg)"></span>副詞 adv</div>
+    <div class="lg" data-f="C"><span class="dot" style="background:var(--C-bg)"></span>連接詞 conj</div>
+    <div class="lg" data-f="all" style="font-weight:400">↺ 全部</div>
+  </div>
+
+  <div class="card">
+    <h3>例句</h3>
+
+    <div class="grp">基本句型</div>
+    <p class="sent">
+      <span class="neu">The</span>
+      <span class="pos S" data-pos="S"><span class="w">bird</span><span class="t">S</span></span>
+      <span class="pos V" data-pos="V"><span class="w">sings</span><span class="t">V</span></span>.
+      &nbsp;<span class="neu" style="font-size:13px">（S＋V）</span>
+    </p>
+    <p class="sent">
+      <span class="pos S" data-pos="S"><span class="w">I</span><span class="t">S</span></span>
+      <span class="pos V" data-pos="V"><span class="w">eat</span><span class="t">V</span></span>
+      <span class="pos O" data-pos="O"><span class="w">apples</span><span class="t">O</span></span>.
+      &nbsp;<span class="neu" style="font-size:13px">（S＋V＋O）</span>
+    </p>
+    <p class="sent">
+      <span class="pos S" data-pos="S"><span class="w">She</span><span class="t">S</span></span>
+      <span class="pos V" data-pos="V"><span class="w">reads</span><span class="t">V</span></span>
+      <span class="pos O" data-pos="O"><span class="w">books</span><span class="t">O</span></span>
+      <span class="pos A" data-pos="A"><span class="w">quietly</span><span class="t">adv</span></span>.
+      &nbsp;<span class="neu" style="font-size:13px">（S＋V＋O＋adv）</span>
+    </p>
+    <p class="sent">
+      <span class="neu">The</span>
+      <span class="pos S" data-pos="S"><span class="w">dog</span><span class="t">S</span></span>
+      <span class="pos V" data-pos="V"><span class="w">is</span><span class="t">V</span></span>
+      <span class="pos J" data-pos="J"><span class="w">happy</span><span class="t">adj</span></span>.
+      &nbsp;<span class="neu" style="font-size:13px">（S＋be＋adj）</span>
+    </p>
+    <p class="sent">
+      <span class="pos S" data-pos="S"><span class="w">Tom</span><span class="t">S</span></span>
+      <span class="pos C" data-pos="C"><span class="w">and</span><span class="t">conj</span></span>
+      <span class="pos S" data-pos="S"><span class="w">Mary</span><span class="t">S</span></span>
+      <span class="pos V" data-pos="V"><span class="w">play</span><span class="t">V</span></span>
+      <span class="pos O" data-pos="O"><span class="w">games</span><span class="t">O</span></span>.
+    </p>
+
+    <div class="grp">過去式 PT（事情發生在過去）</div>
+    <p class="sent">
+      <span class="pos S" data-pos="S"><span class="w">We</span><span class="t">S</span></span>
+      <span class="pos PT" data-pos="PT"><span class="w">played</span><span class="t">PT</span></span>
+      <span class="pos O" data-pos="O"><span class="w">games</span><span class="t">O</span></span>
+      <span class="pos A" data-pos="A"><span class="w">yesterday</span><span class="t">adv</span></span>.
+    </p>
+    <p class="sent">
+      <span class="pos S" data-pos="S"><span class="w">He</span><span class="t">S</span></span>
+      <span class="pos PT" data-pos="PT"><span class="w">ate</span><span class="t">PT</span></span>
+      <span class="neu">an</span>
+      <span class="pos O" data-pos="O"><span class="w">apple</span><span class="t">O</span></span>.
+    </p>
+    <p class="sent">
+      <span class="pos S" data-pos="S"><span class="w">She</span><span class="t">S</span></span>
+      <span class="pos PT" data-pos="PT"><span class="w">cooked</span><span class="t">PT</span></span>
+      <span class="pos O" data-pos="O"><span class="w">dinner</span><span class="t">O</span></span>
+      <span class="pos C" data-pos="C"><span class="w">and</span><span class="t">conj</span></span>
+      <span class="pos S" data-pos="S"><span class="w">we</span><span class="t">S</span></span>
+      <span class="pos PT" data-pos="PT"><span class="w">ate</span><span class="t">PT</span></span>
+      <span class="pos O" data-pos="O"><span class="w">it</span><span class="t">O</span></span>.
+    </p>
+
+    <div class="grp">過去分詞 PP（have／has＋PP，或 be＋PP）</div>
+    <p class="sent">
+      <span class="pos S" data-pos="S"><span class="w">I</span><span class="t">S</span></span>
+      <span class="pos V" data-pos="V"><span class="w">have</span><span class="t">V</span></span>
+      <span class="pos PP" data-pos="PP"><span class="w">eaten</span><span class="t">PP</span></span>
+      <span class="pos O" data-pos="O"><span class="w">lunch</span><span class="t">O</span></span>.
+      &nbsp;<span class="neu" style="font-size:13px">（現在完成）</span>
+    </p>
+    <p class="sent">
+      <span class="pos S" data-pos="S"><span class="w">They</span><span class="t">S</span></span>
+      <span class="pos V" data-pos="V"><span class="w">have</span><span class="t">V</span></span>
+      <span class="pos PP" data-pos="PP"><span class="w">finished</span><span class="t">PP</span></span>
+      <span class="neu">the</span>
+      <span class="pos O" data-pos="O"><span class="w">work</span><span class="t">O</span></span>.
+    </p>
+    <p class="sent">
+      <span class="neu">The</span>
+      <span class="pos S" data-pos="S"><span class="w">window</span><span class="t">S</span></span>
+      <span class="pos V" data-pos="V"><span class="w">was</span><span class="t">V</span></span>
+      <span class="pos PP" data-pos="PP"><span class="w">broken</span><span class="t">PP</span></span>.
+      &nbsp;<span class="neu" style="font-size:13px">（被動）</span>
+    </p>
+    <p class="sent">
+      <span class="neu">The</span>
+      <span class="pos S" data-pos="S"><span class="w">cake</span><span class="t">S</span></span>
+      <span class="pos V" data-pos="V"><span class="w">was</span><span class="t">V</span></span>
+      <span class="pos PP" data-pos="PP"><span class="w">eaten</span><span class="t">PP</span></span>.
+      &nbsp;<span class="neu" style="font-size:13px">（被動）</span>
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>動詞三態 — 同一個動詞，三種樣子</h3>
+    <div class="grid3">
+      <div class="hd">現在式 V</div><div class="hd">過去式 PT</div><div class="hd">過去分詞 PP</div>
+      <span class="vf">go</span><span class="vf">went</span><span class="vf">gone</span>
+      <span class="vf">eat</span><span class="vf">ate</span><span class="vf">eaten</span>
+      <span class="vf">see</span><span class="vf">saw</span><span class="vf">seen</span>
+      <span class="vf">run</span><span class="vf">ran</span><span class="vf">run</span>
+      <span class="vf">do</span><span class="vf">did</span><span class="vf">done</span>
+      <span class="vf">break</span><span class="vf">broke</span><span class="vf">broken</span>
+      <span class="vf">play</span><span class="vf">played</span><span class="vf">played</span>
+    </div>
+    <p class="note">play 是規則動詞，加 ed 就好；上面六個是不規則動詞，要記下來。過去式（PT）自己當動詞用；過去分詞（PP）要配 have／be。</p>
+  </div>
+
+  <div class="card">
+    <h3>小測驗 — 點每個字，看它是什麼詞性</h3>
+    <div class="qsent" id="quiz"></div>
+    <div class="qrow" style="margin-top:14px">
+      <button class="btn primary" onclick="newQuiz()">換一題</button>
+      <button class="btn" onclick="revealAll()">顯示全部答案</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+document.querySelectorAll('.lg').forEach(function(b){
+  b.addEventListener('click',function(){
+    var f=b.dataset.f, on=b.classList.contains('on');
+    document.querySelectorAll('.lg').forEach(function(x){x.classList.remove('on')});
+    var poss=document.querySelectorAll('.pos');
+    if(on||f==='all'){poss.forEach(function(p){p.classList.remove('dim')});return;}
+    b.classList.add('on');
+    poss.forEach(function(p){p.classList.toggle('dim', p.dataset.pos!==f)});
+  });
+});
+
+var TAG={S:'S',V:'V',O:'O',PT:'PT',PP:'PP',J:'adj',A:'adv',C:'conj'};
+var COL={
+  S:['var(--S-bg)','var(--S-tx)'],O:['var(--O-bg)','var(--O-tx)'],
+  V:['var(--V-bg)','var(--V-tx)'],PT:['var(--PT-bg)','var(--PT-tx)'],
+  PP:['var(--PP-bg)','var(--PP-tx)'],J:['var(--J-bg)','var(--J-tx)'],
+  A:['var(--A-bg)','var(--A-tx)'],C:['var(--C-bg)','var(--C-tx)']
+};
+var BANK=[
+  [['Birds','S'],['eat','V'],['worms','O']],
+  [['She','S'],['sings','V'],['a','—'],['sweet','J'],['song','O']],
+  [['We','S'],['ran','PT'],['fast','A']],
+  [['He','S'],['ate','PT'],['my','—'],['cake','O']],
+  [['I','S'],['have','V'],['seen','PP'],['it','O']],
+  [['The','—'],['toy','S'],['was','V'],['broken','PP']],
+  [['Ben','S'],['and','C'],['Sam','S'],['play','V'],['games','O']],
+  [['My','—'],['mom','S'],['cooked','PT'],['good','J'],['food','O']],
+  [['The','—'],['baby','S'],['cried','PT'],['loudly','A']],
+  [['They','S'],['have','V'],['gone','PP'],['home','A']],
+  [['Dad','S'],['drives','V'],['a','—'],['big','J'],['car','O']],
+  [['The','—'],['letter','S'],['was','V'],['written','PP'],['well','A']]
+];
+var cur=0;
+
+function newQuiz(){
+  cur=Math.floor(Math.random()*BANK.length);
+  var box=document.getElementById('quiz');
+  box.innerHTML='';
+  BANK[cur].forEach(function(p){
+    if(p[1]==='—'){
+      var n=document.createElement('span');
+      n.className='neu';n.style.fontSize='20px';n.style.margin='0 4px';n.textContent=p[0];
+      box.appendChild(n);return;
+    }
+    var btn=document.createElement('button');
+    btn.className='qw';btn.dataset.pos=p[1];btn.textContent=p[0];
+    btn.onclick=function(){reveal(btn)};
+    box.appendChild(btn);
+  });
+}
+function reveal(btn){
+  if(btn.classList.contains('done'))return;
+  var pos=btn.dataset.pos, v=COL[pos];
+  btn.classList.add('done',pos);
+  btn.style.background=v[0];btn.style.color=v[1];
+  var t=document.createElement('span');t.className='qt';t.textContent=TAG[pos];
+  btn.appendChild(t);
+}
+function revealAll(){document.querySelectorAll('.qw').forEach(reveal)}
+newQuiz();
+</script>
+</body>
+</html>
