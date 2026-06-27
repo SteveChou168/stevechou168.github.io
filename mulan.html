@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>木蘭詩</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400&display=swap');
+:root{--ink:#1a1208;--paper:#f5f0e8;--aged:#e8dfc8;--red:#c0392b;--gold:#b5860d;--mist:#7a8c7e;--fade:#9e9585;--green:#2e7d52;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--paper);color:var(--ink);font-family:'Noto Serif TC',serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 80% 20%,rgba(176,136,13,.06) 0%,transparent 70%),radial-gradient(ellipse 40% 60% at 10% 80%,rgba(122,140,126,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+/* progress */
+.prog{position:sticky;top:0;z-index:100;height:3px;background:var(--aged);}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--gold));width:0%;transition:width .1s;}
+
+/* voice bar */
+.vbar{position:sticky;top:3px;z-index:99;background:var(--ink);display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;flex-wrap:wrap;}
+.vbar-label{font-family:'Noto Sans TC',sans-serif;font-size:.7rem;letter-spacing:.15em;color:#a09888;white-space:nowrap;}
+.vb{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:3px;color:var(--paper);font-family:'Noto Sans TC',sans-serif;font-size:.75rem;padding:.3rem .7rem;cursor:pointer;transition:background .2s,border-color .2s;white-space:nowrap;}
+.vb:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.4);}
+.vb.playing{background:var(--green);border-color:var(--green);}
+.vb.stop-btn:hover{background:rgba(192,57,43,.6);border-color:var(--red);}
+.badge{background:var(--gold);color:var(--ink);border-radius:99px;font-size:.65rem;padding:.1rem .45rem;font-weight:700;display:none;margin-left:.2rem;}
+.badge.show{display:inline;}
+.spd-lbl{font-family:'Noto Sans TC',sans-serif;font-size:.7rem;color:#a09888;margin-left:auto;}
+.spd{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:3px;color:var(--paper);font-size:.75rem;padding:.28rem .45rem;cursor:pointer;}
+.spd option{background:#1a1208;}
+
+/* header */
+header{position:relative;z-index:1;text-align:center;padding:3.5rem 2rem 1.5rem;}
+.eyebrow{font-family:'Noto Sans TC',sans-serif;font-size:.72rem;letter-spacing:.35em;color:var(--mist);margin-bottom:1rem;}
+h1{font-size:clamp(3rem,10vw,5.5rem);font-weight:900;letter-spacing:.15em;display:inline-block;color:var(--ink);}
+h1::after{content:'';display:block;width:3rem;height:3px;background:var(--red);margin:1rem auto 0;}
+.sub{font-family:'Noto Sans TC',sans-serif;font-size:.82rem;color:var(--fade);margin-top:.8rem;letter-spacing:.08em;}
+
+/* main */
+main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 1.4rem 6rem;}
+
+/* stanza */
+.stanza{margin-bottom:2.2rem;border-left:2px solid var(--aged);padding-left:1.4rem;opacity:0;transform:translateY(18px);transition:opacity .5s,transform .5s,border-color .3s;}
+.stanza.vis{opacity:1;transform:none;}
+.stanza:hover{border-color:var(--gold);}
+.st-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;}
+.st-lbl{font-family:'Noto Sans TC',sans-serif;font-size:.68rem;letter-spacing:.22em;color:var(--fade);flex:1;}
+.st-play{background:none;border:1px solid var(--aged);border-radius:3px;color:var(--fade);font-size:.7rem;padding:.18rem .55rem;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .2s;white-space:nowrap;}
+.st-play:hover{border-color:var(--gold);color:var(--gold);}
+.st-play.playing{border-color:var(--green);color:var(--green);}
+
+/* line */
+.st-text{font-size:clamp(1.05rem,2.5vw,1.18rem);line-height:2.5;font-weight:400;color:var(--ink);letter-spacing:.05em;}
+.line{display:flex;align-items:center;gap:.4rem;padding:.08em .3em;margin:-.08em -.3em;border-radius:3px;transition:background .15s;}
+.ltxt{flex:1;cursor:pointer;transition:color .2s;}
+.ltxt:hover{color:var(--red);}
+.line.sel{background:rgba(181,134,13,.12);}
+.line.sel .ltxt{color:var(--gold);}
+.line.spk{background:rgba(46,125,82,.09);}
+.line.spk .ltxt{color:var(--green);}
+.dot{width:6px;height:6px;background:var(--green);border-radius:50%;display:none;flex-shrink:0;animation:pulse .75s infinite alternate;}
+.line.spk .dot{display:block;}
+@keyframes pulse{from{opacity:1;transform:scale(1);}to{opacity:.35;transform:scale(.55);}}
+.lact{display:flex;gap:.25rem;opacity:0;transition:opacity .15s;}
+.line:hover .lact{opacity:1;}
+.lbtn{background:none;border:1px solid var(--aged);border-radius:3px;color:var(--fade);font-size:.65rem;padding:.12rem .42rem;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .15s;line-height:1.4;}
+.lbtn:hover{border-color:var(--red);color:var(--red);}
+.lbtn.sel-b{border-color:var(--aged);}
+.lbtn.sel-b:hover{border-color:var(--gold);color:var(--gold);}
+.lbtn.sel-b.on{border-color:var(--gold);color:var(--gold);background:rgba(181,134,13,.1);}
+
+/* annotation panel */
+.ann{position:fixed;right:0;top:50%;transform:translateY(-50%) translateX(100%);width:min(310px,90vw);background:var(--ink);color:var(--paper);padding:1.8rem 1.6rem;border-radius:4px 0 0 4px;box-shadow:-4px 0 24px rgba(26,18,8,.22);transition:transform .4s cubic-bezier(.22,1,.36,1);z-index:200;max-height:80vh;overflow-y:auto;}
+.ann.open{transform:translateY(-50%) translateX(0);}
+.ann-x{position:absolute;top:.9rem;right:.9rem;background:none;border:none;color:var(--fade);font-size:1.1rem;cursor:pointer;line-height:1;}
+.ann-x:hover{color:var(--paper);}
+.ann-ln{font-size:1.05rem;font-weight:700;letter-spacing:.07em;margin-bottom:.7rem;color:#f5e6c4;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:.7rem;}
+.ann-me{font-family:'Noto Sans TC',sans-serif;font-size:.86rem;line-height:1.9;color:#c8c0b0;margin-bottom:1.1rem;}
+.ann-vt{font-family:'Noto Sans TC',sans-serif;font-size:.75rem;color:var(--gold);letter-spacing:.05em;margin-bottom:.3rem;font-weight:600;}
+.ann-wd{display:flex;gap:.4rem;align-items:baseline;margin-bottom:.35rem;}
+.ann-wd .w{color:#f5e6c4;font-size:.87rem;}
+.ann-wd .d{color:#a09888;font-size:.78rem;font-family:'Noto Sans TC',sans-serif;}
+
+/* quiz */
+.quiz-sec{margin-top:4rem;border-top:1px solid var(--aged);padding-top:2.8rem;}
+.quiz-title{font-size:.95rem;letter-spacing:.2em;color:var(--fade);margin-bottom:1.8rem;font-family:'Noto Sans TC',sans-serif;}
+.qcard{background:var(--aged);border-radius:4px;padding:1.6rem;margin-bottom:1.4rem;}
+.qq{font-size:.97rem;line-height:1.8;margin-bottom:1.1rem;}
+.qopts{display:grid;gap:.55rem;}
+.qbtn{background:var(--paper);border:1px solid transparent;border-radius:2px;padding:.65rem .95rem;font-family:'Noto Serif TC',serif;font-size:.88rem;color:var(--ink);cursor:pointer;text-align:left;transition:all .2s;letter-spacing:.03em;}
+.qbtn:hover{border-color:var(--gold);background:#fdf8ef;}
+.qbtn.ok{background:#e8f4e8;border-color:#4a9e4a;color:#2d5a2d;}
+.qbtn.ng{background:#faeaea;border-color:var(--red);color:#7a1a1a;}
+.qbtn:disabled{cursor:default;}
+.qfb{margin-top:.7rem;font-family:'Noto Sans TC',sans-serif;font-size:.8rem;line-height:1.7;color:var(--ink);min-height:1.4em;}
+
+.wmark{position:fixed;bottom:3rem;right:3rem;font-size:7rem;font-weight:900;color:rgba(181,134,13,.05);pointer-events:none;z-index:0;writing-mode:vertical-rl;letter-spacing:.1em;user-select:none;}
+@media(max-width:600px){.ann{width:90vw;}.wmark{display:none;}.spd-lbl{margin-left:0;}}
+@media(prefers-reduced-motion:reduce){.stanza{opacity:1;transform:none;transition:none;}.ann{transition:none;}}
+</style>
+</head>
+<body>
+
+<div class="prog"><div class="prog-fill" id="prog"></div></div>
+
+<div class="vbar">
+  <span class="vbar-label">🔊 語音</span>
+  <button class="vb" id="btn-all">▶ 全詩</button>
+  <button class="vb" id="btn-sel">▶ 選取句 <span class="badge" id="badge">0</span></button>
+  <button class="vb stop-btn" id="btn-stop">■ 停止</button>
+  <button class="vb" id="btn-clr">清除選取</button>
+  <span class="spd-lbl">速度</span>
+  <select class="spd" id="spd">
+    <option value="0.6">慢速</option>
+    <option value="0.85" selected>正常</option>
+    <option value="1.1">較快</option>
+    <option value="1.4">快速</option>
+  </select>
+</div>
+
+<div class="wmark">木蘭</div>
+
+<header>
+  <p class="eyebrow">南北朝 · 樂府民歌</p>
+  <h1>木蘭詩</h1>
+  <p class="sub">點句子看注釋 ・ 按 ▶ 單句朗讀 ・ 按「選」累積選句後整批朗讀</p>
+</header>
+
+<main>
+
+<div class="stanza" data-s="0">
+  <div class="st-head"><span class="st-lbl">第一段 ── 織機嘆息</span><button class="st-play" data-sp="0">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="0"><span class="dot"></span><span class="ltxt">唧唧復唧唧，木蘭當戶織。</span><span class="lact"><button class="lbtn" data-pl="0">▶</button><button class="lbtn sel-b" data-sl="0">選</button></span></span>
+    <span class="line" data-i="1"><span class="dot"></span><span class="ltxt">不聞機杼聲，惟聞女嘆息。</span><span class="lact"><button class="lbtn" data-pl="1">▶</button><button class="lbtn sel-b" data-sl="1">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="1">
+  <div class="st-head"><span class="st-lbl">第二段 ── 父有徵兵</span><button class="st-play" data-sp="1">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="2"><span class="dot"></span><span class="ltxt">問女何所思，問女何所憶？</span><span class="lact"><button class="lbtn" data-pl="2">▶</button><button class="lbtn sel-b" data-sl="2">選</button></span></span>
+    <span class="line" data-i="3"><span class="dot"></span><span class="ltxt">女亦無所思，女亦無所憶。</span><span class="lact"><button class="lbtn" data-pl="3">▶</button><button class="lbtn sel-b" data-sl="3">選</button></span></span>
+    <span class="line" data-i="4"><span class="dot"></span><span class="ltxt">昨夜見軍帖，可汗大點兵，</span><span class="lact"><button class="lbtn" data-pl="4">▶</button><button class="lbtn sel-b" data-sl="4">選</button></span></span>
+    <span class="line" data-i="5"><span class="dot"></span><span class="ltxt">軍書十二卷，卷卷有爺名。</span><span class="lact"><button class="lbtn" data-pl="5">▶</button><button class="lbtn sel-b" data-sl="5">選</button></span></span>
+    <span class="line" data-i="6"><span class="dot"></span><span class="ltxt">阿爺無大兒，木蘭無長兄，</span><span class="lact"><button class="lbtn" data-pl="6">▶</button><button class="lbtn sel-b" data-sl="6">選</button></span></span>
+    <span class="line" data-i="7"><span class="dot"></span><span class="ltxt">願為市鞍馬，從此替爺征。</span><span class="lact"><button class="lbtn" data-pl="7">▶</button><button class="lbtn sel-b" data-sl="7">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="2">
+  <div class="st-head"><span class="st-lbl">第三段 ── 備馬出征</span><button class="st-play" data-sp="2">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="8"><span class="dot"></span><span class="ltxt">東市買駿馬，西市買鞍韉，</span><span class="lact"><button class="lbtn" data-pl="8">▶</button><button class="lbtn sel-b" data-sl="8">選</button></span></span>
+    <span class="line" data-i="9"><span class="dot"></span><span class="ltxt">南市買轡頭，北市買長鞭。</span><span class="lact"><button class="lbtn" data-pl="9">▶</button><button class="lbtn sel-b" data-sl="9">選</button></span></span>
+    <span class="line" data-i="10"><span class="dot"></span><span class="ltxt">旦辭爺娘去，暮宿黃河邊，</span><span class="lact"><button class="lbtn" data-pl="10">▶</button><button class="lbtn sel-b" data-sl="10">選</button></span></span>
+    <span class="line" data-i="11"><span class="dot"></span><span class="ltxt">不聞爺娘喚女聲，但聞黃河流水鳴濺濺。</span><span class="lact"><button class="lbtn" data-pl="11">▶</button><button class="lbtn sel-b" data-sl="11">選</button></span></span>
+    <span class="line" data-i="12"><span class="dot"></span><span class="ltxt">旦辭黃河去，暮至黑山頭，</span><span class="lact"><button class="lbtn" data-pl="12">▶</button><button class="lbtn sel-b" data-sl="12">選</button></span></span>
+    <span class="line" data-i="13"><span class="dot"></span><span class="ltxt">不聞爺娘喚女聲，但聞燕山胡騎鳴啾啾。</span><span class="lact"><button class="lbtn" data-pl="13">▶</button><button class="lbtn sel-b" data-sl="13">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="3">
+  <div class="st-head"><span class="st-lbl">第四段 ── 征戰萬里</span><button class="st-play" data-sp="3">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="14"><span class="dot"></span><span class="ltxt">萬里赴戎機，關山度若飛。</span><span class="lact"><button class="lbtn" data-pl="14">▶</button><button class="lbtn sel-b" data-sl="14">選</button></span></span>
+    <span class="line" data-i="15"><span class="dot"></span><span class="ltxt">朔氣傳金柝，寒光照鐵衣。</span><span class="lact"><button class="lbtn" data-pl="15">▶</button><button class="lbtn sel-b" data-sl="15">選</button></span></span>
+    <span class="line" data-i="16"><span class="dot"></span><span class="ltxt">將軍百戰死，壯士十年歸。</span><span class="lact"><button class="lbtn" data-pl="16">▶</button><button class="lbtn sel-b" data-sl="16">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="4">
+  <div class="st-head"><span class="st-lbl">第五段 ── 論功行賞</span><button class="st-play" data-sp="4">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="17"><span class="dot"></span><span class="ltxt">歸來見天子，天子坐明堂。</span><span class="lact"><button class="lbtn" data-pl="17">▶</button><button class="lbtn sel-b" data-sl="17">選</button></span></span>
+    <span class="line" data-i="18"><span class="dot"></span><span class="ltxt">策勳十二轉，賞賜百千強。</span><span class="lact"><button class="lbtn" data-pl="18">▶</button><button class="lbtn sel-b" data-sl="18">選</button></span></span>
+    <span class="line" data-i="19"><span class="dot"></span><span class="ltxt">可汗問所欲，木蘭不用尚書郎，</span><span class="lact"><button class="lbtn" data-pl="19">▶</button><button class="lbtn sel-b" data-sl="19">選</button></span></span>
+    <span class="line" data-i="20"><span class="dot"></span><span class="ltxt">願借明駝千里足，送兒還故鄉。</span><span class="lact"><button class="lbtn" data-pl="20">▶</button><button class="lbtn sel-b" data-sl="20">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="5">
+  <div class="st-head"><span class="st-lbl">第六段 ── 榮歸故里</span><button class="st-play" data-sp="5">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="21"><span class="dot"></span><span class="ltxt">爺娘聞女來，出郭相扶將；</span><span class="lact"><button class="lbtn" data-pl="21">▶</button><button class="lbtn sel-b" data-sl="21">選</button></span></span>
+    <span class="line" data-i="22"><span class="dot"></span><span class="ltxt">阿姊聞妹來，當戶理紅妝；</span><span class="lact"><button class="lbtn" data-pl="22">▶</button><button class="lbtn sel-b" data-sl="22">選</button></span></span>
+    <span class="line" data-i="23"><span class="dot"></span><span class="ltxt">小弟聞姊來，磨刀霍霍向豬羊。</span><span class="lact"><button class="lbtn" data-pl="23">▶</button><button class="lbtn sel-b" data-sl="23">選</button></span></span>
+    <span class="line" data-i="24"><span class="dot"></span><span class="ltxt">開我東閣門，坐我西閣床，</span><span class="lact"><button class="lbtn" data-pl="24">▶</button><button class="lbtn sel-b" data-sl="24">選</button></span></span>
+    <span class="line" data-i="25"><span class="dot"></span><span class="ltxt">脫我戰時袍，著我舊時裳，</span><span class="lact"><button class="lbtn" data-pl="25">▶</button><button class="lbtn sel-b" data-sl="25">選</button></span></span>
+    <span class="line" data-i="26"><span class="dot"></span><span class="ltxt">當窗理雲鬢，對鏡貼花黃。</span><span class="lact"><button class="lbtn" data-pl="26">▶</button><button class="lbtn sel-b" data-sl="26">選</button></span></span>
+    <span class="line" data-i="27"><span class="dot"></span><span class="ltxt">出門看火伴，火伴皆驚忙：</span><span class="lact"><button class="lbtn" data-pl="27">▶</button><button class="lbtn sel-b" data-sl="27">選</button></span></span>
+    <span class="line" data-i="28"><span class="dot"></span><span class="ltxt">同行十二年，不知木蘭是女郎。</span><span class="lact"><button class="lbtn" data-pl="28">▶</button><button class="lbtn sel-b" data-sl="28">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="6">
+  <div class="st-head"><span class="st-lbl">第七段 ── 結語比喻</span><button class="st-play" data-sp="6">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="29"><span class="dot"></span><span class="ltxt">雄兔腳撲朔，雌兔眼迷離；</span><span class="lact"><button class="lbtn" data-pl="29">▶</button><button class="lbtn sel-b" data-sl="29">選</button></span></span>
+    <span class="line" data-i="30"><span class="dot"></span><span class="ltxt">兩兔傍地走，安能辨我是雄雌？</span><span class="lact"><button class="lbtn" data-pl="30">▶</button><button class="lbtn sel-b" data-sl="30">選</button></span></span>
+  </p>
+</div>
+
+<div class="quiz-sec">
+  <p class="quiz-title">── 詩句理解測驗 ──</p>
+  <div class="qcard">
+    <p class="qq">「不聞機杼聲，惟聞女嘆息」，這兩句主要表達什麼？</p>
+    <div class="qopts">
+      <button class="qbtn" data-c="false">木蘭的織布機壞了</button>
+      <button class="qbtn" data-c="true">木蘭心中有憂愁，停下織布而嘆氣</button>
+      <button class="qbtn" data-c="false">木蘭唱歌蓋過了機杼聲</button>
+    </div>
+    <p class="qfb"></p>
+  </div>
+  <div class="qcard">
+    <p class="qq">木蘭決定替父從軍的原因是？</p>
+    <div class="qopts">
+      <button class="qbtn" data-c="false">她想立功封侯</button>
+      <button class="qbtn" data-c="false">她被可汗強制徵召</button>
+      <button class="qbtn" data-c="true">父親年老且家中無長兄，她不忍父親出征</button>
+    </div>
+    <p class="qfb"></p>
+  </div>
+  <div class="qcard">
+    <p class="qq">「東市買駿馬……北市買長鞭」，這四句的寫作手法是？</p>
+    <div class="qopts">
+      <button class="qbtn" data-c="false">誇張法，強調東西南北都賣馬具</button>
+      <button class="qbtn" data-c="true">排比與互文，渲染備戰的緊迫與周全</button>
+      <button class="qbtn" data-c="false">倒敘法，回憶買馬的往事</button>
+    </div>
+    <p class="qfb"></p>
+  </div>
+  <div class="qcard">
+    <p class="qq">「兩兔傍地走，安能辨我是雄雌？」結尾用兔子作比喻，目的是？</p>
+    <div class="qopts">
+      <button class="qbtn" data-c="false">諷刺同袍辨別能力差</button>
+      <button class="qbtn" data-c="false">讚美兔子奔跑的速度</button>
+      <button class="qbtn" data-c="true">以幽默方式點出女扮男裝難以分辨，為全詩作結</button>
+    </div>
+    <p class="qfb"></p>
+  </div>
+</div>
+</main>
+
+<div class="ann" id="ann">
+  <button class="ann-x" id="ann-x">✕</button>
+  <p class="ann-ln" id="ann-ln"></p>
+  <p class="ann-me" id="ann-me"></p>
+  <p class="ann-vt" id="ann-vt"></p>
+  <div id="ann-wd"></div>
+</div>
+
+<script>
+const LINES=[
+  '唧唧復唧唧，木蘭當戶織。','不聞機杼聲，惟聞女嘆息。',
+  '問女何所思，問女何所憶？','女亦無所思，女亦無所憶。',
+  '昨夜見軍帖，可汗大點兵，','軍書十二卷，卷卷有爺名。',
+  '阿爺無大兒，木蘭無長兄，','願為市鞍馬，從此替爺征。',
+  '東市買駿馬，西市買鞍韉，','南市買轡頭，北市買長鞭。',
+  '旦辭爺娘去，暮宿黃河邊，','不聞爺娘喚女聲，但聞黃河流水鳴濺濺。',
+  '旦辭黃河去，暮至黑山頭，','不聞爺娘喚女聲，但聞燕山胡騎鳴啾啾。',
+  '萬里赴戎機，關山度若飛。','朔氣傳金柝，寒光照鐵衣。','將軍百戰死，壯士十年歸。',
+  '歸來見天子，天子坐明堂。','策勳十二轉，賞賜百千強。',
+  '可汗問所欲，木蘭不用尚書郎，','願借明駝千里足，送兒還故鄉。',
+  '爺娘聞女來，出郭相扶將；','阿姊聞妹來，當戶理紅妝；',
+  '小弟聞姊來，磨刀霍霍向豬羊。',
+  '開我東閣門，坐我西閣床，','脫我戰時袍，著我舊時裳，',
+  '當窗理雲鬢，對鏡貼花黃。','出門看火伴，火伴皆驚忙：',
+  '同行十二年，不知木蘭是女郎。',
+  '雄兔腳撲朔，雌兔眼迷離；','兩兔傍地走，安能辨我是雄雌？'
+];
+
+// stanza -> line indices
+const STANZA_LINES=[[0,1],[2,3,4,5,6,7],[8,9,10,11,12,13],[14,15,16],[17,18,19,20],[21,22,23,24,25,26,27,28],[29,30]];
+
+const ANN={
+  0:{m:'唧唧聲不斷，木蘭正坐在門前織布。詩以聲音開場，「復」字疊加帶出機聲單調、時間流逝之感。',v:[['唧唧','擬聲詞，形容織布機聲，也有蟋蟀鳴叫之說'],['當戶','對著門，在門前']]},
+  1:{m:'卻聽不見織布的聲音，只聽見少女的嘆息。機器停了、嘆息繼續，反差暗示木蘭內心的掙扎。',v:[['機杼','織布機和梭子，代指織布聲'],['惟','只，僅僅']]},
+  2:{m:'姑娘你心裡在想什麼？在惦念什麼？連問兩遍，強調憂愁之深。',v:[['何所思','在想什麼'],['何所憶','在惦記什麼']]},
+  3:{m:'木蘭回答：我沒有特別在想什麼，也沒有特別在惦念什麼。委婉回應，欲言又止。',v:[['亦','也']]},
+  4:{m:'昨夜看見了徵兵公文，可汗正在大規模徵召兵丁。「大」字強調規模之廣。',v:[['軍帖','徵兵令'],['可汗','北方少數民族的君主'],['點兵','徵召士兵']]},
+  5:{m:'徵兵冊籍共有十二卷，每一卷上都有父親的名字。「卷卷有爺名」強調父親無可迴避。',v:[['軍書','徵兵名冊'],['十二卷','虛數，形容很多'],['爺','父親，古代口語']]},
+  6:{m:'父親沒有成年兒子，木蘭也沒有年長兄長。直接點明替父從軍的現實原因。',v:[['大兒','成年男兒'],['長兄','年長哥哥']]},
+  7:{m:'我願去市場購買馬匹和馬具，從此代替父親出征。「願」字展現木蘭主動、果決的性格。',v:[['市','動詞，購買'],['鞍馬','出征所需裝備']]},
+  8:{m:'到東邊市場買了駿馬，西邊買了鞍韉。四方向分別購物，形成排比，渲染備戰緊迫。',v:[['駿馬','健壯快速的馬'],['鞍韉','馬鞍與墊子']]},
+  9:{m:'南邊買韁繩，北邊買長鞭。四句為「互文」，實是一次備齊所有裝備，強調準備之齊全。',v:[['轡頭','韁繩和套具'],['互文','分開敘述同一件事的修辭法']]},
+  10:{m:'清晨辭別父母，傍晚便在黃河邊住宿。一天趕到黃河，誇張地表現行軍急速。',v:[['旦','清晨'],['辭','辭別，告別'],['暮','傍晚']]},
+  11:{m:'聽不見父母呼喚，只聽見黃河流水嘩嘩作響。以自然聲替換人情聲，烘托思家之情。',v:[['但聞','只聽見'],['濺濺','水流湍急聲']]},
+  12:{m:'清晨離開黃河，傍晚已到達黑山。連續急行，空間跨越越大，離家越遠。',v:[['黑山','燕山一帶，古代北方邊境']]},
+  13:{m:'聽不見父母呼喚，只聽見燕山上敵騎鳴叫聲。戰爭氣息代替了家鄉的溫情。',v:[['胡騎','北方遊牧民族騎兵'],['啾啾','馬嘶聲']]},
+  14:{m:'奔赴萬里外的戰場，翻越關隘山嶺如同飛翔。「若飛」展現木蘭英勇氣魄。',v:[['戎機','戰場，軍事要地'],['度若飛','越過如飛']]},
+  15:{m:'北方寒氣傳送巡邏的梆子聲，冷月清光映照戰士的鐵甲。聲與光勾勒邊疆蒼涼夜晚。',v:[['朔氣','北方寒冷之氣'],['金柝','巡邏銅器（梆子）'],['鐵衣','盔甲']]},
+  16:{m:'將軍在無數戰鬥中陣亡，壯士在十年征戰後歸來。「死」與「歸」形成強烈對比。',v:[['百戰','形容戰役極多'],['十年','虛數，指時間漫長']]},
+  17:{m:'木蘭回朝見天子，天子端坐在明堂之上。「明堂」是天子論功行賞的正式場所。',v:[['天子','皇帝'],['明堂','天子朝會議事的宮殿']]},
+  18:{m:'記下十二次戰功，賞賜的財物數以百千計。「十二轉」是最高勳級，戰功卓著。',v:[['策勳','記錄功勳'],['十二轉','最高勳級，虛指很多']]},
+  19:{m:'可汗問木蘭想要什麼，木蘭說不需要尚書郎的官職。拒絕高官厚祿，展現淡泊品格。',v:[['尚書郎','中央政府高級官員']]},
+  20:{m:'只希望借一頭善走千里的駱駝，把我送回故鄉。木蘭迫切想回家的心情躍然紙上。',v:[['明駝','健壯駱駝'],['千里足','形容腳力強健']]},
+  21:{m:'父母聽說女兒回來了，互相攙扶著出城迎接。老邁相扶而出，既見老態，也見迫切。',v:[['郭','城外大牆，出郭即出城'],['相扶將','互相攙扶著']]},
+  22:{m:'姐姐聽說妹妹回來了，對著門口梳理妝容。以盛妝迎接，有喜悅也有驕傲。',v:[['阿姊','姐姐'],['理紅妝','梳理妝飾']]},
+  23:{m:'弟弟聽說姐姐回來了，霍霍磨刀準備宰殺豬羊。磨刀聲充滿生氣，最實際的歡迎。',v:[['霍霍','磨刀聲，形容動作迅速']]},
+  24:{m:'打開我東廂房的門，坐到西廂房的床上。「我」字重複，強調對舊居的親切歸屬感。',v:[['東閣/西閣','東西廂房']]},
+  25:{m:'脫下征戰時的戰袍，換上昔日的女裝。從戰士回到女兒，兩個身份在此交替。',v:[['戰時袍','戰衣'],['舊時裳','女子服裝']]},
+  26:{m:'對著窗戶梳理如雲的鬢髮，對著鏡子貼上花黃。典型女子梳妝，木蘭回到真實的自己。',v:[['雲鬢','茂密輕柔的鬢髮'],['花黃','貼在額頭的黃色飾品']]},
+  27:{m:'走出門去見昔日戰友，戰友們都驚訝慌亂起來。「皆驚忙」三字把震驚寫得極生動。',v:[['火伴','同伍軍中夥伴'],['驚忙','又驚訝又慌亂']]},
+  28:{m:'同行征戰十二年，竟不知道木蘭是女子。反差極大，全詩戲劇性在此達到高峰。',v:[['十二年','虛數，形容時間漫長'],['女郎','年輕女子']]},
+  29:{m:'雄兔的腳常常跳動，雌兔的眼睛常常瞇縫——這是辨別雌雄的特徵，引出最後比喻。',v:[['撲朔','雄兔跳動的樣子'],['迷離','雌兔眼睛半開半閉']]},
+  30:{m:'當兩隻兔子一起在地上奔跑，哪能分辨誰是雄誰是雌？比喻木蘭從軍難以識破，充滿幽默與驕傲。',v:[['傍地走','在地上並排奔跑'],['安能','怎麼能夠']]}
+};
+
+const QFBS=[
+  ['織布機壞了只是表面，詩強調的是木蘭停下織布以嘆息代替機聲，暗示心事重重。','正確！機杼聲消失與嘆息出現形成反差，是全詩情感張力的起點。','詩中並無此意，木蘭是因憂愁而停止織布。'],
+  ['詩中木蘭從未提及立功封侯，她最終也拒絕了官職。','詩中木蘭是徵召對象，但她選擇主動替父前往，而非被迫。','正確！「阿爺無大兒，木蘭無長兄」點出家中無男丁的困境，孝心是核心動機。'],
+  ['詩確實提到四個方向，但目的是修辭效果而非說明這些地方才賣馬具。','正確！四句排比加互文手法，強調備戰的緊張與周到，節奏鮮明有力。','這四句是正敘備馬的過程，並非倒敘。'],
+  ['結尾並無諷刺意味，而是帶著驕傲與幽默。','兔子在此是比喻，速度不是重點。','正確！以兔子奔跑時難辨雌雄，巧妙點出木蘭從軍難被識破，以輕鬆語氣作結。']
+];
+
+// ─── TTS ───
+const synth = window.speechSynthesis;
+let currentSpk = null;
+
+function getVoice() {
+  const vs = synth.getVoices();
+  // prefer zh-TW, then zh, then any Chinese
+  return vs.find(v=>v.lang==='zh-TW')||vs.find(v=>v.lang.startsWith('zh'))||null;
+}
+
+function lineEl(i){ return document.querySelector(`.line[data-i="${i}"]`); }
+
+function highlight(i,on){
+  const el=lineEl(i);
+  if(el){ on?el.classList.add('spk'):el.classList.remove('spk'); }
+}
+
+function clearAllSpk(){ document.querySelectorAll('.line.spk').forEach(el=>el.classList.remove('spk')); }
+function clearAllPlaying(){ document.querySelectorAll('.st-play.playing').forEach(el=>el.classList.remove('playing')); document.getElementById('btn-all').classList.remove('playing'); document.getElementById('btn-sel').classList.remove('playing'); }
+
+function speak(indices, onDone){
+  synth.cancel();
+  clearAllSpk();
+  clearAllPlaying();
+  if(!indices||!indices.length){ onDone&&onDone(); return; }
+  let idx=0;
+  function next(){
+    if(idx>=indices.length){ clearAllSpk(); onDone&&onDone(); return; }
+    const i=indices[idx++];
+    highlight(i,true);
+    const utt=new SpeechSynthesisUtterance(LINES[i]);
+    utt.lang='zh-TW';
+    utt.rate=parseFloat(document.getElementById('spd').value);
+    const v=getVoice(); if(v) utt.voice=v;
+    utt.onend=()=>{ highlight(i,false); next(); };
+    utt.onerror=()=>{ highlight(i,false); next(); };
+    currentSpk=utt;
+    synth.speak(utt);
+  }
+  next();
+}
+
+// ─── 選取 ───
+const selected=new Set();
+function updateBadge(){
+  const b=document.getElementById('badge');
+  b.textContent=selected.size;
+  selected.size>0?b.classList.add('show'):b.classList.remove('show');
+}
+function toggleSel(i){
+  const el=lineEl(i);
+  const btn=document.querySelector(`.lbtn.sel-b[data-sl="${i}"]`);
+  if(selected.has(i)){ selected.delete(i); el&&el.classList.remove('sel'); btn&&btn.classList.remove('on'); }
+  else { selected.add(i); el&&el.classList.add('sel'); btn&&btn.classList.add('on'); }
+  updateBadge();
+}
+
+// ─── 按鈕事件 ───
+document.getElementById('btn-all').addEventListener('click',()=>{
+  const btn=document.getElementById('btn-all');
+  btn.classList.add('playing');
+  speak([...Array(31).keys()],()=>btn.classList.remove('playing'));
+});
+document.getElementById('btn-sel').addEventListener('click',()=>{
+  if(!selected.size) return;
+  const btn=document.getElementById('btn-sel');
+  btn.classList.add('playing');
+  const sorted=[...selected].sort((a,b)=>a-b);
+  speak(sorted,()=>btn.classList.remove('playing'));
+});
+document.getElementById('btn-stop').addEventListener('click',()=>{
+  synth.cancel(); clearAllSpk(); clearAllPlaying();
+});
+document.getElementById('btn-clr').addEventListener('click',()=>{
+  selected.clear();
+  document.querySelectorAll('.line.sel').forEach(el=>el.classList.remove('sel'));
+  document.querySelectorAll('.lbtn.sel-b.on').forEach(el=>el.classList.remove('on'));
+  updateBadge();
+});
+
+// 單句播放
+document.querySelectorAll('.lbtn[data-pl]').forEach(btn=>{
+  btn.addEventListener('click',e=>{
+    e.stopPropagation();
+    speak([parseInt(btn.dataset.pl)]);
+  });
+});
+// 單句選取
+document.querySelectorAll('.lbtn.sel-b[data-sl]').forEach(btn=>{
+  btn.addEventListener('click',e=>{ e.stopPropagation(); toggleSel(parseInt(btn.dataset.sl)); });
+});
+
+// 整段播放
+document.querySelectorAll('.st-play[data-sp]').forEach(btn=>{
+  btn.addEventListener('click',e=>{
+    e.stopPropagation();
+    const si=parseInt(btn.dataset.sp);
+    btn.classList.add('playing');
+    speak(STANZA_LINES[si],()=>btn.classList.remove('playing'));
+  });
+});
+
+// 點句子文字 → 注釋
+const ann=document.getElementById('ann');
+document.querySelectorAll('.ltxt').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const i=parseInt(el.closest('.line').dataset.i);
+    const d=ANN[i]; if(!d) return;
+    document.getElementById('ann-ln').textContent=LINES[i];
+    document.getElementById('ann-me').textContent=d.m;
+    if(d.v&&d.v.length){
+      document.getElementById('ann-vt').textContent='詞語注釋';
+      document.getElementById('ann-wd').innerHTML=d.v.map(([w,def])=>`<div class="ann-wd"><span class="w">【${w}】</span><span class="d">${def}</span></div>`).join('');
+    }else{
+      document.getElementById('ann-vt').textContent='';
+      document.getElementById('ann-wd').innerHTML='';
+    }
+    ann.classList.add('open');
+  });
+});
+document.getElementById('ann-x').addEventListener('click',()=>ann.classList.remove('open'));
+
+// 測驗
+document.querySelectorAll('.qcard').forEach((card,qi)=>{
+  const btns=card.querySelectorAll('.qbtn');
+  const fb=card.querySelector('.qfb');
+  btns.forEach((btn,bi)=>{
+    btn.addEventListener('click',()=>{
+      if(btn.disabled)return;
+      btns.forEach((b,j)=>{ b.disabled=true; if(b.dataset.c==='true')b.classList.add('ok'); else if(b===btn)b.classList.add('ng'); });
+      fb.textContent=QFBS[qi][bi];
+    });
+  });
+});
+
+// 進度條
+window.addEventListener('scroll',()=>{
+  const el=document.documentElement;
+  const pct=(el.scrollTop/(el.scrollHeight-el.clientHeight))*100;
+  document.getElementById('prog').style.width=pct+'%';
+});
+
+// Scroll reveal
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis');}),{threshold:.1});
+document.querySelectorAll('.stanza').forEach(s=>obs.observe(s));
+
+// 載入時預取聲音
+if(synth) { synth.getVoices(); synth.addEventListener('voiceschanged',()=>{}); }
+</script>
+</body>
+</html>
