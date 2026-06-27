@@ -145,6 +145,13 @@
   .mapSub{color:var(--dim);font-size:13px;margin-top:4px}
   .totStar{margin:12px 0 4px;color:var(--gold);font-weight:800;font-size:17px}
   .playcount{color:var(--cool2);font-size:12px;font-weight:700;margin-top:4px;height:16px;opacity:.9}
+  .lbwrap{display:flex;flex-direction:column;gap:8px;width:100%;max-width:430px;margin-top:12px}
+  .lbrow{display:flex;align-items:center;gap:12px;background:linear-gradient(180deg,var(--machine2),var(--machine));
+    border:1px solid var(--line);border-radius:14px;padding:11px 14px}
+  .lbrow.me{border-color:var(--gold);box-shadow:0 0 8px rgba(255,216,107,.35)}
+  .lbrow .rk{font-size:15px;font-weight:900;width:34px;text-align:center;flex:0 0 auto}
+  .lbrow .nm{flex:1;font-weight:800;font-size:16px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lbrow .sc{flex:0 0 auto;color:var(--gold);font-weight:800;font-size:13px;text-align:right;line-height:1.4}
   .worlds{display:flex;flex-direction:column;gap:11px;width:100%;max-width:430px;margin-top:8px}
   .wcard{display:flex;align-items:center;gap:13px;background:linear-gradient(180deg,var(--machine2),var(--machine));
     border:1px solid var(--line);border-radius:18px;padding:13px 15px;cursor:pointer;transition:transform .1s,border-color .2s}
@@ -299,7 +306,7 @@
 <div class="mapOvl" id="mapOvl">
   <a class="brand" href="https://stevechou168.github.io/" target="_blank" rel="noopener noreferrer">永動創意 <span class="v"></span></a>
   <div class="mapTitle">字<b>靈</b> · 組字挑戰</div>
-  <div class="curp"><span id="curName">👤</span> <button class="switchbtn" id="dexBtn">📖 圖鑑</button> <button class="switchbtn" id="switchP">換人</button></div>
+  <div class="curp"><span id="curName">👤</span> <button class="switchbtn" id="dexBtn">📖 圖鑑</button> <button class="switchbtn" id="lbBtn">🏆 排行</button> <button class="switchbtn" id="switchP">換人</button></div>
   <div class="totStar" id="totStar">⭐ 0</div>
   <div class="playcount">🌍 …</div>
   <div class="worlds" id="worlds"></div>
@@ -312,6 +319,15 @@
   <div class="mapSub" id="dexSub">已收集 0 / 0</div>
   <div class="dexwrap" id="dexwrap"></div>
   <button class="switchbtn" id="dexBack" style="margin-top:16px;padding:11px 22px;font-size:14px">← 回地圖</button>
+</div>
+
+<!-- 全球排行榜 -->
+<div class="mapOvl" id="lbOvl">
+  <a class="brand" href="https://stevechou168.github.io/" target="_blank" rel="noopener noreferrer">永動創意 <span class="v"></span></a>
+  <div class="mapTitle">🏆 全球排行榜</div>
+  <div class="mapSub" id="lbSub">看看世界各地的玩家</div>
+  <div class="lbwrap" id="lbwrap"></div>
+  <button class="switchbtn" id="lbBack" style="margin-top:16px;padding:11px 22px;font-size:14px">← 回地圖</button>
 </div>
 
 <!-- 單一世界通關 -->
@@ -354,6 +370,8 @@
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
 /* ===================== 關卡資料 ===================== */
 /* 每關： p=部件(小字)，whole=合成大字。zh=中文釋義 */
@@ -773,7 +791,7 @@ function renderMap(){
 }
 function openMap(){
   running=false; busy=false;
-  $('playerOvl').classList.remove('show'); $('dexOvl').classList.remove('show');
+  $('playerOvl').classList.remove('show'); $('dexOvl').classList.remove('show'); $('lbOvl').classList.remove('show');
   $('worldDone').classList.remove('show'); $('doneOvl').classList.remove('show'); $('failOvl').classList.remove('show');
   renderMap(); $('mapOvl').classList.add('show');
 }
@@ -1089,6 +1107,7 @@ function finishWorld(){
   const isLast=(wIdx+1>=WORLDS.length);
   if(!isLast && save.unlocked<wIdx+1){save.unlocked=wIdx+1;}   // 解鎖下一世界
   persistSave();
+  submitScore();                                              // 上傳成績到全球排行榜
   if(isLast){ showAllDone(); return; }
   showWorldDone(isLast);
 }
@@ -1227,6 +1246,55 @@ function setPlayCount(n){document.querySelectorAll('.playcount').forEach(e=>e.te
 function loadPlayCount(){fetch('https://abacus.jasoncameron.dev/get/'+CT_NS+'/'+CT_KEY).then(r=>r.json()).then(d=>{if(d&&typeof d.value==='number')setPlayCount(d.value);}).catch(()=>{});}
 function bumpPlayCount(){fetch('https://abacus.jasoncameron.dev/hit/'+CT_NS+'/'+CT_KEY).then(r=>r.json()).then(d=>{if(d&&typeof d.value==='number')setPlayCount(d.value);}).catch(()=>{});}
 
+/* ===================== 全球排行榜(Firebase Realtime Database) ===================== */
+let fdb=null;
+try{
+  if(typeof firebase!=='undefined'){
+    firebase.initializeApp({
+      apiKey:"AIzaSyCID9FSo3Wu-nFmz5kxfLB18o7xwGD6W-w",
+      authDomain:"perpetual-motion-60c1c.firebaseapp.com",
+      databaseURL:"https://perpetual-motion-60c1c-default-rtdb.firebaseio.com",
+      projectId:"perpetual-motion-60c1c",
+      storageBucket:"perpetual-motion-60c1c.firebasestorage.app",
+      messagingSenderId:"604543911007",
+      appId:"1:604543911007:web:35fa5430199cbeda01c7ea"
+    });
+    fdb=firebase.database();
+  }
+}catch(e){}
+/* 只在刷新自己最高分時上傳(節流，避免洗榜) */
+function submitScore(){
+  if(!fdb||!players.current)return;
+  const sc=Math.max(0,score|0);
+  const k='ziling-lb-up::'+players.current; let last=0;
+  try{last=+localStorage.getItem(k)||0;}catch(e){}
+  if(sc<=last)return;
+  try{
+    firebase.database().ref('leaderboard').push({name:String(players.current).slice(0,20),score:sc,timestamp:Date.now()});
+    localStorage.setItem(k,String(sc));
+  }catch(e){}
+}
+function openLeaderboard(){
+  $('mapOvl').classList.remove('show'); $('lbOvl').classList.add('show');
+  const wrap=$('lbwrap'); wrap.innerHTML=''; $('lbSub').textContent='載入中…';
+  if(!fdb){ $('lbSub').textContent='排行榜需要連網，稍後再試'; return; }
+  fdb.ref('leaderboard').orderByChild('score').limitToLast(300).once('value').then(snap=>{
+    const best={};                                   // 依名字去重，只留每人最高分
+    snap.forEach(c=>{const v=c.val(); if(v&&v.name&&typeof v.score==='number'){ if(!best[v.name]||v.score>best[v.name].score)best[v.name]=v; }});
+    const arr=Object.values(best).sort((a,b)=>b.score-a.score).slice(0,50);
+    if(!arr.length){ $('lbSub').textContent='還沒有人上榜，快來當第一個!'; return; }
+    $('lbSub').textContent='全球前 '+arr.length+' 名(依總分)';
+    const medals=['🥇','🥈','🥉'];
+    arr.forEach((v,i)=>{
+      const d=document.createElement('div'); d.className='lbrow'+(v.name===players.current?' me':'');
+      const rk=document.createElement('div');rk.className='rk';rk.textContent=i<3?medals[i]:('#'+(i+1));
+      const nm=document.createElement('div');nm.className='nm';nm.textContent=v.name;
+      const sc=document.createElement('div');sc.className='sc';sc.textContent=(v.score||0)+' 分';
+      d.appendChild(rk);d.appendChild(nm);d.appendChild(sc); wrap.appendChild(d);
+    });
+  }).catch(e=>{ $('lbSub').textContent='讀取失敗：'+((e&&e.message)||e); });
+}
+
 /* ===================== 啟動 ===================== */
 const APP_VER='1.0';
 document.querySelectorAll('.brand .v').forEach(e=>e.textContent='v'+APP_VER);
@@ -1236,6 +1304,8 @@ $('nameInput').addEventListener('keydown',e=>{if(e.key==='Enter')addPlayerFromIn
 $('switchP').onclick=()=>{ persistSave(); showPlayers(); };   // 換人前先存好目前進度
 $('dexBtn').onclick=openDex;
 $('dexBack').onclick=openMap;
+$('lbBtn').onclick=openLeaderboard;
+$('lbBack').onclick=openMap;
 $('failRetry').onclick=()=>{ $('failOvl').classList.remove('show'); enterWorld(wIdx); };  // 重來本世界
 $('failMap').onclick=()=>{ $('failOvl').classList.remove('show'); openMap(); };
 
