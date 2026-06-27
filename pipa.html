@@ -73,7 +73,7 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 .8rem 6
 .st-play.playing{border-color:var(--green);color:var(--green);}
 
 /* line */
-.st-text{font-size:clamp(1.05rem,2.5vw,1.18rem);line-height:2.5;font-weight:400;color:var(--ink);letter-spacing:.05em;}
+.st-text{font-size:calc(clamp(1.05rem,2.5vw,1.18rem) * var(--rscale,1));line-height:2.5;font-weight:400;color:var(--ink);letter-spacing:.05em;}
 .line{display:flex;align-items:center;gap:.4rem;padding:.08em .3em;margin:-.08em -.3em;border-radius:3px;transition:background .15s;}
 .ltxt{flex:1;cursor:pointer;transition:color .2s;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;}
 .ltxt:hover{color:var(--red);}
@@ -148,6 +148,14 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 .8rem 6
     <option value="0.9" selected>正常</option>
     <option value="1.1">較快</option>
     <option value="1.4">快速</option>
+  </select>
+  <span class="spd-lbl">字級</span>
+  <select class="spd" id="fsize">
+    <option value="0.85">小</option>
+    <option value="1" selected>標準</option>
+    <option value="1.2">大</option>
+    <option value="1.45">特大</option>
+    <option value="1.7">超大</option>
   </select>
 </div>
 
@@ -778,6 +786,17 @@ if(synth) {
   populateVoices();
   synth.addEventListener('voiceschanged', populateVoices);
 }
+
+// 字級調整（縮放整塊大字＋直式注音，等比；記住選擇）
+(function(){
+  const sel=document.getElementById('fsize');
+  if(!sel) return;
+  const KEY='poem-fsize';
+  function apply(v){ document.body.style.setProperty('--rscale', v); }
+  const saved=localStorage.getItem(KEY);
+  if(saved){ sel.value=saved; apply(saved); }
+  sel.addEventListener('change',()=>{ apply(sel.value); localStorage.setItem(KEY, sel.value); });
+})();
 </script>
 </body>
 </html>
