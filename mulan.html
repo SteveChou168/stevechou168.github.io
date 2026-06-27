@@ -74,7 +74,7 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 1.4rem 
 .st-play.playing{border-color:var(--green);color:var(--green);}
 
 /* line */
-.st-text{font-size:clamp(1.05rem,2.5vw,1.18rem);line-height:2.5;font-weight:400;color:var(--ink);letter-spacing:.05em;}
+.st-text{font-size:calc(clamp(1.05rem,2.5vw,1.18rem) * var(--rscale,1));line-height:2.5;font-weight:400;color:var(--ink);letter-spacing:.05em;}
 .line{display:flex;align-items:center;gap:.4rem;padding:.08em .3em;margin:-.08em -.3em;border-radius:3px;transition:background .15s;}
 .ltxt{flex:1;cursor:pointer;transition:color .2s;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;}
 .ltxt:hover{color:var(--red);}
@@ -83,7 +83,7 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 1.4rem 
 .line.spk{background:rgba(46,125,82,.09);}
 .line.spk .ltxt{color:var(--green);}
 .dot{width:6px;height:6px;background:var(--green);border-radius:50%;display:none;flex-shrink:0;animation:pulse .75s infinite alternate;}
-.line.spk .dot{display:block;}
+.line.spk .dot{display:none;}
 @keyframes pulse{from{opacity:1;transform:scale(1);}to{opacity:.35;transform:scale(.55);}}
 .lact{display:flex;gap:.25rem;opacity:0;transition:opacity .15s;}
 .line:hover .lact{opacity:1;}
@@ -125,33 +125,21 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 1.4rem 
 
 .ver{text-align:center;margin-top:3rem;font-family:'Noto Sans TC',sans-serif;font-size:.7rem;color:var(--fade);letter-spacing:.1em;}
 .wmark{position:fixed;bottom:3rem;right:3rem;font-size:7rem;font-weight:900;color:rgba(181,134,13,.05);pointer-events:none;z-index:0;writing-mode:vertical-rl;letter-spacing:.1em;user-select:none;}
-@media(max-width:600px){.ann{width:90vw;}.wmark{display:none;}.spd-lbl{margin-left:0;}}
+@media(max-width:600px){
+  .ann{width:90vw;}
+  .wmark{display:none;}
+  .vbar{gap:.3rem .4rem;padding:.45rem .55rem;}
+  .vbar-label{display:none;}
+  #voice-lbl{margin-left:0;}
+  .spd-lbl{margin-left:0;font-size:.64rem;letter-spacing:.03em;}
+  .vb{font-size:.7rem;padding:.3rem .5rem;}
+  .spd{font-size:.7rem;padding:.26rem .3rem;}
+  #voice{max-width:6rem;}
+}
 @media(prefers-reduced-motion:reduce){.stanza{opacity:1;transform:none;transition:none;}.ann{transition:none;}}
 </style>
 </head>
 <body>
-<script>
-(function(){
-  var ua = navigator.userAgent || '';
-  var isInApp = /Line\/|FBAN|FBAV|Instagram|WeChat|MicroMessenger|Twitter|Threads/i.test(ua);
-  if (!isInApp) return;
-
-  // Android: try intent to open in system browser
-  if (/android/i.test(ua)) {
-    var url = location.href;
-    location.href = 'intent://' + url.replace(/^https?:\/\//, '') +
-      '#Intent;scheme=https;package=com.android.chrome;' +
-      'S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
-  }
-
-  // Show banner for all in-app browsers (fallback / iOS)
-  var d = document.createElement('div');
-  d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#c0392b;color:#fff;padding:14px 16px;font:600 15px/1.4 sans-serif;text-align:center;';
-  d.innerHTML = '語音朗讀需使用瀏覽器開啟<br><a href="' + location.href +
-    '" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline;font-size:14px;">點此用瀏覽器開啟 ↗</a>';
-  document.body.prepend(d);
-})();
-</script>
 
 <div class="prog"><div class="prog-fill" id="prog"></div></div>
 
@@ -171,6 +159,14 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 1.4rem 
     <option value="0.9" selected>正常</option>
     <option value="1.1">較快</option>
     <option value="1.4">快速</option>
+  </select>
+  <span class="spd-lbl">字級</span>
+  <select class="spd" id="fsize">
+    <option value="auto" selected>自動</option>
+    <option value="0.62">最小</option>
+    <option value="0.85">小</option>
+    <option value="1">標準</option>
+    <option value="1.2">大</option>
   </select>
 </div>
 
@@ -717,6 +713,28 @@ if(synth) {
   populateVoices();
   synth.addEventListener('voiceschanged', populateVoices);
 }
+
+// 字級：「自動」依螢幕寬度偵測挑預設（旋轉/縮放即時重算）；手動選則記住、以手動為準
+(function(){
+  const sel=document.getElementById('fsize');
+  if(!sel) return;
+  const KEY='poem-fsize';
+  function set(v){ document.body.style.setProperty('--rscale', v); }
+  function autoScale(){
+    const w=window.innerWidth;
+    let v=1;
+    if(w<560) v=0.62;        // 手機 → 最小
+    else if(w<900) v=0.85;   // 平板 → 小
+    else v=1;                // 桌機 → 標準
+    set(v);
+  }
+  function applySel(){ if(sel.value==='auto') autoScale(); else set(sel.value); }
+  const saved=localStorage.getItem(KEY);
+  sel.value=(saved && [...sel.options].some(o=>o.value===saved)) ? saved : 'auto';
+  applySel();
+  sel.addEventListener('change',()=>{ applySel(); localStorage.setItem(KEY, sel.value); });
+  window.addEventListener('resize',()=>{ if(sel.value==='auto') autoScale(); });
+})();
 </script>
 </body>
 </html>
