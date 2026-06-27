@@ -124,7 +124,17 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 .8rem 6
 
 .ver{text-align:center;margin-top:3rem;font-family:'Noto Sans TC',sans-serif;font-size:.7rem;color:var(--fade);letter-spacing:.1em;}
 .wmark{position:fixed;bottom:3rem;right:3rem;font-size:7rem;font-weight:900;color:rgba(181,134,13,.05);pointer-events:none;z-index:0;writing-mode:vertical-rl;letter-spacing:.1em;user-select:none;}
-@media(max-width:600px){.ann{width:90vw;}.wmark{display:none;}.spd-lbl{margin-left:0;}}
+@media(max-width:600px){
+  .ann{width:90vw;}
+  .wmark{display:none;}
+  .vbar{gap:.3rem .4rem;padding:.45rem .55rem;}
+  .vbar-label{display:none;}                 /* 隱藏裝飾性「🔊 語音」省一截寬度 */
+  #voice-lbl{margin-left:0;}                  /* 取消桌機把音色推到最右的 auto */
+  .spd-lbl{margin-left:0;font-size:.64rem;letter-spacing:.03em;}
+  .vb{font-size:.7rem;padding:.3rem .5rem;}
+  .spd{font-size:.7rem;padding:.26rem .3rem;}
+  #voice{max-width:6rem;}
+}
 @media(prefers-reduced-motion:reduce){.stanza{opacity:1;transform:none;transition:none;}.ann{transition:none;}}
 </style>
 </head>
@@ -151,6 +161,8 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 .8rem 6
   </select>
   <span class="spd-lbl">字級</span>
   <select class="spd" id="fsize">
+    <option value="0.62">最小</option>
+    <option value="0.72">極小</option>
     <option value="0.85">小</option>
     <option value="1" selected>標準</option>
     <option value="1.2">大</option>
