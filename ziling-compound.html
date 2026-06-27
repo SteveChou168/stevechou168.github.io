@@ -34,6 +34,16 @@
   .pip.on{background:var(--good);border-color:var(--good)}
   .pip.cur{background:var(--gold);border-color:var(--gold)}
 
+  .fuse{position:relative;height:26px;margin:8px 2px 2px;border-radius:9px;background:var(--machine);border:1px solid var(--line)}
+  .fuse .cord{position:absolute;left:12px;right:38px;top:50%;transform:translateY(-50%);height:6px;border-radius:4px;background:#9a7140}
+  .fuse .burnt{position:absolute;left:12px;top:50%;transform:translateY(-50%);height:6px;border-radius:4px;background:#2a2330;width:0}
+  .fuse .flame{position:absolute;left:12px;top:50%;transform:translate(-50%,-50%);font-size:18px}
+  .fuse .bomb{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:18px}
+  .fuse.hot{animation:fusehot .25s infinite alternate}
+  @keyframes fusehot{from{box-shadow:0 0 0 rgba(255,84,112,0)}to{box-shadow:0 0 14px rgba(255,84,112,.55);border-color:var(--bad)}}
+  .boomflash{animation:boomflash .5s}
+  @keyframes boomflash{0%{background:rgba(255,84,112,.35)}100%{background:transparent}}
+
   .goal{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:6px}
   .meaning{color:var(--cool2);font-weight:700;font-size:15px;height:20px}
   .word{display:flex;gap:4px;height:34px;align-items:center;flex-wrap:wrap;justify-content:center}
@@ -119,6 +129,13 @@
 
   <div class="pips" id="pips"></div>
 
+  <div class="fuse" id="fuse">
+    <div class="cord"></div>
+    <div class="burnt" id="fburnt"></div>
+    <div class="flame" id="fflame">🔥</div>
+    <div class="bomb">💣</div>
+  </div>
+
   <div class="goal">
     <div class="meaning" id="meaning">—</div>
     <div class="word" id="word"></div>
@@ -133,7 +150,7 @@
     <button class="clear" id="clear">清除</button>
     <button class="submit" id="submit" disabled>✓ 提交</button>
   </div>
-  <div class="tools"><button class="toolbtn" id="hint">提示 (露一個部件)</button></div>
+  <div class="tools"><button class="toolbtn" id="hint">提示 (露一個部件 −3s)</button></div>
 
   <div class="toast" id="toast"></div>
 </div>
@@ -151,25 +168,55 @@
 <script>
 /* ---------- data ---------- */
 const LEVELS=[
-  {p:[{w:"sun",e:"☀️"},{w:"flower",e:"🌸"}], whole:{w:"sunflower",e:"🌻",zh:"向日葵"}},
-  {p:[{w:"pan",e:"🍳"},{w:"cake",e:"🍰"}],   whole:{w:"pancake",e:"🥞",zh:"鬆餅"}},
-  {p:[{w:"cup",e:"☕"},{w:"cake",e:"🍰"}],     whole:{w:"cupcake",e:"🧁",zh:"杯子蛋糕"}},
-  {p:[{w:"water",e:"💧"},{w:"melon",e:"🍈"}],whole:{w:"watermelon",e:"🍉",zh:"西瓜"}},
-  {p:[{w:"cow",e:"🐮"},{w:"boy",e:"👦"}],     whole:{w:"cowboy",e:"🤠",zh:"牛仔"}},
-  {p:[{w:"rain",e:"🌧️"},{w:"bow",e:"🎀"}],   whole:{w:"rainbow",e:"🌈",zh:"彩虹"}},
-  {p:[{w:"butter",e:"🧈"},{w:"fly",e:"🪰"}],  whole:{w:"butterfly",e:"🦋",zh:"蝴蝶"}},
-  {p:[{w:"foot",e:"🦶"},{w:"ball",e:"⚽"}],   whole:{w:"football",e:"🏈",zh:"足球"}},
-  {p:[{w:"jelly",e:"🟪"},{w:"fish",e:"🐟"}], whole:{w:"jellyfish",e:"🪼",zh:"水母"}},
-  {p:[{w:"fire",e:"🔥"},{w:"truck",e:"🚚"}], whole:{w:"firetruck",e:"🚒",zh:"消防車"}},
-  {p:[{w:"book",e:"📖"},{w:"worm",e:"🐛"}],   whole:{w:"bookworm",e:"🐛",zh:"書蟲"}},
-  {p:[{w:"snow",e:"❄️"},{w:"man",e:"🧍"}],   whole:{w:"snowman",e:"⛄",zh:"雪人"}},
-  {p:[{w:"bubble",e:"🫧"},{w:"milk",e:"🥛"},{w:"tea",e:"🍵"}], whole:{w:"bubble milk tea",e:"🧋",zh:"珍珠奶茶"}},
-  {p:[{w:"peanut",e:"🥜"},{w:"butter",e:"🧈"},{w:"jelly",e:"🟪"}], whole:{w:"peanut butter jelly",e:"🥪",zh:"花生醬果醬三明治"}},
+  // ── 兩部件：食物 / 自然 ──
+  {p:[{w:"sun",e:"☀️"},{w:"flower",e:"🌸"}],   whole:{w:"sunflower",e:"🌻",zh:"向日葵"}},
+  {p:[{w:"pine",e:"🌲"},{w:"apple",e:"🍎"}],   whole:{w:"pineapple",e:"🍍",zh:"鳳梨"}},
+  {p:[{w:"water",e:"💧"},{w:"melon",e:"🍈"}],  whole:{w:"watermelon",e:"🍉",zh:"西瓜"}},
+  {p:[{w:"straw",e:"🥤"},{w:"berry",e:"🍓"}],  whole:{w:"strawberry",e:"🍓",zh:"草莓"}},
+  {p:[{w:"egg",e:"🥚"},{w:"plant",e:"🌱"}],    whole:{w:"eggplant",e:"🍆",zh:"茄子"}},
+  {p:[{w:"pan",e:"🍳"},{w:"cake",e:"🍰"}],     whole:{w:"pancake",e:"🥞",zh:"鬆餅"}},
+  {p:[{w:"cup",e:"☕"},{w:"cake",e:"🍰"}],       whole:{w:"cupcake",e:"🧁",zh:"杯子蛋糕"}},
+  {p:[{w:"moon",e:"🌙"},{w:"cake",e:"🍰"}],     whole:{w:"mooncake",e:"🥮",zh:"月餅"}},
+  // ── 兩部件：rain / 蟲魚 ──
+  {p:[{w:"rain",e:"🌧️"},{w:"bow",e:"🎀"}],     whole:{w:"rainbow",e:"🌈",zh:"彩虹"}},
+  {p:[{w:"rain",e:"🌧️"},{w:"drop",e:"💧"}],    whole:{w:"raindrop",e:"💧",zh:"雨滴"}},
+  {p:[{w:"rain",e:"🌧️"},{w:"coat",e:"🧥"}],    whole:{w:"raincoat",e:"🧥",zh:"雨衣"}},
+  {p:[{w:"butter",e:"🧈"},{w:"fly",e:"🪰"}],    whole:{w:"butterfly",e:"🦋",zh:"蝴蝶"}},
+  {p:[{w:"lady",e:"👩"},{w:"bug",e:"🐛"}],      whole:{w:"ladybug",e:"🐞",zh:"瓢蟲"}},
+  {p:[{w:"jelly",e:"🟪"},{w:"fish",e:"🐟"}],   whole:{w:"jellyfish",e:"🪼",zh:"水母"}},
+  {p:[{w:"gold",e:"🥇"},{w:"fish",e:"🐟"}],     whole:{w:"goldfish",e:"🐠",zh:"金魚"}},
+  {p:[{w:"book",e:"📖"},{w:"worm",e:"🐛"}],     whole:{w:"bookworm",e:"🐛",zh:"書蟲"}},
+  // ── 兩部件：人 / 球 ──
+  {p:[{w:"cow",e:"🐮"},{w:"boy",e:"👦"}],       whole:{w:"cowboy",e:"🤠",zh:"牛仔"}},
+  {p:[{w:"snow",e:"❄️"},{w:"man",e:"🧍"}],     whole:{w:"snowman",e:"⛄",zh:"雪人"}},
+  {p:[{w:"fire",e:"🔥"},{w:"man",e:"🧍"}],      whole:{w:"fireman",e:"🧑‍🚒",zh:"消防員"}},
+  {p:[{w:"fire",e:"🔥"},{w:"truck",e:"🚚"}],   whole:{w:"firetruck",e:"🚒",zh:"消防車"}},
+  {p:[{w:"foot",e:"🦶"},{w:"ball",e:"⚽"}],     whole:{w:"football",e:"🏈",zh:"足球"}},
+  {p:[{w:"basket",e:"🧺"},{w:"ball",e:"⚽"}],   whole:{w:"basketball",e:"🏀",zh:"籃球"}},
+  // ── 兩部件：物件 ──
+  {p:[{w:"sun",e:"☀️"},{w:"glasses",e:"👓"}],   whole:{w:"sunglasses",e:"🕶️",zh:"太陽眼鏡"}},
+  {p:[{w:"sea",e:"🌊"},{w:"shell",e:"🐚"}],     whole:{w:"seashell",e:"🐚",zh:"貝殼"}},
+  {p:[{w:"tooth",e:"🦷"},{w:"brush",e:"🪥"}],   whole:{w:"toothbrush",e:"🪥",zh:"牙刷"}},
+  {p:[{w:"key",e:"🔑"},{w:"board",e:"🪵"}],     whole:{w:"keyboard",e:"⌨️",zh:"鍵盤"}},
+  {p:[{w:"skate",e:"⛸️"},{w:"board",e:"🪵"}],   whole:{w:"skateboard",e:"🛹",zh:"滑板"}},
+  {p:[{w:"mail",e:"✉️"},{w:"box",e:"📦"}],      whole:{w:"mailbox",e:"📫",zh:"信箱"}},
+  {p:[{w:"tool",e:"🔧"},{w:"box",e:"📦"}],      whole:{w:"toolbox",e:"🧰",zh:"工具箱"}},
+  {p:[{w:"arm",e:"💪"},{w:"chair",e:"🪑"}],     whole:{w:"armchair",e:"🪑",zh:"扶手椅"}},
+  {p:[{w:"door",e:"🚪"},{w:"bell",e:"🔔"}],     whole:{w:"doorbell",e:"🔔",zh:"門鈴"}},
+  {p:[{w:"tea",e:"🍵"},{w:"pot",e:"🍲"}],       whole:{w:"teapot",e:"🫖",zh:"茶壺"}},
+  // ── 三部件 ──
+  {p:[{w:"bubble",e:"🫧"},{w:"milk",e:"🥛"},{w:"tea",e:"🍵"}],   whole:{w:"bubble milk tea",e:"🧋",zh:"珍珠奶茶"}},
+  {p:[{w:"egg",e:"🥚"},{w:"fried",e:"🍳"},{w:"rice",e:"🍚"}],     whole:{w:"egg fried rice",e:"🍛",zh:"蛋炒飯"}},
+  {p:[{w:"straw",e:"🥤"},{w:"berry",e:"🍓"},{w:"cake",e:"🍰"}],   whole:{w:"strawberry cake",e:"🎂",zh:"草莓蛋糕"}},
+  {p:[{w:"peanut",e:"🥜"},{w:"butter",e:"🧈"},{w:"jelly",e:"🟪"}],whole:{w:"peanut butter jelly",e:"🥪",zh:"花生醬果醬三明治"}},
 ];
 const DISTRACT=[{w:"moon",e:"🌙"},{w:"star",e:"⭐"},{w:"tree",e:"🌲"},{w:"fish",e:"🐟"},
   {w:"milk",e:"🥛"},{w:"fire",e:"🔥"},{w:"snow",e:"❄️"},{w:"foot",e:"🦶"},{w:"ball",e:"⚽"},
   {w:"key",e:"🔑"},{w:"dog",e:"🐶"},{w:"hat",e:"🎩"},{w:"egg",e:"🥚"},{w:"leaf",e:"🍃"},
-  {w:"rice",e:"🍚"},{w:"corn",e:"🌽"},{w:"bird",e:"🐦"},{w:"car",e:"🚗"}];
+  {w:"rice",e:"🍚"},{w:"corn",e:"🌽"},{w:"bird",e:"🐦"},{w:"car",e:"🚗"},
+  {w:"cat",e:"🐱"},{w:"shoe",e:"👟"},{w:"ring",e:"💍"},{w:"hand",e:"✋"},{w:"sea",e:"🌊"},
+  {w:"apple",e:"🍎"},{w:"bell",e:"🔔"},{w:"box",e:"📦"},{w:"board",e:"🪵"},
+  {w:"cake",e:"🍰"},{w:"fly",e:"🪰"},{w:"sun",e:"☀️"},{w:"rain",e:"🌧️"}];
 
 /* ---------- state ---------- */
 let idx=0, slots=[], score=0, busy=false;
@@ -177,11 +224,18 @@ const $=id=>document.getElementById(id);
 
 /* ---------- audio ---------- */
 let actx,master,soundOn=true;
-function aInit(){if(actx)return;actx=new(window.AudioContext||window.webkitAudioContext)();master=actx.createGain();master.gain.value=.9;master.connect(actx.destination);}
-function tone(f,d,t="triangle",v=.2,w=0){if(!actx||!soundOn)return;const T=actx.currentTime+w,o=actx.createOscillator(),g=actx.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(0,T);g.gain.linearRampToValueAtTime(v,T+.01);g.gain.exponentialRampToValueAtTime(.0001,T+d);o.connect(g);g.connect(master);o.start(T);o.stop(T+d+.02);}
+function aInit(){if(actx)return;actx=new(window.AudioContext||window.webkitAudioContext)();master=actx.createGain();master.gain.value=.9;master.connect(actx.destination);armed=true;startMusic();}
+function tone(f,d,t="triangle",v=.2,w=0,dest){if(!actx||!soundOn)return;const T=actx.currentTime+w,o=actx.createOscillator(),g=actx.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(0,T);g.gain.linearRampToValueAtTime(v,T+.01);g.gain.exponentialRampToValueAtTime(.0001,T+d);o.connect(g);g.connect(dest||master);o.start(T);o.stop(T+d+.02);}
 const sPick=()=>tone(540,.05,"square",.09);
 const sClear=()=>tone(300,.07,"square",.07);
 const sBad=()=>{tone(170,.16,"sawtooth",.14);tone(140,.2,"sawtooth",.1,.05);};
+const sBoom=()=>{if(!actx||!soundOn)return;const b=actx.createBuffer(1,actx.sampleRate*.5,actx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);const s=actx.createBufferSource();s.buffer=b;const g=actx.createGain();g.gain.value=.4;const f=actx.createBiquadFilter();f.type="lowpass";f.frequency.value=900;s.connect(f);f.connect(g);g.connect(master);s.start();tone(55,.5,"sawtooth",.3);};
+
+/* 背景樂（合成迴圈，低音量） */
+const PROG=[{b:130.81,a:[523.25,659.25,784,659.25]},{b:98,a:[493.88,587.33,784,587.33]},{b:110,a:[440,523.25,659.25,523.25]},{b:87.31,a:[349.23,440,523.25,440]}];
+let mtimer=null,mstep=0,musicGain=null;
+function startMusic(){if(!actx||!soundOn||mtimer)return;if(!musicGain){musicGain=actx.createGain();musicGain.gain.value=.06;musicGain.connect(master);}mstep=0;mtimer=setInterval(()=>{if(!actx||!soundOn)return;const c=PROG[(mstep>>2)%4],beat=mstep&3;if(beat===0)tone(c.b,.7,"sine",.5,0,musicGain);tone(c.a[beat],.4,"triangle",.3,0,musicGain);mstep++;},260);}
+function stopMusic(){if(mtimer){clearInterval(mtimer);mtimer=null;}}
 const sWhoosh=()=>{if(!actx||!soundOn)return;const b=actx.createBuffer(1,actx.sampleRate*.3,actx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.5);const s=actx.createBufferSource();s.buffer=b;const g=actx.createGain();g.gain.value=.16;const f=actx.createBiquadFilter();f.type="bandpass";f.frequency.value=1200;s.connect(f);f.connect(g);g.connect(master);s.start();};
 const sFuse=()=>[0,4,7,12].forEach((s,i)=>tone(523.25*Math.pow(2,s/12),.22,"triangle",.16,i*.05));
 const sReveal=()=>{tone(880,.1,"sine",.14);tone(1320,.14,"sine",.1,.06);};
@@ -209,7 +263,44 @@ function rs(){cv.width=innerWidth;cv.height=innerHeight}rs();addEventListener('r
 function burst(x,y,cols,n){for(let i=0;i<(n||26);i++){const a=Math.random()*6.28,s=2+Math.random()*7;parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2,life:1,c:cols[i%cols.length],r:2+Math.random()*3})}}
 (function loop(){cx.clearRect(0,0,cv.width,cv.height);parts=parts.filter(p=>p.life>0);parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.18;p.life-=.022;cx.globalAlpha=Math.max(p.life,0);cx.fillStyle=p.c;cx.beginPath();cx.arc(p.x,p.y,p.r,0,7);cx.fill()});cx.globalAlpha=1;requestAnimationFrame(loop)})();
 
-/* ---------- helpers ---------- */
+/* ---------- 引線倒數（緊張感）---------- */
+let fuseMax=16, fuseT=0, running=false, armed=false, _lastTs=0, _tickAt=0;
+function setFuseForLevel(n){ fuseMax = n>=3 ? 24 : 16; fuseT=0; running=true; }
+function fuseFrac(){ return Math.min(fuseT/fuseMax,1); }
+function updateFuse(f){
+  const fuse=$('fuse'); if(!fuse)return;
+  const w=Math.max(0,fuse.clientWidth-50);
+  $('fburnt').style.width=(w*f)+'px';
+  $('fflame').style.left=(12+w*f)+'px';
+}
+function sparkFlame(){
+  const fl=$('fflame'); if(!fl)return; const r=fl.getBoundingClientRect();
+  const cx0=r.left+r.width/2, cy0=r.top+r.height/2;
+  for(let i=0;i<2;i++){const a=-Math.PI/2+(Math.random()-.5)*1.4,s=1+Math.random()*2.2;
+    parts.push({x:cx0,y:cy0,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,c:["#ffd86b","#ff9a3c","#ff6a3c"][i%3],r:1+Math.random()*1.8});}
+}
+function boom(){
+  if(!running)return; running=false; sBoom(); vib([40,60,40]);
+  const app=$('app'); app.classList.add('boomflash'); setTimeout(()=>app.classList.remove('boomflash'),500);
+  const fl=$('fflame'); if(fl){const r=fl.getBoundingClientRect();burst(r.left+r.width/2,r.top,["#ff5470","#ff9a3c","#ffd86b"],30);}
+  toast("💥 時間到！再來一次","#ff5470");
+  try{speechSynthesis.cancel();}catch(e){}
+  setTimeout(()=>{ if(idx<LEVELS.length) load(); }, 1300); // 重來這關，引線重置
+}
+(function fuseLoop(ts){
+  if(!_lastTs)_lastTs=ts; const dt=Math.min((ts-_lastTs)/1000,.1); _lastTs=ts;
+  if(armed&&running&&!busy){
+    fuseT+=dt;
+    const f=fuseFrac(); updateFuse(f); sparkFlame();
+    const fuse=$('fuse');
+    if(f>0.78){ fuse&&fuse.classList.add('hot'); if(ts-_tickAt>380){_tickAt=ts;tone(1200,.04,"square",.05);vib(6);} }
+    else fuse&&fuse.classList.remove('hot');
+    if(f>=1) boom();
+  }
+  requestAnimationFrame(fuseLoop);
+})(0);
+
+
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 function center(el){const r=el.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2}}
 function toast(t,c){const el=$('toast');el.textContent=t;el.style.color=c||'var(--good)';el.classList.remove('show');void el.offsetWidth;el.classList.add('show')}
@@ -220,6 +311,8 @@ function buildPips(){const w=$('pips');w.innerHTML='';for(let i=0;i<LEVELS.lengt
 function load(){
   const L=LEVELS[idx];
   const n=L.p.length;
+  setFuseForLevel(n);
+  $('fuse').classList.remove('hot');
   slots=new Array(n).fill(null);busy=false;
   $('lv').textContent=idx+1;
   $('meaning').textContent=L.whole.zh;
@@ -296,6 +389,7 @@ $('submit').onclick=()=>{
   const ok=slots.every((s,i)=>s.w===L.p[i].w);
   if(!ok){
     sBad();vib([30,40,30]);
+    fuseT=Math.min(fuseT+2.5,fuseMax);  // 答錯：引線快燒
     slots.forEach((_,i)=>{const el=$('s'+i);el.classList.add('shake');setTimeout(()=>el.classList.remove('shake'),400);});
     const sameSet=slots.map(s=>s.w).sort().join()===L.p.map(p=>p.w).sort().join();
     if(sameSet)toast('順序不對！','#ffb347');
@@ -349,7 +443,7 @@ function revealWord(w){
 function next(){
   idx++;
   if(idx>=LEVELS.length){
-    sDone();
+    running=false; stopMusic(); sDone();
     $('doneSub').innerHTML='你把 '+LEVELS.length+' 組英文合成詞拼合起來，得分 <b style="color:var(--gold)">'+score+'</b>。<br>每個大字，都是幾個小字長出來的。';
     $('doneOvl').classList.add('show');return;
   }
@@ -365,12 +459,12 @@ $('hint').onclick=()=>{
       slots[i]=L.p[i];renderSlot(i);
       const tile=[...document.querySelectorAll('.tile')].find(x=>x.dataset.w===L.p[i].w&&!x.classList.contains('used'));
       if(tile)tile.classList.add('used');
-      sReveal();vib(10);speak(L.p[i].w);updateSubmit();break;
+      sReveal();vib(10);speak(L.p[i].w);fuseT=Math.min(fuseT+3,fuseMax);updateSubmit();break;
     }
   }
 };
 
-$('mute').onclick=function(){soundOn=!soundOn;this.textContent=soundOn?'🔊':'🔇';};
+$('mute').onclick=function(){soundOn=!soundOn;this.textContent=soundOn?'🔊':'🔇';if(soundOn){if(actx)startMusic();}else{stopMusic();}};
 
 load();
 </script>
