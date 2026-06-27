@@ -428,7 +428,7 @@ const $=id=>document.getElementById(id);
 
 /* ===================== 音效 ===================== */
 let actx,master,soundOn=true;
-function aInit(){if(actx)return;actx=new(window.AudioContext||window.webkitAudioContext)();master=actx.createGain();master.gain.value=.9;master.connect(actx.destination);armed=true;startMusic();}
+function aInit(){if(actx)return;actx=new(window.AudioContext||window.webkitAudioContext)();master=actx.createGain();master.gain.value=.9;master.connect(actx.destination);armed=true;startMusic();warmTTS();}
 function tone(f,d,t="triangle",v=.2,w=0,dest){if(!actx||!soundOn)return;const T=actx.currentTime+w,o=actx.createOscillator(),g=actx.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(0,T);g.gain.linearRampToValueAtTime(v,T+.01);g.gain.exponentialRampToValueAtTime(.0001,T+d);o.connect(g);g.connect(dest||master);o.start(T);o.stop(T+d+.02);}
 const sPick=()=>tone(540,.05,"square",.09);
 const sClear=()=>tone(300,.07,"square",.07);
@@ -449,15 +449,34 @@ const sDone=()=>[0,4,7,12,16,19].forEach((s,i)=>tone(440*Math.pow(2,s/12),.4,"tr
 let _voices=[];
 function loadVoices(){if(!("speechSynthesis"in window))return;const v=speechSynthesis.getVoices();if(v&&v.length)_voices=v;}
 if("speechSynthesis"in window){loadVoices();try{speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}}
-function pickVoice(){return _voices.find(v=>/^en[-_]/i.test(v.lang))||_voices.find(v=>/en/i.test(v.lang))||null;}
+function pickVoice(){
+  const en=_voices.filter(v=>/en/i.test(v.lang));
+  if(!en.length)return null;
+  // 優先：離線語音(避免 Online 神經語音的網路延遲與卡頓) > en-US > en-GB
+  const score=v=>(v.localService?4:0)+(/en[-_]?us/i.test(v.lang)?2:0)+(/en[-_]?gb/i.test(v.lang)?1:0);
+  return en.slice().sort((a,b)=>score(b)-score(a))[0];
+}
+let _ttsWarm=false,_lastUtter=null;
+/* 預熱：首次手勢時送一個靜音語句，把 Chrome「第一次 speak 容易被吞」消耗掉 */
+function warmTTS(){
+  if(_ttsWarm||!("speechSynthesis"in window))return;
+  _ttsWarm=true;
+  try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;_lastUtter=u;speechSynthesis.speak(u);}catch(e){}
+}
 function speak(w,pitch){
   if(!("speechSynthesis"in window)||!soundOn)return;
   try{
     const sp=window.speechSynthesis;
-    const go=()=>{const u=new SpeechSynthesisUtterance(w);u.lang="en-US";u.pitch=pitch||1.1;u.rate=1.0;const v=pickVoice();if(v)u.voice=v;sp.speak(u);};
-    if(sp.paused){try{sp.resume();}catch(e){}}
-    if(sp.speaking||sp.pending){sp.cancel();setTimeout(go,140);}  // 只有正在講時才打斷，且延遲避開 race
-    else{go();}
+    try{sp.resume();}catch(e){}                          // 喚醒閒置後的暫停狀態
+    const go=()=>{try{
+      const u=new SpeechSynthesisUtterance(w);
+      u.lang="en-US";u.pitch=pitch||1.1;u.rate=1.0;
+      const v=pickVoice();if(v)u.voice=v;
+      _lastUtter=u;                                       // 保留引用，避開 Chrome 提早 GC 導致靜音
+      sp.speak(u);
+    }catch(e){}};
+    if(sp.speaking||sp.pending){sp.cancel();setTimeout(go,160);}  // 正在講才打斷
+    else{setTimeout(go,0);}                               // 脫離點擊同步塊，避開與音效同幀破音
   }catch(e){}
 }
 function vib(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
