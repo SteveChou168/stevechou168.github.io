@@ -24,8 +24,9 @@
   header{display:flex;align-items:center;gap:10px}
   .iconbtn{width:34px;height:34px;border-radius:10px;background:var(--machine2);border:1px solid var(--line);
     display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--ink)}
-  .title{font-weight:800;font-size:17px;letter-spacing:.5px}
+  .title{font-weight:800;font-size:16px;letter-spacing:.3px;display:flex;align-items:center;gap:5px;overflow:hidden;white-space:nowrap}
   .title b{color:var(--warm2)}
+  .title .sep{color:var(--dim);font-weight:600}
   .spacer{flex:1}
   .score{color:var(--gold);font-weight:800;font-size:15px}
 
@@ -76,8 +77,10 @@
   .build.n3 .op{font-size:20px}
   .build.n3 .goalbox .e{font-size:44px}
 
-  .caption{height:22px;text-align:center;color:var(--dim);font-weight:700;font-size:14px;margin-top:2px}
+  .caption{min-height:22px;text-align:center;color:var(--dim);font-weight:700;font-size:14px;margin-top:2px}
   .caption b{color:var(--good)}
+  .memo{color:var(--cool2);font-size:13px;font-weight:700;margin-top:3px}
+  .memo b{color:var(--gold)}
 
   .bank{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
   .tile{background:linear-gradient(180deg,#3a2f78,#2a2258);border:1px solid var(--line);border-bottom:3px solid #1c1742;
@@ -109,19 +112,60 @@
   #fx{position:fixed;inset:0;pointer-events:none;z-index:5}
   .fly{position:fixed;z-index:6;pointer-events:none;line-height:1;will-change:transform,opacity}
 
-  .done{position:fixed;inset:0;background:rgba(8,6,24,.85);display:none;align-items:center;justify-content:center;z-index:10}
+  /* ---- 世界地圖 ---- */
+  .mapOvl{position:fixed;inset:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));z-index:20;
+    display:none;flex-direction:column;align-items:center;padding:22px 16px 28px;overflow:auto}
+  .mapOvl.show{display:flex}
+  .mapTitle{font-weight:900;font-size:24px;color:var(--ink);letter-spacing:1px}
+  .mapTitle b{color:var(--warm2)}
+  .mapSub{color:var(--dim);font-size:13px;margin-top:4px}
+  .totStar{margin:12px 0 4px;color:var(--gold);font-weight:800;font-size:17px}
+  .worlds{display:flex;flex-direction:column;gap:11px;width:100%;max-width:430px;margin-top:8px}
+  .wcard{display:flex;align-items:center;gap:13px;background:linear-gradient(180deg,var(--machine2),var(--machine));
+    border:1px solid var(--line);border-radius:18px;padding:13px 15px;cursor:pointer;transition:transform .1s,border-color .2s}
+  .wcard:active{transform:scale(.985)}
+  .wcard .wico{font-size:38px;width:50px;text-align:center;flex:0 0 auto}
+  .wcard .wmid{flex:1;min-width:0}
+  .wcard .wnm{font-weight:800;font-size:17px}
+  .wcard .wpr{color:var(--dim);font-size:12px;margin-top:3px}
+  .wcard .wbar{height:6px;border-radius:3px;background:#1c1742;margin-top:6px;overflow:hidden}
+  .wcard .wbar>div{height:100%;width:0;background:linear-gradient(90deg,var(--good),var(--gold));transition:width .4s}
+  .wcard .wst{flex:0 0 auto;color:var(--gold);font-weight:800;font-size:13px;text-align:right;min-width:46px}
+  .wcard.lock{opacity:.45;filter:grayscale(.7);cursor:not-allowed}
+  .wcard.lock .wst{color:var(--dim)}
+  .wcard.cleared{border-color:var(--good)}
+  .wcard.boss{border-color:var(--bad);background:linear-gradient(180deg,#4a2348,#2a1640)}
+  .wcard.boss.lock{border-color:var(--line)}
+
+  /* ---- 通關面板 ---- */
+  .done{position:fixed;inset:0;background:rgba(8,6,24,.85);display:none;align-items:center;justify-content:center;z-index:25;padding:20px}
   .done.show{display:flex}
-  .panel{background:var(--machine);border:1px solid var(--line);border-radius:22px;padding:28px 26px;text-align:center;max-width:320px}
-  .panel .big{font-size:24px;font-weight:900;color:var(--gold);margin-bottom:8px}
-  .panel .sub{color:var(--dim);font-size:14px;line-height:1.6;margin-bottom:18px}
-  .panel button{background:linear-gradient(180deg,var(--warm2),var(--warm));border:none;color:#062038;font-weight:800;font-size:16px;padding:12px 26px;border-radius:12px}
+  .panel{background:var(--machine);border:1px solid var(--line);border-radius:22px;padding:26px 24px;text-align:center;max-width:330px;width:100%}
+  .panel .trophy{font-size:54px;line-height:1;margin-bottom:6px;animation:pop .6s cubic-bezier(.2,1.4,.4,1)}
+  .panel .big{font-size:23px;font-weight:900;color:var(--gold);margin-bottom:8px}
+  .panel .sub{color:var(--dim);font-size:14px;line-height:1.6;margin-bottom:14px}
+  .panel .sub b{color:var(--gold)}
+  .panel .pbtns{display:flex;flex-direction:column;gap:9px}
+  .panel button{border:none;font-weight:800;font-size:16px;padding:12px 22px;border-radius:13px;cursor:pointer}
+  .panel .pri{background:linear-gradient(180deg,var(--warm2),var(--warm));color:#062038}
+  .panel .sec{background:var(--machine2);border:1px solid var(--line);color:var(--ink)}
+
+  .starline{font-size:30px;letter-spacing:4px;margin:6px 0 12px;height:34px}
+  .starline .e{opacity:.22}
+  .starline .f{opacity:1}
+
+  .wordgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:2px 0 14px;max-height:34vh;overflow:auto}
+  .wgi{background:var(--machine2);border:1px solid var(--line);border-radius:11px;padding:7px 3px;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0}
+  .wgi .e{font-size:23px;line-height:1}
+  .wgi .w{font-size:10px;font-weight:800;color:var(--ink);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wgi .z{font-size:10px;color:var(--dim);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body>
 <div id="app">
   <header>
-    <div class="iconbtn" onclick="location.reload()">↻</div>
-    <div class="title">組字挑戰 第<b id="lv">1</b>關</div>
+    <div class="iconbtn" id="backMap">🗺️</div>
+    <div class="title"><span id="wIcon">🌻</span> <b id="wName">自然天氣</b> <span class="sep">·</span> <span id="stageName" style="color:var(--cool2)">基礎</span> <span id="lv">1</span><span class="sep">/</span><span id="ltot">6</span></div>
     <div class="spacer"></div>
     <div class="iconbtn" id="mute">🔊</div>
     <div class="score" id="score">0</div>
@@ -157,72 +201,232 @@
 
 <canvas id="fx"></canvas>
 
+<!-- 世界地圖 -->
+<div class="mapOvl" id="mapOvl">
+  <div class="mapTitle">字<b>靈</b> · 組字挑戰</div>
+  <div class="mapSub">把小字拼成大字 · 選擇世界開始</div>
+  <div class="totStar" id="totStar">⭐ 0</div>
+  <div class="worlds" id="worlds"></div>
+</div>
+
+<!-- 單一世界通關 -->
+<div class="done" id="worldDone">
+  <div class="panel">
+    <div class="trophy" id="wdTrophy">🏆</div>
+    <div class="big" id="wdTitle">世界通關！</div>
+    <div class="starline" id="wdStars"></div>
+    <div class="sub" id="wdSub"></div>
+    <div class="wordgrid" id="wdWords"></div>
+    <div class="pbtns">
+      <button class="pri" id="wdNext">進入下一世界 ▶</button>
+      <button class="sec" id="wdMap">🗺️ 世界地圖</button>
+    </div>
+  </div>
+</div>
+
+<!-- 全破關 -->
 <div class="done" id="doneOvl">
   <div class="panel">
-    <div class="big">全部組好了 🎉</div>
+    <div class="trophy">👑</div>
+    <div class="big">全世界都拼完了 🎉</div>
     <div class="sub" id="doneSub"></div>
-    <button onclick="location.reload()">再玩一次</button>
+    <div class="pbtns">
+      <button class="pri" id="dAgain">🗺️ 回到地圖</button>
+    </div>
   </div>
 </div>
 
 <script>
-/* ---------- data ---------- */
-const LEVELS=[
-  // ── 兩部件：食物 / 自然 ──
-  {p:[{w:"sun",e:"☀️"},{w:"flower",e:"🌸"}],   whole:{w:"sunflower",e:"🌻",zh:"向日葵"}},
-  {p:[{w:"pine",e:"🌲"},{w:"apple",e:"🍎"}],   whole:{w:"pineapple",e:"🍍",zh:"鳳梨"}},
-  {p:[{w:"water",e:"💧"},{w:"melon",e:"🍈"}],  whole:{w:"watermelon",e:"🍉",zh:"西瓜"}},
-  {p:[{w:"straw",e:"🥤"},{w:"berry",e:"🍓"}],  whole:{w:"strawberry",e:"🍓",zh:"草莓"}},
-  {p:[{w:"egg",e:"🥚"},{w:"plant",e:"🌱"}],    whole:{w:"eggplant",e:"🍆",zh:"茄子"}},
-  {p:[{w:"pan",e:"🍳"},{w:"cake",e:"🍰"}],     whole:{w:"pancake",e:"🥞",zh:"鬆餅"}},
-  {p:[{w:"cup",e:"☕"},{w:"cake",e:"🍰"}],       whole:{w:"cupcake",e:"🧁",zh:"杯子蛋糕"}},
-  {p:[{w:"moon",e:"🌙"},{w:"cake",e:"🍰"}],     whole:{w:"mooncake",e:"🥮",zh:"月餅"}},
-  // ── 兩部件：rain / 蟲魚 ──
-  {p:[{w:"rain",e:"🌧️"},{w:"bow",e:"🎀"}],     whole:{w:"rainbow",e:"🌈",zh:"彩虹"}},
-  {p:[{w:"rain",e:"🌧️"},{w:"drop",e:"💧"}],    whole:{w:"raindrop",e:"💧",zh:"雨滴"}},
-  {p:[{w:"rain",e:"🌧️"},{w:"coat",e:"🧥"}],    whole:{w:"raincoat",e:"🧥",zh:"雨衣"}},
-  {p:[{w:"butter",e:"🧈"},{w:"fly",e:"🪰"}],    whole:{w:"butterfly",e:"🦋",zh:"蝴蝶"}},
-  {p:[{w:"lady",e:"👩"},{w:"bug",e:"🐛"}],      whole:{w:"ladybug",e:"🐞",zh:"瓢蟲"}},
-  {p:[{w:"jelly",e:"🟪"},{w:"fish",e:"🐟"}],   whole:{w:"jellyfish",e:"🪼",zh:"水母"}},
-  {p:[{w:"gold",e:"🥇"},{w:"fish",e:"🐟"}],     whole:{w:"goldfish",e:"🐠",zh:"金魚"}},
-  {p:[{w:"book",e:"📖"},{w:"worm",e:"🐛"}],     whole:{w:"bookworm",e:"🐛",zh:"書蟲"}},
-  // ── 兩部件：人 / 球 ──
-  {p:[{w:"cow",e:"🐮"},{w:"boy",e:"👦"}],       whole:{w:"cowboy",e:"🤠",zh:"牛仔"}},
-  {p:[{w:"snow",e:"❄️"},{w:"man",e:"🧍"}],     whole:{w:"snowman",e:"⛄",zh:"雪人"}},
-  {p:[{w:"fire",e:"🔥"},{w:"man",e:"🧍"}],      whole:{w:"fireman",e:"🧑‍🚒",zh:"消防員"}},
-  {p:[{w:"fire",e:"🔥"},{w:"truck",e:"🚚"}],   whole:{w:"firetruck",e:"🚒",zh:"消防車"}},
-  {p:[{w:"foot",e:"🦶"},{w:"ball",e:"⚽"}],     whole:{w:"football",e:"🏈",zh:"足球"}},
-  {p:[{w:"basket",e:"🧺"},{w:"ball",e:"⚽"}],   whole:{w:"basketball",e:"🏀",zh:"籃球"}},
-  // ── 兩部件：物件 ──
-  {p:[{w:"sun",e:"☀️"},{w:"glasses",e:"👓"}],   whole:{w:"sunglasses",e:"🕶️",zh:"太陽眼鏡"}},
-  {p:[{w:"sea",e:"🌊"},{w:"shell",e:"🐚"}],     whole:{w:"seashell",e:"🐚",zh:"貝殼"}},
-  {p:[{w:"tooth",e:"🦷"},{w:"brush",e:"🪥"}],   whole:{w:"toothbrush",e:"🪥",zh:"牙刷"}},
-  {p:[{w:"key",e:"🔑"},{w:"board",e:"🪵"}],     whole:{w:"keyboard",e:"⌨️",zh:"鍵盤"}},
-  {p:[{w:"skate",e:"⛸️"},{w:"board",e:"🪵"}],   whole:{w:"skateboard",e:"🛹",zh:"滑板"}},
-  {p:[{w:"mail",e:"✉️"},{w:"box",e:"📦"}],      whole:{w:"mailbox",e:"📫",zh:"信箱"}},
-  {p:[{w:"tool",e:"🔧"},{w:"box",e:"📦"}],      whole:{w:"toolbox",e:"🧰",zh:"工具箱"}},
-  {p:[{w:"arm",e:"💪"},{w:"chair",e:"🪑"}],     whole:{w:"armchair",e:"🪑",zh:"扶手椅"}},
-  {p:[{w:"door",e:"🚪"},{w:"bell",e:"🔔"}],     whole:{w:"doorbell",e:"🔔",zh:"門鈴"}},
-  {p:[{w:"tea",e:"🍵"},{w:"pot",e:"🍲"}],       whole:{w:"teapot",e:"🫖",zh:"茶壺"}},
-  // ── 三部件 ──
-  {p:[{w:"bubble",e:"🫧"},{w:"milk",e:"🥛"},{w:"tea",e:"🍵"}],   whole:{w:"bubble milk tea",e:"🧋",zh:"珍珠奶茶"}},
-  {p:[{w:"egg",e:"🥚"},{w:"fried",e:"🍳"},{w:"rice",e:"🍚"}],     whole:{w:"egg fried rice",e:"🍛",zh:"蛋炒飯"}},
-  {p:[{w:"straw",e:"🥤"},{w:"berry",e:"🍓"},{w:"cake",e:"🍰"}],   whole:{w:"strawberry cake",e:"🎂",zh:"草莓蛋糕"}},
-  {p:[{w:"peanut",e:"🥜"},{w:"butter",e:"🧈"},{w:"jelly",e:"🟪"}],whole:{w:"peanut butter jelly",e:"🥪",zh:"花生醬果醬三明治"}},
+/* ===================== 關卡資料 ===================== */
+/* 每關： p=部件(小字)，whole=合成大字。zh=中文釋義 */
+const WORLDS=[
+  { name:"自然天氣", icon:"🌻", fuse2:22, levels:[
+    {p:[{w:"sun",e:"☀️"},{w:"flower",e:"🌸"}],   whole:{w:"sunflower",e:"🌻",zh:"向日葵"}},
+    {p:[{w:"rain",e:"🌧️"},{w:"bow",e:"🎀"}],      whole:{w:"rainbow",e:"🌈",zh:"彩虹"}},
+    {p:[{w:"rain",e:"🌧️"},{w:"drop",e:"💧"}],     whole:{w:"raindrop",e:"💧",zh:"雨滴"}},
+    {p:[{w:"sun",e:"☀️"},{w:"shine",e:"✨"}],     whole:{w:"sunshine",e:"🌞",zh:"陽光"}},
+    {p:[{w:"snow",e:"❄️"},{w:"man",e:"🧍"}],      whole:{w:"snowman",e:"⛄",zh:"雪人"}},
+    {p:[{w:"snow",e:"❄️"},{w:"ball",e:"⚽"}],     whole:{w:"snowball",e:"⚪",zh:"雪球"}},
+    {p:[{w:"sea",e:"🌊"},{w:"shell",e:"🐚"}],     whole:{w:"seashell",e:"🐚",zh:"貝殼"}},
+    {p:[{w:"rain",e:"🌧️"},{w:"coat",e:"🧥"}],     whole:{w:"raincoat",e:"🧥",zh:"雨衣"}},
+    {p:[{w:"sun",e:"☀️"},{w:"rise",e:"⬆️"}],      whole:{w:"sunrise",e:"🌅",zh:"日出"}},
+    {p:[{w:"thunder",e:"⚡"},{w:"storm",e:"🌪️"}],  whole:{w:"thunderstorm",e:"⛈️",zh:"雷暴"}},
+    {p:[{w:"snow",e:"❄️"},{w:"storm",e:"🌪️"}],    whole:{w:"snowstorm",e:"🌨️",zh:"暴風雪"}},
+    {p:[{w:"rain",e:"🌧️"},{w:"forest",e:"🌲"}],   whole:{w:"rainforest",e:"🌴",zh:"雨林"}},
+  ]},
+  { name:"美味果園", icon:"🍍", fuse2:20, levels:[
+    {p:[{w:"pine",e:"🌲"},{w:"apple",e:"🍎"}],     whole:{w:"pineapple",e:"🍍",zh:"鳳梨"}},
+    {p:[{w:"water",e:"💧"},{w:"melon",e:"🍈"}],    whole:{w:"watermelon",e:"🍉",zh:"西瓜"}},
+    {p:[{w:"straw",e:"🥤"},{w:"berry",e:"🍓"}],    whole:{w:"strawberry",e:"🍓",zh:"草莓"}},
+    {p:[{w:"blue",e:"🔵"},{w:"berry",e:"🍓"}],     whole:{w:"blueberry",e:"🫐",zh:"藍莓"}},
+    {p:[{w:"black",e:"🖤"},{w:"berry",e:"🍓"}],    whole:{w:"blackberry",e:"🫐",zh:"黑莓"}},
+    {p:[{w:"egg",e:"🥚"},{w:"plant",e:"🌱"}],      whole:{w:"eggplant",e:"🍆",zh:"茄子"}},
+    {p:[{w:"honey",e:"🍯"},{w:"dew",e:"💧"}],      whole:{w:"honeydew",e:"🍈",zh:"哈密瓜"}},
+    {p:[{w:"dragon",e:"🐉"},{w:"fruit",e:"🍎"}],   whole:{w:"dragonfruit",e:"🐲",zh:"火龍果"}},
+    {p:[{w:"pine",e:"🌲"},{w:"cone",e:"🔻"}],      whole:{w:"pinecone",e:"🌰",zh:"松果"}},
+    {p:[{w:"water",e:"💧"},{w:"lily",e:"🌸"}],     whole:{w:"waterlily",e:"🪷",zh:"睡蓮"}},
+    {p:[{w:"sea",e:"🌊"},{w:"weed",e:"🌿"}],       whole:{w:"seaweed",e:"🌿",zh:"海帶"}},
+    {p:[{w:"sea",e:"🌊"},{w:"food",e:"🍽️"}],       whole:{w:"seafood",e:"🦐",zh:"海鮮"}},
+  ]},
+  { name:"甜點廚房", icon:"🍰", fuse2:19, levels:[
+    {p:[{w:"pan",e:"🍳"},{w:"cake",e:"🍰"}],       whole:{w:"pancake",e:"🥞",zh:"鬆餅"}},
+    {p:[{w:"cup",e:"☕"},{w:"cake",e:"🍰"}],         whole:{w:"cupcake",e:"🧁",zh:"杯子蛋糕"}},
+    {p:[{w:"moon",e:"🌙"},{w:"cake",e:"🍰"}],       whole:{w:"mooncake",e:"🥮",zh:"月餅"}},
+    {p:[{w:"tea",e:"🍵"},{w:"pot",e:"🍲"}],         whole:{w:"teapot",e:"🫖",zh:"茶壺"}},
+    {p:[{w:"pop",e:"💥"},{w:"corn",e:"🌽"}],        whole:{w:"popcorn",e:"🍿",zh:"爆米花"}},
+    {p:[{w:"hot",e:"🔥"},{w:"dog",e:"🐶"}],         whole:{w:"hotdog",e:"🌭",zh:"熱狗"}},
+    {p:[{w:"milk",e:"🥛"},{w:"shake",e:"🍹"}],      whole:{w:"milkshake",e:"🥤",zh:"奶昔"}},
+    {p:[{w:"ice",e:"🧊"},{w:"cream",e:"🥛"}],       whole:{w:"icecream",e:"🍦",zh:"冰淇淋"}},
+    {p:[{w:"cotton",e:"☁️"},{w:"candy",e:"🍬"}],    whole:{w:"cottoncandy",e:"🍭",zh:"棉花糖"}},
+    {p:[{w:"ginger",e:"🫚"},{w:"bread",e:"🍞"}],    whole:{w:"gingerbread",e:"🍪",zh:"薑餅"}},
+    {p:[{w:"butter",e:"🧈"},{w:"scotch",e:"🥃"}],   whole:{w:"butterscotch",e:"🍬",zh:"奶油糖"}},
+    {p:[{w:"jelly",e:"🟪"},{w:"bean",e:"🫘"}],      whole:{w:"jellybean",e:"🍬",zh:"雷根糖"}},
+    {p:[{w:"candy",e:"🍬"},{w:"cane",e:"🦯"}],      whole:{w:"candycane",e:"🍭",zh:"拐杖糖"}},
+  ]},
+  { name:"動物樂園", icon:"🦋", fuse2:18, levels:[
+    {p:[{w:"butter",e:"🧈"},{w:"fly",e:"🪰"}],      whole:{w:"butterfly",e:"🦋",zh:"蝴蝶"}},
+    {p:[{w:"lady",e:"👩"},{w:"bug",e:"🐛"}],        whole:{w:"ladybug",e:"🐞",zh:"瓢蟲"}},
+    {p:[{w:"jelly",e:"🟪"},{w:"fish",e:"🐟"}],      whole:{w:"jellyfish",e:"🪼",zh:"水母"}},
+    {p:[{w:"gold",e:"🥇"},{w:"fish",e:"🐟"}],       whole:{w:"goldfish",e:"🐠",zh:"金魚"}},
+    {p:[{w:"book",e:"📖"},{w:"worm",e:"🐛"}],       whole:{w:"bookworm",e:"🐛",zh:"書蟲"}},
+    {p:[{w:"cow",e:"🐮"},{w:"boy",e:"👦"}],         whole:{w:"cowboy",e:"🤠",zh:"牛仔"}},
+    {p:[{w:"honey",e:"🍯"},{w:"bee",e:"🐝"}],       whole:{w:"honeybee",e:"🐝",zh:"蜜蜂"}},
+    {p:[{w:"fire",e:"🔥"},{w:"fly",e:"🪰"}],        whole:{w:"firefly",e:"✨",zh:"螢火蟲"}},
+    {p:[{w:"pea",e:"🟢"},{w:"cock",e:"🐓"}],        whole:{w:"peacock",e:"🦚",zh:"孔雀"}},
+    {p:[{w:"hedge",e:"🌳"},{w:"hog",e:"🐷"}],       whole:{w:"hedgehog",e:"🦔",zh:"刺蝟"}},
+    {p:[{w:"king",e:"👑"},{w:"fisher",e:"🎣"}],     whole:{w:"kingfisher",e:"🐦",zh:"翠鳥"}},
+    {p:[{w:"earth",e:"🌍"},{w:"worm",e:"🐛"}],      whole:{w:"earthworm",e:"🪱",zh:"蚯蚓"}},
+    {p:[{w:"uni",e:"1️⃣"},{w:"corn",e:"🌽"}],        whole:{w:"unicorn",e:"🦄",zh:"獨角獸"}},
+  ]},
+  { name:"居家物件", icon:"🏠", fuse2:16, levels:[
+    {p:[{w:"tooth",e:"🦷"},{w:"brush",e:"🪥"}],     whole:{w:"toothbrush",e:"🪥",zh:"牙刷"}},
+    {p:[{w:"hair",e:"💇"},{w:"brush",e:"🪥"}],      whole:{w:"hairbrush",e:"🪮",zh:"髮梳"}},
+    {p:[{w:"key",e:"🔑"},{w:"board",e:"🪵"}],       whole:{w:"keyboard",e:"⌨️",zh:"鍵盤"}},
+    {p:[{w:"black",e:"🖤"},{w:"board",e:"🪵"}],     whole:{w:"blackboard",e:"⬛",zh:"黑板"}},
+    {p:[{w:"cup",e:"☕"},{w:"board",e:"🪵"}],         whole:{w:"cupboard",e:"🗄️",zh:"櫥櫃"}},
+    {p:[{w:"mail",e:"✉️"},{w:"box",e:"📦"}],        whole:{w:"mailbox",e:"📫",zh:"信箱"}},
+    {p:[{w:"tool",e:"🔧"},{w:"box",e:"📦"}],        whole:{w:"toolbox",e:"🧰",zh:"工具箱"}},
+    {p:[{w:"arm",e:"💪"},{w:"chair",e:"🪑"}],       whole:{w:"armchair",e:"🪑",zh:"扶手椅"}},
+    {p:[{w:"wheel",e:"🛞"},{w:"chair",e:"🪑"}],     whole:{w:"wheelchair",e:"🦽",zh:"輪椅"}},
+    {p:[{w:"door",e:"🚪"},{w:"bell",e:"🔔"}],       whole:{w:"doorbell",e:"🔔",zh:"門鈴"}},
+    {p:[{w:"flash",e:"⚡"},{w:"light",e:"💡"}],      whole:{w:"flashlight",e:"🔦",zh:"手電筒"}},
+    {p:[{w:"light",e:"💡"},{w:"house",e:"🏠"}],     whole:{w:"lighthouse",e:"🗼",zh:"燈塔"}},
+    {p:[{w:"news",e:"📰"},{w:"paper",e:"📄"}],      whole:{w:"newspaper",e:"📰",zh:"報紙"}},
+    {p:[{w:"note",e:"📝"},{w:"book",e:"📖"}],       whole:{w:"notebook",e:"📓",zh:"筆記本"}},
+    {p:[{w:"hour",e:"🕐"},{w:"glass",e:"🥛"}],      whole:{w:"hourglass",e:"⏳",zh:"沙漏"}},
+  ]},
+  { name:"運動交通", icon:"🚀", fuse2:15, levels:[
+    {p:[{w:"foot",e:"🦶"},{w:"ball",e:"⚽"}],       whole:{w:"football",e:"🏈",zh:"美式足球"}},
+    {p:[{w:"basket",e:"🧺"},{w:"ball",e:"⚽"}],     whole:{w:"basketball",e:"🏀",zh:"籃球"}},
+    {p:[{w:"skate",e:"⛸️"},{w:"board",e:"🪵"}],     whole:{w:"skateboard",e:"🛹",zh:"滑板"}},
+    {p:[{w:"snow",e:"❄️"},{w:"board",e:"🪵"}],      whole:{w:"snowboard",e:"🏂",zh:"滑雪板"}},
+    {p:[{w:"fire",e:"🔥"},{w:"truck",e:"🚚"}],      whole:{w:"firetruck",e:"🚒",zh:"消防車"}},
+    {p:[{w:"race",e:"🏁"},{w:"car",e:"🚗"}],        whole:{w:"racecar",e:"🏎️",zh:"賽車"}},
+    {p:[{w:"space",e:"🌌"},{w:"ship",e:"🚢"}],      whole:{w:"spaceship",e:"🚀",zh:"太空船"}},
+    {p:[{w:"steam",e:"♨️"},{w:"boat",e:"🚤"}],      whole:{w:"steamboat",e:"🚢",zh:"蒸汽船"}},
+    {p:[{w:"air",e:"💨"},{w:"port",e:"⚓"}],         whole:{w:"airport",e:"🛫",zh:"機場"}},
+    {p:[{w:"sub",e:"🔽"},{w:"way",e:"🛣️"}],         whole:{w:"subway",e:"🚇",zh:"地鐵"}},
+    {p:[{w:"cross",e:"❌"},{w:"walk",e:"🚶"}],       whole:{w:"crosswalk",e:"🚸",zh:"斑馬線"}},
+    {p:[{w:"sky",e:"🌤️"},{w:"dive",e:"🤿"}],        whole:{w:"skydive",e:"🪂",zh:"跳傘"}},
+    {p:[{w:"back",e:"🔙"},{w:"pack",e:"🎒"}],        whole:{w:"backpack",e:"🎒",zh:"背包"}},
+  ]},
+  { name:"神奇世界", icon:"✨", fuse2:14, levels:[
+    {p:[{w:"super",e:"🦸"},{w:"man",e:"🧍"}],       whole:{w:"superman",e:"🦸",zh:"超人"}},
+    {p:[{w:"fire",e:"🔥"},{w:"man",e:"🧍"}],        whole:{w:"fireman",e:"🧑‍🚒",zh:"消防員"}},
+    {p:[{w:"fire",e:"🔥"},{w:"works",e:"🛠️"}],      whole:{w:"fireworks",e:"🎆",zh:"煙火"}},
+    {p:[{w:"sand",e:"🏖️"},{w:"castle",e:"🏰"}],     whole:{w:"sandcastle",e:"🏰",zh:"沙堡"}},
+    {p:[{w:"birth",e:"👶"},{w:"day",e:"📅"}],       whole:{w:"birthday",e:"🎂",zh:"生日"}},
+    {p:[{w:"thumb",e:"👍"},{w:"tack",e:"📌"}],      whole:{w:"thumbtack",e:"📌",zh:"圖釘"}},
+    {p:[{w:"neck",e:"🧣"},{w:"lace",e:"🎀"}],       whole:{w:"necklace",e:"📿",zh:"項鍊"}},
+    {p:[{w:"foot",e:"🦶"},{w:"print",e:"🖨️"}],      whole:{w:"footprint",e:"👣",zh:"腳印"}},
+    {p:[{w:"sun",e:"☀️"},{w:"glasses",e:"👓"}],     whole:{w:"sunglasses",e:"🕶️",zh:"太陽眼鏡"}},
+    {p:[{w:"text",e:"📝"},{w:"book",e:"📖"}],       whole:{w:"textbook",e:"📕",zh:"課本"}},
+    {p:[{w:"wall",e:"🧱"},{w:"paper",e:"📄"}],      whole:{w:"wallpaper",e:"🖼️",zh:"壁紙"}},
+    {p:[{w:"play",e:"🎮"},{w:"ground",e:"🌍"}],     whole:{w:"playground",e:"🛝",zh:"遊樂場"}},
+    {p:[{w:"key",e:"🔑"},{w:"hole",e:"🕳️"}],        whole:{w:"keyhole",e:"🕳️",zh:"鑰匙孔"}},
+    {p:[{w:"super",e:"🦸"},{w:"market",e:"🏪"}],    whole:{w:"supermarket",e:"🏪",zh:"超市"}},
+    {p:[{w:"straw",e:"🥤"},{w:"hat",e:"🎩"}],       whole:{w:"strawhat",e:"👒",zh:"草帽"}},
+  ]},
+  { name:"魔王混亂", icon:"🧋", boss:true, count:10, fuse2:17, fuse3:26 },
 ];
+
+/* 魔王世界抽卡池：3 部件大菜 + 高難雙部件 */
+const BOSS3=[
+  {p:[{w:"bubble",e:"🫧"},{w:"milk",e:"🥛"},{w:"tea",e:"🍵"}],     whole:{w:"bubble milk tea",e:"🧋",zh:"珍珠奶茶"}},
+  {p:[{w:"egg",e:"🥚"},{w:"fried",e:"🍳"},{w:"rice",e:"🍚"}],       whole:{w:"egg fried rice",e:"🍛",zh:"蛋炒飯"}},
+  {p:[{w:"straw",e:"🥤"},{w:"berry",e:"🍓"},{w:"cake",e:"🍰"}],     whole:{w:"strawberry cake",e:"🎂",zh:"草莓蛋糕"}},
+  {p:[{w:"peanut",e:"🥜"},{w:"butter",e:"🧈"},{w:"jelly",e:"🟪"}],  whole:{w:"peanut butter jelly",e:"🥪",zh:"花生醬三明治"}},
+  {p:[{w:"ice",e:"🧊"},{w:"cream",e:"🥛"},{w:"cone",e:"🔻"}],       whole:{w:"ice cream cone",e:"🍦",zh:"冰淇淋甜筒"}},
+  {p:[{w:"water",e:"💧"},{w:"melon",e:"🍈"},{w:"juice",e:"🧃"}],    whole:{w:"watermelon juice",e:"🧃",zh:"西瓜汁"}},
+  {p:[{w:"ginger",e:"🫚"},{w:"bread",e:"🍞"},{w:"man",e:"🧍"}],     whole:{w:"gingerbread man",e:"🍪",zh:"薑餅人"}},
+];
+const BOSS2=[
+  {p:[{w:"super",e:"🦸"},{w:"market",e:"🏪"}],    whole:{w:"supermarket",e:"🏪",zh:"超市"}},
+  {p:[{w:"thunder",e:"⚡"},{w:"storm",e:"🌪️"}],    whole:{w:"thunderstorm",e:"⛈️",zh:"雷暴"}},
+  {p:[{w:"butter",e:"🧈"},{w:"scotch",e:"🥃"}],   whole:{w:"butterscotch",e:"🍬",zh:"奶油糖"}},
+  {p:[{w:"king",e:"👑"},{w:"fisher",e:"🎣"}],     whole:{w:"kingfisher",e:"🐦",zh:"翠鳥"}},
+  {p:[{w:"wheel",e:"🛞"},{w:"chair",e:"🪑"}],     whole:{w:"wheelchair",e:"🦽",zh:"輪椅"}},
+  {p:[{w:"dragon",e:"🐉"},{w:"fruit",e:"🍎"}],    whole:{w:"dragonfruit",e:"🐲",zh:"火龍果"}},
+  {p:[{w:"hedge",e:"🌳"},{w:"hog",e:"🐷"}],       whole:{w:"hedgehog",e:"🦔",zh:"刺蝟"}},
+  {p:[{w:"crow",e:"🐦‍⬛"},{w:"bar",e:"🪧"}],       whole:{w:"crowbar",e:"🛠️",zh:"鐵撬"}},
+];
+const BOSS_POOL=[...BOSS3,...BOSS2];
+
+/* 部件中文（記憶提示用；缺的會回退顯示英文） */
+const PARTZH={
+  sun:"太陽",flower:"花",rain:"雨",bow:"蝴蝶結",drop:"水滴",shine:"光芒",snow:"雪",man:"人",ball:"球",
+  sea:"海",shell:"貝殼",coat:"外套",rise:"升起",thunder:"雷",storm:"暴風",forest:"森林",
+  pine:"松樹",apple:"蘋果",water:"水",melon:"瓜",straw:"吸管",berry:"莓果",blue:"藍",black:"黑",
+  egg:"蛋",plant:"植物",honey:"蜂蜜",dew:"露水",dragon:"龍",fruit:"水果",cone:"毬果",lily:"百合",weed:"水草",food:"食物",
+  pan:"平底鍋",cake:"蛋糕",cup:"杯子",moon:"月亮",tea:"茶",pot:"壺",pop:"爆",corn:"玉米",hot:"熱",dog:"狗",
+  milk:"牛奶",shake:"搖搖",ice:"冰",cream:"奶油",cotton:"棉",candy:"糖果",ginger:"薑",bread:"麵包",
+  butter:"奶油",scotch:"威士忌",jelly:"果凍",bean:"豆子",cane:"拐杖",
+  fly:"飛",lady:"女士",bug:"小蟲",fish:"魚",gold:"金",book:"書",worm:"蟲",cow:"牛",boy:"男孩",bee:"蜜蜂",
+  fire:"火",pea:"豌豆",cock:"公雞",hedge:"樹籬",hog:"豬",king:"國王",fisher:"漁夫",earth:"大地",uni:"單一",
+  tooth:"牙齒",brush:"刷子",hair:"頭髮",key:"鑰匙",board:"板子",wheel:"輪子",door:"門",bell:"鈴鐺",
+  mail:"信件",box:"盒子",tool:"工具",arm:"手臂",chair:"椅子",
+  flash:"閃光",light:"燈光",house:"房子",news:"新聞",paper:"紙",note:"筆記",hour:"小時",glass:"玻璃杯",
+  foot:"腳",basket:"籃子",skate:"溜冰",truck:"卡車",race:"賽跑",car:"汽車",space:"太空",ship:"大船",
+  steam:"蒸汽",boat:"小船",air:"空氣",port:"港口",sub:"地下",way:"道路",cross:"穿越",walk:"走路",
+  sky:"天空",dive:"跳",back:"背後",pack:"背包",super:"超級",works:"作品",sand:"沙",castle:"城堡",
+  birth:"誕生",day:"日子",thumb:"拇指",tack:"圖釘",neck:"脖子",lace:"蕾絲",print:"印記",glasses:"眼鏡",
+  text:"課文",wall:"牆",play:"玩",ground:"地面",hole:"洞",market:"市場",hat:"帽子",
+  bubble:"泡泡",fried:"炒",rice:"米飯",peanut:"花生",juice:"果汁",crow:"烏鴉",bar:"鐵桿",
+  tree:"樹",star:"星星",leaf:"葉子",bird:"鳥",cat:"貓",shoe:"鞋子",ring:"戒指",hand:"手"
+};
+const pz=w=>PARTZH[w]||w;
+
+/* 干擾字卡庫（隨機混入） */
 const DISTRACT=[{w:"moon",e:"🌙"},{w:"star",e:"⭐"},{w:"tree",e:"🌲"},{w:"fish",e:"🐟"},
   {w:"milk",e:"🥛"},{w:"fire",e:"🔥"},{w:"snow",e:"❄️"},{w:"foot",e:"🦶"},{w:"ball",e:"⚽"},
   {w:"key",e:"🔑"},{w:"dog",e:"🐶"},{w:"hat",e:"🎩"},{w:"egg",e:"🥚"},{w:"leaf",e:"🍃"},
   {w:"rice",e:"🍚"},{w:"corn",e:"🌽"},{w:"bird",e:"🐦"},{w:"car",e:"🚗"},
   {w:"cat",e:"🐱"},{w:"shoe",e:"👟"},{w:"ring",e:"💍"},{w:"hand",e:"✋"},{w:"sea",e:"🌊"},
   {w:"apple",e:"🍎"},{w:"bell",e:"🔔"},{w:"box",e:"📦"},{w:"board",e:"🪵"},
-  {w:"cake",e:"🍰"},{w:"fly",e:"🪰"},{w:"sun",e:"☀️"},{w:"rain",e:"🌧️"}];
+  {w:"cake",e:"🍰"},{w:"fly",e:"🪰"},{w:"sun",e:"☀️"},{w:"rain",e:"🌧️"},
+  {w:"bee",e:"🐝"},{w:"worm",e:"🐛"},{w:"berry",e:"🍓"},{w:"paper",e:"📄"},{w:"book",e:"📖"},
+  {w:"man",e:"🧍"},{w:"boy",e:"👦"},{w:"coat",e:"🧥"},{w:"shell",e:"🐚"},{w:"bow",e:"🎀"},
+  {w:"light",e:"💡"},{w:"house",e:"🏠"},{w:"boat",e:"🚤"},{w:"ship",e:"🚢"},{w:"brush",e:"🪥"},
+  {w:"chair",e:"🪑"},{w:"glass",e:"🥛"},{w:"ground",e:"🌍"},{w:"walk",e:"🚶"},{w:"pack",e:"🎒"},
+  {w:"drop",e:"💧"},{w:"storm",e:"🌪️"},{w:"truck",e:"🚚"},{w:"melon",e:"🍈"},{w:"plant",e:"🌱"}];
 
-/* ---------- state ---------- */
-let idx=0, slots=[], score=0, busy=false;
+/* ===================== 存檔 ===================== */
+const SAVE_KEY='ziling-save-v2';
+let save={unlocked:0, stars:{}, score:0};
+function loadSave(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY));
+  if(s&&typeof s==='object'){save.unlocked=s.unlocked|0;save.stars=s.stars||{};save.score=s.score|0;}}catch(e){}}
+function persistSave(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(save));}catch(e){}}
+function worldWords(w){const W=WORLDS[w];return W.boss?BOSS_POOL.map(l=>l.whole.w):W.levels.map(l=>l.whole.w);}
+function worldStars(w){return worldWords(w).reduce((t,k)=>t+(save.stars[k]||0),0);}
+function worldMaxStars(w){const W=WORLDS[w];return (W.boss?W.count:W.levels.length)*3;}
+function worldCleared(w){const W=WORLDS[w];const got=worldWords(w).filter(k=>save.stars[k]);return W.boss?got.length>=W.count:got.length>=W.levels.length;}
+function totalStars(){let t=0;for(let w=0;w<WORLDS.length;w++)t+=worldStars(w);return t;}
+
+/* ===================== 狀態 ===================== */
+let wIdx=0, lIdx=0, stage=0, bossRound=null, curLevels=[], slots=[], score=0, busy=false;
 const $=id=>document.getElementById(id);
 
-/* ---------- audio ---------- */
+/* ===================== 音效 ===================== */
 let actx,master,soundOn=true;
 function aInit(){if(actx)return;actx=new(window.AudioContext||window.webkitAudioContext)();master=actx.createGain();master.gain.value=.9;master.connect(actx.destination);armed=true;startMusic();}
 function tone(f,d,t="triangle",v=.2,w=0,dest){if(!actx||!soundOn)return;const T=actx.currentTime+w,o=actx.createOscillator(),g=actx.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(0,T);g.gain.linearRampToValueAtTime(v,T+.01);g.gain.exponentialRampToValueAtTime(.0001,T+d);o.connect(g);g.connect(dest||master);o.start(T);o.stop(T+d+.02);}
@@ -239,6 +443,7 @@ function stopMusic(){if(mtimer){clearInterval(mtimer);mtimer=null;}}
 const sWhoosh=()=>{if(!actx||!soundOn)return;const b=actx.createBuffer(1,actx.sampleRate*.3,actx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.5);const s=actx.createBufferSource();s.buffer=b;const g=actx.createGain();g.gain.value=.16;const f=actx.createBiquadFilter();f.type="bandpass";f.frequency.value=1200;s.connect(f);f.connect(g);g.connect(master);s.start();};
 const sFuse=()=>[0,4,7,12].forEach((s,i)=>tone(523.25*Math.pow(2,s/12),.22,"triangle",.16,i*.05));
 const sReveal=()=>{tone(880,.1,"sine",.14);tone(1320,.14,"sine",.1,.06);};
+const sStar=()=>[0,7,12].forEach((s,i)=>tone(880*Math.pow(2,s/12),.16,"sine",.18,i*.09));
 const sDone=()=>[0,4,7,12,16,19].forEach((s,i)=>tone(440*Math.pow(2,s/12),.4,"triangle",.2,i*.12));
 /* TTS：避免 mobile Chrome 連續 cancel() 卡死的問題 */
 let _voices=[];
@@ -257,15 +462,15 @@ function speak(w,pitch){
 }
 function vib(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
 
-/* ---------- particles ---------- */
+/* ===================== 粒子 ===================== */
 const cv=$('fx'),cx=cv.getContext('2d');let parts=[];
 function rs(){cv.width=innerWidth;cv.height=innerHeight}rs();addEventListener('resize',rs);
 function burst(x,y,cols,n){for(let i=0;i<(n||26);i++){const a=Math.random()*6.28,s=2+Math.random()*7;parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2,life:1,c:cols[i%cols.length],r:2+Math.random()*3})}}
 (function loop(){cx.clearRect(0,0,cv.width,cv.height);parts=parts.filter(p=>p.life>0);parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.18;p.life-=.022;cx.globalAlpha=Math.max(p.life,0);cx.fillStyle=p.c;cx.beginPath();cx.arc(p.x,p.y,p.r,0,7);cx.fill()});cx.globalAlpha=1;requestAnimationFrame(loop)})();
 
-/* ---------- 引線倒數（緊張感）---------- */
+/* ===================== 引線倒數 ===================== */
 let fuseMax=16, fuseT=0, running=false, armed=false, _lastTs=0, _tickAt=0;
-function setFuseForLevel(n){ fuseMax = n>=3 ? 24 : 16; fuseT=0; running=true; }
+function setFuseForLevel(n){ const W=WORLDS[wIdx]; let base = n>=3 ? (W.fuse3||24) : (W.fuse2||16); if(stage===1) base=Math.max(8,base-2); fuseMax=base; fuseT=0; running=true; }
 function fuseFrac(){ return Math.min(fuseT/fuseMax,1); }
 function updateFuse(f){
   const fuse=$('fuse'); if(!fuse)return;
@@ -285,7 +490,7 @@ function boom(){
   const fl=$('fflame'); if(fl){const r=fl.getBoundingClientRect();burst(r.left+r.width/2,r.top,["#ff5470","#ff9a3c","#ffd86b"],30);}
   toast("💥 時間到！再來一次","#ff5470");
   try{speechSynthesis.cancel();}catch(e){}
-  setTimeout(()=>{ if(idx<LEVELS.length) load(); }, 1300); // 重來這關，引線重置
+  setTimeout(()=>{ if(!$('mapOvl').classList.contains('show')) load(); }, 1300); // 重來這關，引線重置
 }
 (function fuseLoop(ts){
   if(!_lastTs)_lastTs=ts; const dt=Math.min((ts-_lastTs)/1000,.1); _lastTs=ts;
@@ -300,23 +505,79 @@ function boom(){
   requestAnimationFrame(fuseLoop);
 })(0);
 
-
+/* ===================== 工具 ===================== */
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 function center(el){const r=el.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2}}
 function toast(t,c){const el=$('toast');el.textContent=t;el.style.color=c||'var(--good)';el.classList.remove('show');void el.offsetWidth;el.classList.add('show')}
 
-/* ---------- render ---------- */
-function buildPips(){const w=$('pips');w.innerHTML='';for(let i=0;i<LEVELS.length;i++){const d=document.createElement('div');d.className='pip'+(i<idx?' on':i===idx?' cur':'');w.appendChild(d)}}
+/* ===================== 世界地圖 ===================== */
+function renderMap(){
+  $('totStar').textContent='⭐ '+totalStars()+' / '+(WORLDS.reduce((t,_,w)=>t+worldMaxStars(w),0));
+  const wrap=$('worlds');wrap.innerHTML='';
+  WORLDS.forEach((W,w)=>{
+    const locked=w>save.unlocked;
+    const cleared=worldCleared(w);
+    const got=worldStars(w),mx=worldMaxStars(w);
+    const card=document.createElement('div');
+    card.className='wcard'+(locked?' lock':'')+(cleared?' cleared':'')+(W.boss?' boss':'');
+    const tot=W.boss?W.count:W.levels.length, half=Math.ceil(tot/2);
+    const desc=W.boss?('魔王亂鬥 · 隨機 '+tot+' 關'):('基礎 '+half+' ＋ 進階 '+(tot-half)+' 關');
+    card.innerHTML=
+      '<div class="wico">'+(locked?'🔒':W.icon)+'</div>'+
+      '<div class="wmid"><div class="wnm">'+(W.boss?'👑 ':'')+W.name+'</div>'+
+        '<div class="wpr">'+(locked?'先通關上一個世界解鎖':desc)+'</div>'+
+        '<div class="wbar"><div style="width:'+(mx?Math.round(got/mx*100):0)+'%"></div></div></div>'+
+      '<div class="wst">'+(locked?'🔒':('⭐ '+got+'/'+mx))+'</div>';
+    if(!locked) card.onclick=()=>enterWorld(w);
+    wrap.appendChild(card);
+  });
+}
+function openMap(){
+  running=false; busy=false;
+  $('worldDone').classList.remove('show'); $('doneOvl').classList.remove('show');
+  renderMap(); $('mapOvl').classList.add('show');
+}
+function fullWorldLevels(w){
+  const W=WORLDS[w];
+  if(W.boss){ if(!bossRound) bossRound=shuffle(BOSS_POOL).slice(0,W.count); return bossRound; } // 魔王：本輪隨機抽
+  return W.levels;
+}
+function stageLevels(w,st){
+  const full=fullWorldLevels(w);
+  const half=Math.ceil(full.length/2);
+  return shuffle(st===0?full.slice(0,half):full.slice(half));  // 前半=基礎 後半=進階；段內洗牌
+}
+function enterWorld(w){
+  aInit();                       // 使用者手勢，啟動音訊
+  wIdx=w; bossRound=null;
+  enterStage(0);
+}
+function enterStage(st){
+  stage=st; lIdx=0;
+  curLevels=stageLevels(wIdx,st);
+  $('worldDone').classList.remove('show');
+  $('mapOvl').classList.remove('show');
+  load();
+}
+
+/* ===================== 渲染關卡 ===================== */
+function buildPips(){const wrap=$('pips');wrap.innerHTML='';for(let i=0;i<curLevels.length;i++){const d=document.createElement('div');d.className='pip'+(i<lIdx?' on':i===lIdx?' cur':'');wrap.appendChild(d)}}
 
 function load(){
-  const L=LEVELS[idx];
+  const L=curLevels[lIdx];
   const n=L.p.length;
   setFuseForLevel(n);
   $('fuse').classList.remove('hot');
   slots=new Array(n).fill(null);busy=false;
-  $('lv').textContent=idx+1;
+  const W=WORLDS[wIdx];
+  $('wIcon').textContent=W.icon;
+  $('wName').textContent=W.name;
+  $('stageName').textContent=stage===0?'基礎':'進階';
+  $('lv').textContent=lIdx+1;
+  $('ltot').textContent=curLevels.length;
   $('meaning').textContent=L.whole.zh;
   $('caption').innerHTML='';
+  $('score').textContent=score;
 
   const b=$('build');b.className='build'+(n===3?' n3':'');b.innerHTML='';
   for(let i=0;i<n;i++){
@@ -331,10 +592,12 @@ function load(){
   const wd=$('word');wd.innerHTML='';
   [...L.whole.w].forEach(ch=>{const s=document.createElement('div');
     if(ch===' '){s.className='wl sp';s.textContent='';}
-    else{s.className='wl';s.dataset.ch=ch.toUpperCase();s.textContent='\u00A0';}
+    else{s.className='wl';s.dataset.ch=ch.toUpperCase();s.textContent=' ';}
     wd.appendChild(s);});
 
-  const need=Math.max(6,n+3);
+  // 干擾卡：越後面的世界越多，再加一點隨機，讓每次手感不同
+  const extra=Math.min(3,Math.floor(wIdx/2))+(Math.random()<.5?1:0)+(W.boss?2:0);
+  const need=Math.max(6,n+3+extra);
   const wrong=shuffle(DISTRACT.filter(d=>!L.p.some(p=>p.w===d.w))).slice(0,need-n);
   const bank=shuffle([...L.p,...wrong]);
   const bk=$('bank');bk.innerHTML='';
@@ -382,10 +645,10 @@ $('clear').onclick=()=>{
   updateSubmit();
 };
 
-/* ---------- submit / fuse ---------- */
+/* ===================== 提交 / 合成 ===================== */
 $('submit').onclick=()=>{
   if(busy||slots.some(s=>!s))return;aInit();
-  const L=LEVELS[idx];
+  const L=curLevels[lIdx];
   const ok=slots.every((s,i)=>s.w===L.p[i].w);
   if(!ok){
     sBad();vib([30,40,30]);
@@ -400,6 +663,11 @@ $('submit').onclick=()=>{
 
 function fuse(L){
   busy=true;updateSubmit();
+  running=false;                          // 提交成功，停止引線
+  const rem=1-fuseFrac();
+  const st=rem>=0.55?3:rem>=0.28?2:1;     // 依剩餘引線給星
+  const key=L.whole.w;
+  if((save.stars[key]||0)<st){save.stars[key]=st;}
   const gc=center($('goalbox'));
   sWhoosh();vib(20);
   const dur=540;
@@ -422,9 +690,12 @@ function fuse(L){
     sFuse();vib(40);
     revealWord(L.whole.w);
     speak(L.whole.w,1.35);
-    $('caption').innerHTML=L.p.map(p=>'<span style="color:var(--ink)">'+p.w+'</span>').join(' + ')+' = <b>'+L.whole.w+'</b>';
-    score+=10*L.p.length;$('score').textContent=score;
-    setTimeout(next,1700);
+    $('caption').innerHTML=L.p.map(p=>'<span style="color:var(--ink)">'+p.w+'</span>').join(' + ')+' = <b>'+L.whole.w+'</b>'+
+      '<div class="memo">'+L.p.map(p=>pz(p.w)).join(' ＋ ')+' ＝ <b>'+L.whole.zh+'</b></div>';
+    const gain=10*L.p.length+(st-1)*5;    // 基礎分 + 星級獎勵
+    score+=gain;save.score=score;$('score').textContent=score;persistSave();
+    setTimeout(()=>{ sStar(); toast('⭐'.repeat(st)+'  +'+gain,'#ffd86b'); },520);
+    setTimeout(next,1750);
   },dur+slots.length*60-40);
 }
 
@@ -441,18 +712,84 @@ function revealWord(w){
 }
 
 function next(){
-  idx++;
-  if(idx>=LEVELS.length){
-    running=false; stopMusic(); sDone();
-    $('doneSub').innerHTML='你把 '+LEVELS.length+' 組英文合成詞拼合起來，得分 <b style="color:var(--gold)">'+score+'</b>。<br>每個大字，都是幾個小字長出來的。';
-    $('doneOvl').classList.add('show');return;
+  lIdx++;
+  if(lIdx>=curLevels.length){
+    if(stage===0){ showStageClear(); return; }   // 基礎段完成 → 進階段
+    finishWorld(); return;                         // 進階段完成 → 世界通關
   }
   load();
 }
 
+/* ===================== 世界通關 / 解鎖 ===================== */
+function finishWorld(){
+  running=false;
+  const isLast=(wIdx+1>=WORLDS.length);
+  if(!isLast && save.unlocked<wIdx+1){save.unlocked=wIdx+1;}   // 解鎖下一世界
+  persistSave();
+  if(isLast){ showAllDone(); return; }
+  showWorldDone(isLast);
+}
+
+function starRow(n){let s='';for(let i=0;i<3;i++)s+='<span class="'+(i<n?'f':'e')+'">⭐</span>';return s;}
+
+let resultMode='world';
+function fillWords(arr){
+  const g=$('wdWords');g.innerHTML='';
+  arr.forEach(L=>{const d=document.createElement('div');d.className='wgi';
+    d.innerHTML='<div class="e">'+L.whole.e+'</div><div class="w">'+L.whole.w+'</div><div class="z">'+L.whole.zh+'</div>';
+    g.appendChild(d);});
+}
+
+/* 基礎段完成 → 引導進階段，並回顧本段學過的單字 */
+function showStageClear(){
+  running=false; resultMode='stage';
+  sDone();vib([30,40,30]);
+  $('wdTrophy').textContent='🌱';
+  $('wdTitle').textContent='基礎篇完成！';
+  const got=curLevels.reduce((t,L)=>t+(save.stars[L.whole.w]||0),0), mx=curLevels.length*3, ratio=mx?got/mx:0;
+  $('wdStars').innerHTML=starRow(ratio>=.85?3:ratio>=.5?2:1);
+  $('wdSub').innerHTML='這些字你都拼出來了 👇　星星 <b>⭐ '+got+'/'+mx+'</b><br>接下來是 <b style="color:var(--warm2)">進階篇</b>，引線更短，加油！';
+  fillWords(curLevels);
+  $('wdNext').textContent='進階篇 ▶';
+  $('worldDone').classList.add('show');
+}
+
+/* 進階段完成 = 整個世界通關 */
+function showWorldDone(){
+  const W=WORLDS[wIdx];
+  sDone();vib([30,40,30,40,60]); resultMode='world';
+  $('wdTrophy').textContent=W.boss?'👑':'🏆';
+  $('wdTitle').textContent=W.icon+' '+W.name+' 通關！';
+  const got=worldStars(wIdx),mx=worldMaxStars(wIdx);
+  const ratio=mx?got/mx:0;
+  $('wdStars').innerHTML=starRow(ratio>=.85?3:ratio>=.5?2:1);
+  const nextW=WORLDS[wIdx+1];
+  $('wdSub').innerHTML='本世界星星 <b>⭐ '+got+'/'+mx+'</b>　總星 <b>'+totalStars()+'</b><br>'+
+    (nextW?('🔓 解鎖新世界：<b>'+nextW.icon+' '+nextW.name+'</b>'):'');
+  fillWords(fullWorldLevels(wIdx));
+  $('wdNext').textContent= nextW?('進入下一世界 '+nextW.icon+' ▶'):'下一步 ▶';
+  $('worldDone').classList.add('show');
+}
+
+function showAllDone(){
+  running=false; stopMusic(); sDone();
+  $('doneSub').innerHTML='你走遍 <b>'+WORLDS.length+'</b> 個世界，集滿 <b style="color:var(--gold)">⭐ '+totalStars()+'</b> 顆星，得分 <b style="color:var(--gold)">'+score+'</b>。<br>每個大字，都是幾個小字長出來的。';
+  $('doneOvl').classList.add('show');
+}
+
+$('wdNext').onclick=()=>{
+  $('worldDone').classList.remove('show');
+  if(resultMode==='stage'){ enterStage(1); }                              // 基礎 → 進階
+  else { enterWorld(Math.min(wIdx+1,WORLDS.length-1)); }                  // 世界 → 下一世界
+};
+$('wdMap').onclick=()=>{ $('worldDone').classList.remove('show'); openMap(); };
+$('dAgain').onclick=()=>{ $('doneOvl').classList.remove('show'); if(!actx)aInit(); else startMusic(); openMap(); };
+$('backMap').onclick=()=>openMap();
+
+/* ===================== 提示 ===================== */
 $('hint').onclick=()=>{
   if(busy)return;aInit();
-  const L=LEVELS[idx];
+  const L=curLevels[lIdx];
   for(let i=0;i<L.p.length;i++){
     if(!slots[i]||slots[i].w!==L.p[i].w){
       if(slots[i]){const w=slots[i].w;const t=[...document.querySelectorAll('.tile')].find(x=>x.dataset.w===w&&x.classList.contains('used'));if(t)t.classList.remove('used');}
@@ -466,7 +803,11 @@ $('hint').onclick=()=>{
 
 $('mute').onclick=function(){soundOn=!soundOn;this.textContent=soundOn?'🔊':'🔇';if(soundOn){if(actx)startMusic();}else{stopMusic();}};
 
-load();
+/* ===================== 啟動 ===================== */
+loadSave();
+score=save.score;
+$('score').textContent=score;
+openMap();
 </script>
 </body>
 </html>
