@@ -3,18 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-site-verification" content="zxtjf63iH52s_Mwrufk_dnJN9IgmhG-hGLfVssjasAM" />
 <title>永動創意工作室 Perpetual Motion Creative Studio</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;600;700&family=DM+Sans:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700&family=DM+Sans:wght@500;600;700&display=swap');
 
   :root {
-    --bg: #0a0a0c;
-    --surface: #141418;
+    --bg: #0e0e10;
+    --card: #1a1a1f;
+    --card-hover: #222228;
     --border: #2a2a32;
     --text: #e8e6e3;
     --text-dim: #8a8a96;
     --accent: #c8a864;
-    --accent-dim: #c8a86433;
+    --green: #4ade80;
+    --gap: 12px;
+    --radius: 16px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,161 +28,278 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    padding: 24px;
+  }
+
+  .page {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Header card */
+  .header {
+    padding: 48px 8px 24px 40px;
+  }
+
+  .header .logo {
+    font-size: 12px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+
+  .header h1 {
+    font-size: clamp(32px, 6vw, 48px);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .header .en {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    color: var(--text-dim);
+    font-weight: 400;
+    margin-bottom: 28px;
+  }
+
+  .header .divider {
+    width: 48px;
+    height: 2px;
+    background: var(--accent);
+    margin-bottom: 28px;
+  }
+
+  .header .desc {
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--text-dim);
+  }
+
+  /* Section label */
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin: 28px 0 12px 4px;
+  }
+
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--gap);
+  }
+
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 640px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 400px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  /* Card */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 24px;
     display: flex;
     flex-direction: column;
+    gap: 8px;
+    transition: background 0.15s, border-color 0.15s;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  a.card:hover {
+    background: var(--card-hover);
+    border-color: #e0c478;
+  }
+
+  .card.dim {
+    border-color: var(--border);
+  }
+
+  .card .icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    margin-bottom: 4px;
+    object-fit: cover;
+  }
+
+  .card .icon-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    margin-bottom: 4px;
+    background: #2a2a32;
+    display: flex;
     align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--text-dim);
+    font-weight: 700;
+    flex-shrink: 0;
   }
 
-  .noise {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.03;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  .card .name {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.3;
   }
 
-  main {
-    position: relative; z-index: 1;
-    max-width: 720px; width: 100%; padding: 80px 24px;
+  .card .desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
   }
 
-  .logo {
-    font-size: 13px; letter-spacing: 6px; text-transform: uppercase;
-    color: var(--accent); font-weight: 600; margin-bottom: 48px;
+  .card .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--green);
+    font-weight: 600;
   }
 
-  h1 {
-    font-size: clamp(32px, 6vw, 48px); font-weight: 700;
-    line-height: 1.3; margin-bottom: 12px;
+  .card .badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
   }
 
-  .en-name {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px; color: var(--text-dim); font-weight: 400;
-    margin-bottom: 40px;
+  .card .coming {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 500;
   }
 
-  .divider {
-    width: 48px; height: 2px; background: var(--accent); margin-bottom: 40px;
+  /* Footer */
+  .footer {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+    padding: 20px 0;
   }
 
-  .desc {
-    font-size: 16px; line-height: 1.9; color: var(--text-dim); margin-bottom: 56px;
+  .footer a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.15s;
   }
+  .footer a:hover { color: var(--accent); }
 
-  .apps-section h2 {
-    font-size: 13px; letter-spacing: 4px; text-transform: uppercase;
-    color: var(--accent); margin-bottom: 24px; font-weight: 600;
-  }
-
-  .app-list {
-    display: flex; flex-direction: column; gap: 12px; margin-bottom: 56px;
-  }
-
-  .app-item {
-    padding: 20px 24px; border: 1px solid var(--border); border-radius: 8px;
-    background: var(--surface); transition: border-color 0.2s;
-  }
-  .app-item:hover { border-color: var(--accent); }
-
-  .app-item .name { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
-  .app-item .tagline { font-size: 14px; color: var(--text-dim); }
-
-  .app-item .badge {
-    display: inline-block; margin-top: 10px;
-    font-size: 12px; color: var(--accent); letter-spacing: 1px; font-weight: 600;
-  }
-
-  .links {
-    display: flex; gap: 24px; flex-wrap: wrap;
-  }
-
-  .links a {
-    color: var(--text-dim); text-decoration: none; font-size: 14px;
-    border-bottom: 1px solid var(--border); padding-bottom: 2px;
-    transition: color 0.2s, border-color 0.2s;
-  }
-  .links a:hover { color: var(--accent); border-color: var(--accent); }
-
-  footer {
-    position: relative; z-index: 1;
-    padding: 32px 24px; text-align: center;
-    font-size: 13px; color: var(--text-dim);
-    border-top: 1px solid var(--border); width: 100%; max-width: 720px;
-    margin-top: auto;
+  .copy {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 8px;
+    padding-bottom: 24px;
   }
 </style>
 </head>
 <body>
-<div class="noise"></div>
-<main>
-  <div class="logo">永動創意</div>
-  <h1>永動創意工作室</h1>
-  <p class="en-name">Perpetual Motion Creative Studio</p>
-  <div class="divider"></div>
-  <p class="desc">
-    我們打造實用、有溫度的行動應用程式。<br>
-    從日常工具到創意發想，讓科技融入生活每一刻。
-  </p>
+<div class="page">
 
-  <div class="apps-section">
-    <h2>已上架</h2>
-    <div class="app-list">
-      <a class="app-item" href="https://play.google.com/store/apps/details?id=com.perpetualmotion.radical_lookup" style="text-decoration:none;color:inherit;">
-        <div class="name">手寫生字快查</div>
-        <div class="tagline">手寫就能查國字部首、注音、筆畫、釋義</div>
-        <div class="badge">Google Play ↗</div>
-      </a>
-      <a class="app-item" href="https://play.google.com/store/apps/details?id=com.yongdong.padplayer" style="text-decoration:none;color:inherit;">
-        <div class="name">Nido Player</div>
-        <div class="tagline">本機影音播放器，支援區網 NAS（SMB）串流</div>
-        <div class="badge">Google Play ↗</div>
-      </a>
+  <div class="header">
+    <div class="logo">永動創意</div>
+    <h1>永動創意工作室</h1>
+    <p class="en">Perpetual Motion Creative Studio</p>
+    <div class="divider"></div>
+    <p class="desc">
+      我們打造實用、有溫度的行動應用程式。<br>
+      從日常工具到創意發想，讓科技融入生活每一刻。
+    </p>
+  </div>
+
+  <div class="section-label">已上架</div>
+  <div class="grid">
+    <a class="card" href="https://play.google.com/store/apps/details?id=com.perpetualmotion.radical_lookup">
+      <img class="icon" src="https://play-lh.googleusercontent.com/qsDO3Mno371y6rvbjPqTdKjtLvqsDuSiA1aMlfVw3oGX6hOlUGlh3YQuGS3-gLny7t7BVpSqYLL-HYik_htHGek=w96-h96" alt="手寫生字快查">
+      <div class="name">手寫生字快查</div>
+      <div class="desc">手寫就能查國字部首、注音、筆畫、釋義</div>
+      <div class="badge">Google Play</div>
+    </a>
+    <a class="card" href="https://play.google.com/store/apps/details?id=com.yongdong.padplayer">
+      <img class="icon" src="nido-icon.webp" alt="Nido Player">
+      <div class="name">Nido Player</div>
+      <div class="desc">本機影音播放器，支援區網 NAS（SMB）串流</div>
+      <div class="badge">Google Play</div>
+    </a>
+  </div>
+
+  <div class="section-label">即將推出</div>
+  <div class="grid">
+    <div class="card dim">
+      <div class="icon-placeholder">?</div>
+      <div class="name">拍拍背</div>
+      <div class="desc">拍照、製卡、分享——詞彙學習的最短路徑</div>
+      <div class="coming">即將上架</div>
     </div>
-
-    <h2 style="margin-top:40px;">即將推出</h2>
-    <div class="app-list">
-      <div class="app-item">
-        <div class="name">拍拍背</div>
-        <div class="tagline">拍照、製卡、分享——詞彙學習的最短路徑</div>
-      </div>
-      <div class="app-item">
-        <div class="name">圖書館助手</div>
-        <div class="tagline">輕鬆管理你的圖書館借閱紀錄</div>
-      </div>
-      <div class="app-item">
-        <div class="name">QR Code 工具</div>
-        <div class="tagline">快速產生與掃描 QR Code</div>
-      </div>
-      <div class="app-item">
-        <div class="name">英語時態速學</div>
-        <div class="tagline">用「動詞時光機」搞懂英文 12 時態</div>
-      </div>
+    <div class="card dim">
+      <div class="icon-placeholder">?</div>
+      <div class="name">圖書館助手</div>
+      <div class="desc">輕鬆管理你的圖書館借閱紀錄</div>
+      <div class="coming">即將上架</div>
+    </div>
+    <div class="card dim">
+      <div class="icon-placeholder">?</div>
+      <div class="name">QR Code 工具</div>
+      <div class="desc">快速產生與掃描 QR Code</div>
+      <div class="coming">即將上架</div>
+    </div>
+    <div class="card dim">
+      <div class="icon-placeholder">?</div>
+      <div class="name">英語時態速學</div>
+      <div class="desc">用「動詞時光機」搞懂英文 12 時態</div>
+      <div class="coming">即將上架</div>
     </div>
   </div>
 
-  <div class="apps-section" style="margin-top:48px;">
-    <h2>學習資源</h2>
-    <div class="app-list">
-      <a class="app-item" href="ziling-compound.html" style="text-decoration:none;color:inherit;">
-        <div class="name">字靈 英語拼字挑戰</div>
-        <div class="tagline">英語拼字闖關遊戲</div>
-      </a>
-      <a class="app-item" href="mulan.html" style="text-decoration:none;color:inherit;">
-        <div class="name">木蘭詩 朗誦導讀</div>
-        <div class="tagline">木蘭詩全文朗誦與導讀</div>
-      </a>
-      <a class="app-item" href="english-parts-of-speech.html" style="text-decoration:none;color:inherit;">
-        <div class="name">英語詞性教學</div>
-        <div class="tagline">S、V、O 一看就懂的詞性標註教學</div>
-      </a>
-    </div>
+  <div class="section-label">學習資源</div>
+  <div class="grid">
+    <a class="card" href="ziling-compound.html">
+      <div class="icon-placeholder">?</div>
+      <div class="name">字靈 英語拼字挑戰</div>
+      <div class="desc">英語拼字闖關遊戲</div>
+    </a>
+    <a class="card" href="mulan.html">
+      <div class="icon-placeholder">?</div>
+      <div class="name">木蘭詩 朗誦導讀</div>
+      <div class="desc">木蘭詩全文朗誦與導讀</div>
+    </a>
+    <a class="card" href="english-parts-of-speech.html">
+      <div class="icon-placeholder">?</div>
+      <div class="name">英語詞性教學</div>
+      <div class="desc">S、V、O 一看就懂的詞性標註教學</div>
+    </a>
   </div>
 
-  <div class="links">
+  <div class="footer">
     <a href="privacy-policy.html">隱私權政策</a>
     <a href="mailto:iqooalex@gmail.com">聯絡我們</a>
   </div>
-</main>
-<footer>
-  © 2026 永動創意工作室 Perpetual Motion Creative Studio．統編 61249892
-</footer>
+
+  <div class="copy">© 2026 永動創意工作室 Perpetual Motion Creative Studio．統編 61249892</div>
+
+</div>
 </body>
 </html>
