@@ -28,6 +28,7 @@
   .title b{color:var(--warm2)}
   .title .sep{color:var(--dim);font-weight:600}
   .spacer{flex:1}
+  .timer{color:var(--cool2);font-weight:800;font-size:14px;min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
   .score{color:var(--gold);font-weight:800;font-size:15px}
 
   .pips{display:flex;gap:4px;justify-content:center;margin:12px 0 4px;flex-wrap:wrap}
@@ -102,6 +103,20 @@
   .tools{display:flex;justify-content:center;margin-top:10px}
   .toolbtn{background:var(--machine2);border:1px solid var(--gold);color:var(--gold);font-weight:700;font-size:13px;padding:9px 16px;border-radius:11px}
 
+  .items{display:flex;gap:8px;justify-content:center;margin-top:10px}
+  .itembtn{position:relative;flex:1;max-width:120px;background:var(--machine2);border:1px solid var(--cool);border-radius:13px;
+    color:var(--ink);font-weight:800;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:transform .08s,opacity .2s}
+  .itembtn:active{transform:translateY(2px)}
+  .itembtn .ic{font-size:22px;line-height:1}
+  .itembtn .nm{font-size:11px;color:var(--cool2)}
+  .itembtn .ct{position:absolute;top:-7px;right:-6px;min-width:20px;height:20px;border-radius:10px;
+    background:var(--warm);color:#062038;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 4px}
+  .itembtn.off{opacity:.35;border-color:var(--line)}
+  .itembtn.off .ct{background:var(--line);color:var(--dim)}
+
+  .fuse.frozen{box-shadow:0 0 16px rgba(122,208,255,.7)!important;border-color:var(--cool2)!important}
+  .fuse.frozen .cord{background:var(--cool)}
+
   .shake{animation:shake .4s}
   @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
 
@@ -137,6 +152,53 @@
   .wcard.boss{border-color:var(--bad);background:linear-gradient(180deg,#4a2348,#2a1640)}
   .wcard.boss.lock{border-color:var(--line)}
 
+  /* ---- 玩家 ---- */
+  .curp{display:flex;align-items:center;gap:10px;margin-top:6px}
+  .curp #curName{color:var(--ink);font-weight:800;font-size:15px}
+  .switchbtn{background:var(--machine2);border:1px solid var(--line);color:var(--cool2);font-weight:700;font-size:12px;padding:5px 12px;border-radius:10px;cursor:pointer}
+  .players{display:flex;flex-direction:column;gap:10px;width:100%;max-width:430px;margin:16px 0 6px}
+  .pcard{display:flex;align-items:center;gap:12px;background:linear-gradient(180deg,var(--machine2),var(--machine));
+    border:1px solid var(--line);border-radius:16px;padding:13px 15px;cursor:pointer;transition:transform .1s}
+  .pcard:active{transform:scale(.985)}
+  .pcard .pav{font-size:28px;width:42px;text-align:center;flex:0 0 auto}
+  .pcard .pnm{flex:1;font-weight:800;font-size:17px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pcard .pst{color:var(--gold);font-weight:800;font-size:13px;flex:0 0 auto;text-align:right;line-height:1.4}
+  .pcard .pdel{color:var(--dim);font-size:15px;padding:4px 6px;flex:0 0 auto;border-radius:8px}
+  .pcard .pdel:active{background:rgba(255,84,112,.2);color:var(--bad)}
+  .newp{display:flex;gap:8px;width:100%;max-width:430px;margin-top:4px}
+  .newp input{flex:1;min-width:0;background:var(--machine);border:1px solid var(--line);border-radius:14px;
+    color:var(--ink);font-size:16px;font-weight:700;padding:13px 15px;outline:none;user-select:text;-webkit-user-select:text}
+  .newp input:focus{border-color:var(--gold)}
+  .newp input::placeholder{color:var(--dim);font-weight:600}
+  .newp button{flex:0 0 auto;background:linear-gradient(180deg,var(--warm2),var(--warm));border:none;
+    color:#062038;font-weight:800;font-size:16px;padding:0 20px;border-radius:14px;cursor:pointer}
+
+  /* ---- 圖鑑 ---- */
+  .dexwrap{width:100%;max-width:440px;margin-top:10px}
+  .dexsec{margin-bottom:14px}
+  .dexsec h4{color:var(--cool2);font-size:14px;font-weight:800;margin:10px 2px 6px;text-align:left}
+  .dexgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .dxi{background:var(--machine2);border:1px solid var(--line);border-radius:10px;padding:6px 2px;
+    display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;cursor:pointer}
+  .dxi.lock{opacity:.4;cursor:default}
+  .dxi .e{font-size:22px;line-height:1.1}
+  .dxi .w{font-size:9px;font-weight:800;color:var(--ink);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dxi .z{font-size:9px;color:var(--dim);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dxi .st{font-size:8px;color:var(--gold);height:10px}
+  .dxi.holo{border-color:var(--gold);background:linear-gradient(120deg,#3a2f78,#6a4aa0,#2a6a8b,#6a4aa0,#3a2f78);
+    background-size:300% 300%;animation:holo 3.2s linear infinite}
+  @keyframes holo{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+  .dxi.holo .e{filter:drop-shadow(0 0 5px var(--gold))}
+  .specialrow{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px}
+  .spc{position:relative;background:var(--machine2);border:1px solid var(--line);border-radius:11px;padding:8px 3px;
+    display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;text-align:center}
+  .spc .e{font-size:26px;line-height:1.1}
+  .spc .w{font-size:10px;font-weight:800;color:var(--ink);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .spc .z{font-size:8px;color:var(--dim);max-width:100%;line-height:1.2}
+  .spc.lock{opacity:.45}
+  .spc.master{border-color:var(--gold);box-shadow:0 0 8px rgba(255,216,107,.35);background:linear-gradient(180deg,#4a3f1a,#2a2358)}
+  .spc.ach{border-color:var(--good);box-shadow:0 0 8px rgba(72,214,160,.3)}
+
   /* ---- 通關面板 ---- */
   .done{position:fixed;inset:0;background:rgba(8,6,24,.85);display:none;align-items:center;justify-content:center;z-index:25;padding:20px}
   .done.show{display:flex}
@@ -167,6 +229,7 @@
     <div class="iconbtn" id="backMap">🗺️</div>
     <div class="title"><span id="wIcon">🌻</span> <b id="wName">自然天氣</b> <span class="sep">·</span> <span id="stageName" style="color:var(--cool2)">基礎</span> <span id="lv">1</span><span class="sep">/</span><span id="ltot">6</span></div>
     <div class="spacer"></div>
+    <div class="timer" id="timer">0:00</div>
     <div class="iconbtn" id="mute">🔊</div>
     <div class="score" id="score">0</div>
   </header>
@@ -194,19 +257,42 @@
     <button class="clear" id="clear">清除</button>
     <button class="submit" id="submit" disabled>✓ 提交</button>
   </div>
-  <div class="tools"><button class="toolbtn" id="hint">提示 (露一個部件 −3s)</button></div>
+  <div class="items" id="items">
+    <button class="itembtn" id="itFreeze"><span class="ic">❄️</span><span class="nm">凍結</span><span class="ct" id="ctFreeze">0</span></button>
+    <button class="itembtn" id="itClear"><span class="ic">🔍</span><span class="nm">清干擾</span><span class="ct" id="ctClear">0</span></button>
+    <button class="itembtn" id="itHint"><span class="ic">💡</span><span class="nm">提示</span><span class="ct" id="ctHint">0</span></button>
+  </div>
 
   <div class="toast" id="toast"></div>
 </div>
 
 <canvas id="fx"></canvas>
 
+<!-- 玩家選擇 -->
+<div class="mapOvl" id="playerOvl">
+  <div class="mapTitle">字<b>靈</b> · 組字挑戰</div>
+  <div class="mapSub">是誰要來玩呢?</div>
+  <div class="players" id="players"></div>
+  <div class="newp">
+    <input id="nameInput" maxlength="10" placeholder="輸入名字…" autocomplete="off" />
+    <button id="addPlayer">開始 ▶</button>
+  </div>
+</div>
+
 <!-- 世界地圖 -->
 <div class="mapOvl" id="mapOvl">
   <div class="mapTitle">字<b>靈</b> · 組字挑戰</div>
-  <div class="mapSub">把小字拼成大字 · 選擇世界開始</div>
+  <div class="curp"><span id="curName">👤</span> <button class="switchbtn" id="dexBtn">📖 圖鑑</button> <button class="switchbtn" id="switchP">換人</button></div>
   <div class="totStar" id="totStar">⭐ 0</div>
   <div class="worlds" id="worlds"></div>
+</div>
+
+<!-- 單字圖鑑 -->
+<div class="mapOvl" id="dexOvl">
+  <div class="mapTitle">📖 單字圖鑑</div>
+  <div class="mapSub" id="dexSub">已收集 0 / 0</div>
+  <div class="dexwrap" id="dexwrap"></div>
+  <button class="switchbtn" id="dexBack" style="margin-top:16px;padding:11px 22px;font-size:14px">← 回地圖</button>
 </div>
 
 <!-- 單一世界通關 -->
@@ -410,21 +496,53 @@ const DISTRACT=[{w:"moon",e:"🌙"},{w:"star",e:"⭐"},{w:"tree",e:"🌲"},{w:"f
   {w:"chair",e:"🪑"},{w:"glass",e:"🥛"},{w:"ground",e:"🌍"},{w:"walk",e:"🚶"},{w:"pack",e:"🎒"},
   {w:"drop",e:"💧"},{w:"storm",e:"🌪️"},{w:"truck",e:"🚚"},{w:"melon",e:"🍈"},{w:"plant",e:"🌱"}];
 
-/* ===================== 存檔 ===================== */
-const SAVE_KEY='ziling-save-v2';
-let save={unlocked:0, stars:{}, score:0};
-function loadSave(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY));
-  if(s&&typeof s==='object'){save.unlocked=s.unlocked|0;save.stars=s.stars||{};save.score=s.score|0;}}catch(e){}}
-function persistSave(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(save));}catch(e){}}
+/* ===================== 玩家 & 存檔 ===================== */
+const PKEY='ziling-players-v1';
+let players={current:null,list:[]};
+function loadPlayers(){try{const p=JSON.parse(localStorage.getItem(PKEY));if(p&&typeof p==='object'){players.current=p.current||null;players.list=Array.isArray(p.list)?p.list:[];}}catch(e){}}
+function persistPlayers(){try{localStorage.setItem(PKEY,JSON.stringify(players));}catch(e){}}
+const saveKeyFor=name=>'ziling-save-v2::'+name;
+function playerStars(name){try{const s=JSON.parse(localStorage.getItem(saveKeyFor(name)));if(s&&s.stars)return Object.values(s.stars).reduce((a,b)=>a+b,0);}catch(e){}return 0;}
+function playerTotalTime(name){try{const s=JSON.parse(localStorage.getItem(saveKeyFor(name)));if(s&&s.times)return Object.values(s.times).reduce((a,b)=>a+b,0);}catch(e){}return 0;}
+
+let save={unlocked:0, stars:{}, score:0, times:{}};
+function loadSave(){
+  save={unlocked:0,stars:{},score:0,times:{},bestCombo:0,items:{freeze:0,clear:0,hint:0},holo:{},master:{},ach:{}};  // 切換玩家時先清乾淨
+  try{const s=JSON.parse(localStorage.getItem(saveKeyFor(players.current)));
+    if(s&&typeof s==='object'){save.unlocked=s.unlocked|0;save.stars=s.stars||{};save.score=s.score|0;save.times=s.times||{};save.bestCombo=s.bestCombo|0;save.items=Object.assign({freeze:0,clear:0,hint:0},s.items||{});save.holo=s.holo||{};save.master=s.master||{};save.ach=s.ach||{};}}catch(e){}
+}
+function persistSave(){if(!players.current)return;try{localStorage.setItem(saveKeyFor(players.current),JSON.stringify(save));}catch(e){}}
 function worldWords(w){const W=WORLDS[w];return W.boss?BOSS_POOL.map(l=>l.whole.w):W.levels.map(l=>l.whole.w);}
 function worldStars(w){return worldWords(w).reduce((t,k)=>t+(save.stars[k]||0),0);}
 function worldMaxStars(w){const W=WORLDS[w];return (W.boss?W.count:W.levels.length)*3;}
 function worldCleared(w){const W=WORLDS[w];const got=worldWords(w).filter(k=>save.stars[k]);return W.boss?got.length>=W.count:got.length>=W.levels.length;}
 function totalStars(){let t=0;for(let w=0;w<WORLDS.length;w++)t+=worldStars(w);return t;}
 
+/* 特殊卡：世界大師 + 成就 */
+function masterUnlocked(w){return worldWords(w).every(k=>save.stars[k]===3);}
+const ACH=[
+  {id:'combo10',  icon:'🔥', name:'連擊大師', desc:'達成 10 連擊'},
+  {id:'nohint',   icon:'🎯', name:'不靠提示', desc:'不用提示卡通關一個世界'},
+  {id:'noitem',   icon:'💪', name:'真本事',   desc:'不用任何道具通關一個世界'},
+  {id:'collect50',icon:'📚', name:'識字達人', desc:'學會 50 個單字'},
+  {id:'holo10',   icon:'✨', name:'閃卡收藏家',desc:'收集 10 張閃卡'},
+  {id:'allclear', icon:'👑', name:'字靈之王', desc:'通關全部世界'},
+];
+function unlockAch(id,silent){
+  if(save.ach[id])return false;
+  save.ach[id]=true; persistSave();
+  if(!silent){const a=ACH.find(x=>x.id===id);if(a)toast('🎖️ 成就：'+a.name,'#ffd86b');}
+  return true;
+}
+
 /* ===================== 狀態 ===================== */
 let wIdx=0, lIdx=0, stage=0, bossRound=null, curLevels=[], slots=[], score=0, busy=false;
+let worldMs=0, segStart=0, timing=false, lastWorldMs=0, lastPB=false;   // 闖關計時
+let combo=0, maxCombo=0, failCount=0;                                   // 連擊 & 防挫折
+let frozen=false, _freezeTimer=null;                                    // 凍結道具
+let worldUsedHint=false, worldUsedItem=false;                           // 成就追蹤(本世界)
 const $=id=>document.getElementById(id);
+function fmt(ms){ms=Math.max(0,ms|0);const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
 
 /* ===================== 音效 ===================== */
 let actx,master,soundOn=true;
@@ -444,6 +562,7 @@ const sWhoosh=()=>{if(!actx||!soundOn)return;const b=actx.createBuffer(1,actx.sa
 const sFuse=()=>[0,4,7,12].forEach((s,i)=>tone(523.25*Math.pow(2,s/12),.22,"triangle",.16,i*.05));
 const sReveal=()=>{tone(880,.1,"sine",.14);tone(1320,.14,"sine",.1,.06);};
 const sStar=()=>[0,7,12].forEach((s,i)=>tone(880*Math.pow(2,s/12),.16,"sine",.18,i*.09));
+const sWin=n=>{const k=1+Math.min(Math.max(n-1,0),8)*0.055;[0,7,12].forEach((s,i)=>tone(880*k*Math.pow(2,s/12),.16,"sine",.18,i*.09));}; // 連擊越高音越高
 const sDone=()=>[0,4,7,12,16,19].forEach((s,i)=>tone(440*Math.pow(2,s/12),.4,"triangle",.2,i*.12));
 /* TTS：避免 mobile Chrome 連續 cancel() 卡死的問題 */
 let _voices=[];
@@ -489,7 +608,7 @@ function burst(x,y,cols,n){for(let i=0;i<(n||26);i++){const a=Math.random()*6.28
 
 /* ===================== 引線倒數 ===================== */
 let fuseMax=16, fuseT=0, running=false, armed=false, _lastTs=0, _tickAt=0;
-function setFuseForLevel(n){ const W=WORLDS[wIdx]; let base = n>=3 ? (W.fuse3||24) : (W.fuse2||16); if(stage===1) base=Math.max(8,base-2); fuseMax=base; fuseT=0; running=true; }
+function setFuseForLevel(n){ const W=WORLDS[wIdx]; let base = n>=3 ? (W.fuse3||24) : (W.fuse2||16); if(stage===1) base=Math.max(8,base-2); base*=(1+Math.min(failCount,3)*0.25); fuseMax=base; fuseT=0; running=true; } // 連敗越多給越多時間
 function fuseFrac(){ return Math.min(fuseT/fuseMax,1); }
 function updateFuse(f){
   const fuse=$('fuse'); if(!fuse)return;
@@ -505,16 +624,18 @@ function sparkFlame(){
 }
 function boom(){
   if(!running)return; running=false; sBoom(); vib([40,60,40]);
+  combo=0; failCount++;                 // 中斷連擊；累加失敗→下次給更多時間
   const app=$('app'); app.classList.add('boomflash'); setTimeout(()=>app.classList.remove('boomflash'),500);
   const fl=$('fflame'); if(fl){const r=fl.getBoundingClientRect();burst(r.left+r.width/2,r.top,["#ff5470","#ff9a3c","#ffd86b"],30);}
-  toast("💥 時間到！再來一次","#ff5470");
+  toast(failCount>=2?"⏰ 別急～慢慢拼就好":"⏰ 時間到，再試一次！","#ffb347");
   try{speechSynthesis.cancel();}catch(e){}
   setTimeout(()=>{ if(!$('mapOvl').classList.contains('show')) load(); }, 1300); // 重來這關，引線重置
 }
 (function fuseLoop(ts){
   if(!_lastTs)_lastTs=ts; const dt=Math.min((ts-_lastTs)/1000,.1); _lastTs=ts;
+  if(timing){const el=$('timer');if(el)el.textContent=fmt(worldMs+(Date.now()-segStart));}   // 即時碼錶
   if(armed&&running&&!busy){
-    fuseT+=dt;
+    if(!frozen) fuseT+=dt;                          // 凍結時引線不燒
     const f=fuseFrac(); updateFuse(f); sparkFlame();
     const fuse=$('fuse');
     if(f>0.78){ fuse&&fuse.classList.add('hot'); if(ts-_tickAt>380){_tickAt=ts;tone(1200,.04,"square",.05);vib(6);} }
@@ -527,10 +648,18 @@ function boom(){
 /* ===================== 工具 ===================== */
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 function center(el){const r=el.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2}}
-function toast(t,c){const el=$('toast');el.textContent=t;el.style.color=c||'var(--good)';el.classList.remove('show');void el.offsetWidth;el.classList.add('show')}
+let _toastQ=[];
+function toast(t,c){_toastQ.push([t,c]);if(_toastQ.length===1)_runToast();}
+function _runToast(){
+  if(!_toastQ.length)return;
+  const [t,c]=_toastQ[0],el=$('toast');
+  el.textContent=t;el.style.color=c||'var(--good)';el.classList.remove('show');void el.offsetWidth;el.classList.add('show');
+  setTimeout(()=>{_toastQ.shift();_runToast();},1150);
+}
 
 /* ===================== 世界地圖 ===================== */
 function renderMap(){
+  $('curName').textContent='👤 '+(players.current||'');
   $('totStar').textContent='⭐ '+totalStars()+' / '+(WORLDS.reduce((t,_,w)=>t+worldMaxStars(w),0));
   const wrap=$('worlds');wrap.innerHTML='';
   WORLDS.forEach((W,w)=>{
@@ -541,10 +670,11 @@ function renderMap(){
     card.className='wcard'+(locked?' lock':'')+(cleared?' cleared':'')+(W.boss?' boss':'');
     const tot=W.boss?W.count:W.levels.length, half=Math.ceil(tot/2);
     const desc=W.boss?('魔王亂鬥 · 隨機 '+tot+' 關'):('基礎 '+half+' ＋ 進階 '+(tot-half)+' 關');
+    const pb=(save.times&&save.times[w]!=null)?(' · ⏱ '+fmt(save.times[w])):'';
     card.innerHTML=
       '<div class="wico">'+(locked?'🔒':W.icon)+'</div>'+
       '<div class="wmid"><div class="wnm">'+(W.boss?'👑 ':'')+W.name+'</div>'+
-        '<div class="wpr">'+(locked?'先通關上一個世界解鎖':desc)+'</div>'+
+        '<div class="wpr">'+(locked?'先通關上一個世界解鎖':(desc+pb))+'</div>'+
         '<div class="wbar"><div style="width:'+(mx?Math.round(got/mx*100):0)+'%"></div></div></div>'+
       '<div class="wst">'+(locked?'🔒':('⭐ '+got+'/'+mx))+'</div>';
     if(!locked) card.onclick=()=>enterWorld(w);
@@ -553,9 +683,100 @@ function renderMap(){
 }
 function openMap(){
   running=false; busy=false;
+  $('playerOvl').classList.remove('show'); $('dexOvl').classList.remove('show');
   $('worldDone').classList.remove('show'); $('doneOvl').classList.remove('show');
   renderMap(); $('mapOvl').classList.add('show');
 }
+
+/* ---- 單字圖鑑：學會的字點亮，可點擊複習發音 ---- */
+function dexSection(title){const sec=document.createElement('div');sec.className='dexsec';const h=document.createElement('h4');h.textContent=title;sec.appendChild(h);return sec;}
+function specialCard(on,cls,icon,name,desc){
+  const d=document.createElement('div');d.className='spc'+(on?(' '+cls):' lock');
+  d.innerHTML='<div class="e">'+(on?icon:'🔒')+'</div><div class="w">'+name+'</div><div class="z">'+desc+'</div>';
+  return d;
+}
+function openDex(){
+  const wrap=$('dexwrap');wrap.innerHTML='';
+
+  // 🏅 世界大師卡(該世界全 3★ 解鎖)
+  let mGot=0; WORLDS.forEach((W,w)=>{if(masterUnlocked(w))mGot++;});
+  const msec=dexSection('🏅 世界大師卡 ('+mGot+'/'+WORLDS.length+')');
+  const mg=document.createElement('div');mg.className='specialrow';
+  WORLDS.forEach((W,w)=>{const on=masterUnlocked(w);mg.appendChild(specialCard(on,'master',W.icon,W.name,on?'大師':'全 3★ 解鎖'));});
+  msec.appendChild(mg);wrap.appendChild(msec);
+
+  // 🎖️ 成就卡
+  const aGot=ACH.filter(a=>save.ach[a.id]).length;
+  const asec=dexSection('🎖️ 成就卡 ('+aGot+'/'+ACH.length+')');
+  const ag=document.createElement('div');ag.className='specialrow';
+  ACH.forEach(a=>ag.appendChild(specialCard(!!save.ach[a.id],'ach',a.icon,a.name,a.desc)));
+  asec.appendChild(ag);wrap.appendChild(asec);
+
+  // 📖 單字圖鑑(含 ✨ 閃卡)
+  const groups=WORLDS.filter(W=>!W.boss).map(W=>({name:W.icon+' '+W.name,levels:W.levels}));
+  groups.push({name:'🧋 魔王關卡',levels:BOSS_POOL});
+  const seen=new Set(); let total=0,got=0,holoN=0;
+  groups.forEach(g=>{
+    const sec=dexSection(g.name);
+    const grid=document.createElement('div');grid.className='dexgrid';
+    g.levels.forEach(L=>{
+      if(seen.has(L.whole.w))return; seen.add(L.whole.w); total++;
+      const star=save.stars[L.whole.w]||0, unlocked=save.stars[L.whole.w]!=null, holo=!!save.holo[L.whole.w];
+      if(unlocked)got++; if(holo)holoN++;
+      const d=document.createElement('div');d.className='dxi'+(unlocked?'':' lock')+(holo?' holo':'');
+      const e=document.createElement('div');e.className='e';e.textContent=unlocked?L.whole.e:'❓';
+      const w=document.createElement('div');w.className='w';w.textContent=unlocked?(holo?'✨'+L.whole.w:L.whole.w):'???';
+      const z=document.createElement('div');z.className='z';z.textContent=L.whole.zh;
+      const s=document.createElement('div');s.className='st';s.textContent=unlocked?'⭐'.repeat(star):'';
+      d.appendChild(e);d.appendChild(w);d.appendChild(z);d.appendChild(s);
+      if(unlocked) d.onclick=()=>{aInit();speak(L.whole.w,1.2);};
+      grid.appendChild(d);
+    });
+    sec.appendChild(grid);wrap.appendChild(sec);
+  });
+  $('dexSub').textContent='單字 '+got+'/'+total+'　✨閃卡 '+holoN+'　🏅大師 '+mGot+'/'+WORLDS.length+'　🎖️成就 '+aGot+'/'+ACH.length;
+  $('mapOvl').classList.remove('show');
+  $('dexOvl').classList.add('show');
+}
+
+/* ---- 玩家選擇 / 建立 ---- */
+function showPlayers(){
+  running=false;
+  $('mapOvl').classList.remove('show');$('worldDone').classList.remove('show');$('doneOvl').classList.remove('show');
+  const wrap=$('players');wrap.innerHTML='';
+  // 排行：星多在前，平手比總時間快
+  const ranked=players.list.slice().sort((a,b)=>{
+    const ds=playerStars(b)-playerStars(a); if(ds)return ds;          // 星多在前
+    return (playerTotalTime(a)||Infinity)-(playerTotalTime(b)||Infinity); // 平手比快，無成績排後
+  });
+  const medals=['🥇','🥈','🥉'];
+  ranked.forEach((name,i)=>{
+    const c=document.createElement('div');c.className='pcard';
+    const av=document.createElement('div');av.className='pav';av.textContent=(ranked.length>1&&i<3)?medals[i]:'👤';
+    const nm=document.createElement('div');nm.className='pnm';nm.textContent=name;          // textContent：安全，避免名字當 HTML
+    const st=document.createElement('div');st.className='pst';
+    const tt=playerTotalTime(name);
+    st.innerHTML='⭐ '+playerStars(name)+(tt>0?'<br><span style="color:var(--cool2)">⏱ '+fmt(tt)+'</span>':'');
+    c.appendChild(av);c.appendChild(nm);c.appendChild(st);
+    c.onclick=()=>selectPlayer(name);
+    wrap.appendChild(c);
+  });
+  $('nameInput').value='';
+  $('playerOvl').classList.add('show');
+}
+function selectPlayer(name){
+  name=String(name).trim().slice(0,10); if(!name)return;
+  const isNew=!players.list.includes(name);
+  players.current=name;
+  if(isNew)players.list.push(name);
+  persistPlayers();
+  loadSave();
+  if(isNew){ save.items={freeze:2,clear:2,hint:3}; persistSave(); }   // 新玩家起始道具
+  score=save.score; $('score').textContent=score;
+  $('playerOvl').classList.remove('show');
+  openMap();
+}
+function addPlayerFromInput(){ selectPlayer($('nameInput').value); }
 function fullWorldLevels(w){
   const W=WORLDS[w];
   if(W.boss){ if(!bossRound) bossRound=shuffle(BOSS_POOL).slice(0,W.count); return bossRound; } // 魔王：本輪隨機抽
@@ -568,11 +789,13 @@ function stageLevels(w,st){
 }
 function enterWorld(w){
   aInit();                       // 使用者手勢，啟動音訊
-  wIdx=w; bossRound=null;
+  wIdx=w; bossRound=null; worldMs=0; combo=0;
+  worldUsedHint=false; worldUsedItem=false;
   enterStage(0);
 }
 function enterStage(st){
-  stage=st; lIdx=0;
+  stage=st; lIdx=0; failCount=0;
+  segStart=Date.now(); timing=true;             // 開始/續跑計時
   curLevels=stageLevels(wIdx,st);
   $('worldDone').classList.remove('show');
   $('mapOvl').classList.remove('show');
@@ -625,7 +848,7 @@ function load(){
     t.innerHTML='<div class="e">'+item.e+'</div><div class="w">'+item.w+'</div>';
     t.onclick=()=>pick(item,t);bk.appendChild(t);
   });
-  buildPips();updateSubmit();
+  buildPips();updateSubmit();updateItems();
 }
 
 function renderSlot(i){
@@ -670,7 +893,7 @@ $('submit').onclick=()=>{
   const L=curLevels[lIdx];
   const ok=slots.every((s,i)=>s.w===L.p[i].w);
   if(!ok){
-    sBad();vib([30,40,30]);
+    sBad();vib([30,40,30]); combo=0;    // 答錯中斷連擊
     fuseT=Math.min(fuseT+2.5,fuseMax);  // 答錯：引線快燒
     slots.forEach((_,i)=>{const el=$('s'+i);el.classList.add('shake');setTimeout(()=>el.classList.remove('shake'),400);});
     const sameSet=slots.map(s=>s.w).sort().join()===L.p.map(p=>p.w).sort().join();
@@ -683,10 +906,15 @@ $('submit').onclick=()=>{
 function fuse(L){
   busy=true;updateSubmit();
   running=false;                          // 提交成功，停止引線
+  combo++; if(combo>maxCombo)maxCombo=combo; if(combo>(save.bestCombo||0))save.bestCombo=combo;
+  failCount=0;                            // 答對清除失敗計數
+  if(combo%3===0) dropItem();             // 連擊里程碑(3/6/9…)掉道具
   const rem=1-fuseFrac();
   const st=rem>=0.55?3:rem>=0.28?2:1;     // 依剩餘引線給星
   const key=L.whole.w;
   if((save.stars[key]||0)<st){save.stars[key]=st;}
+  let gotHolo=false;                      // 3 星有機會獲得閃卡
+  if(st===3 && !save.holo[key] && Math.random()<0.30){save.holo[key]=true;gotHolo=true;}
   const gc=center($('goalbox'));
   sWhoosh();vib(20);
   const dur=540;
@@ -711,9 +939,14 @@ function fuse(L){
     speak(L.whole.w,1.35);
     $('caption').innerHTML=L.p.map(p=>'<span style="color:var(--ink)">'+p.w+'</span>').join(' + ')+' = <b>'+L.whole.w+'</b>'+
       '<div class="memo">'+L.p.map(p=>pz(p.w)).join(' ＋ ')+' ＝ <b>'+L.whole.zh+'</b></div>';
-    const gain=10*L.p.length+(st-1)*5;    // 基礎分 + 星級獎勵
-    score+=gain;save.score=score;$('score').textContent=score;persistSave();
-    setTimeout(()=>{ sStar(); toast('⭐'.repeat(st)+'  +'+gain,'#ffd86b'); },520);
+    const comboBonus=Math.max(0,combo-1)*3;
+    const gain=10*L.p.length+(st-1)*5+comboBonus;    // 基礎分 + 星級 + 連擊加成
+    score+=gain;save.score=score;
+    if(combo>=10) unlockAch('combo10');
+    if(Object.keys(save.stars).length>=50) unlockAch('collect50');
+    if(Object.keys(save.holo).length>=10) unlockAch('holo10');
+    persistSave();
+    setTimeout(()=>{ sWin(combo); const ct=combo>=2?('  🔥x'+combo):''; toast('⭐'.repeat(st)+ct+'  +'+gain,'#ffd86b'); if(gotHolo)toast('✨ 閃卡 GET！'+L.whole.w,'#7ad0ff'); },520);
     setTimeout(next,1750);
   },dur+slots.length*60-40);
 }
@@ -731,7 +964,7 @@ function revealWord(w){
 }
 
 function next(){
-  lIdx++;
+  lIdx++; failCount=0;                    // 進新關，重置失敗計數
   if(lIdx>=curLevels.length){
     if(stage===0){ showStageClear(); return; }   // 基礎段完成 → 進階段
     finishWorld(); return;                         // 進階段完成 → 世界通關
@@ -742,6 +975,11 @@ function next(){
 /* ===================== 世界通關 / 解鎖 ===================== */
 function finishWorld(){
   running=false;
+  if(timing){worldMs+=Date.now()-segStart;timing=false;}      // 結算本世界用時
+  lastWorldMs=worldMs;
+  const prev=save.times[wIdx];
+  lastPB=(prev==null||worldMs<prev);
+  if(lastPB)save.times[wIdx]=worldMs;                          // 刷新最佳
   const isLast=(wIdx+1>=WORLDS.length);
   if(!isLast && save.unlocked<wIdx+1){save.unlocked=wIdx+1;}   // 解鎖下一世界
   persistSave();
@@ -762,12 +1000,14 @@ function fillWords(arr){
 /* 基礎段完成 → 引導進階段，並回顧本段學過的單字 */
 function showStageClear(){
   running=false; resultMode='stage';
+  if(timing){worldMs+=Date.now()-segStart;timing=false;}   // 暫停累計，看回顧不算時間
   sDone();vib([30,40,30]);
   $('wdTrophy').textContent='🌱';
   $('wdTitle').textContent='基礎篇完成！';
   const got=curLevels.reduce((t,L)=>t+(save.stars[L.whole.w]||0),0), mx=curLevels.length*3, ratio=mx?got/mx:0;
   $('wdStars').innerHTML=starRow(ratio>=.85?3:ratio>=.5?2:1);
-  $('wdSub').innerHTML='這些字你都拼出來了 👇　星星 <b>⭐ '+got+'/'+mx+'</b><br>接下來是 <b style="color:var(--warm2)">進階篇</b>，引線更短，加油！';
+  const reward=grantItems(1); persistSave(); updateItems();
+  $('wdSub').innerHTML='這些字你都拼出來了 👇　星星 <b>⭐ '+got+'/'+mx+'</b><br>🎁 獲得道具 '+reward+'<br>接下來是 <b style="color:var(--warm2)">進階篇</b>，引線更短，加油！';
   fillWords(curLevels);
   $('wdNext').textContent='進階篇 ▶';
   $('worldDone').classList.add('show');
@@ -783,8 +1023,18 @@ function showWorldDone(){
   const ratio=mx?got/mx:0;
   $('wdStars').innerHTML=starRow(ratio>=.85?3:ratio>=.5?2:1);
   const nextW=WORLDS[wIdx+1];
-  $('wdSub').innerHTML='本世界星星 <b>⭐ '+got+'/'+mx+'</b>　總星 <b>'+totalStars()+'</b><br>'+
-    (nextW?('🔓 解鎖新世界：<b>'+nextW.icon+' '+nextW.name+'</b>'):'');
+  const reward=grantItems(2);
+  const bonus=[];
+  if(masterUnlocked(wIdx)&&!save.master[wIdx]){save.master[wIdx]=true;bonus.push('🏅 '+WORLDS[wIdx].name+'大師卡');}
+  if(!worldUsedHint&&unlockAch('nohint',true))bonus.push('🎖️ 不靠提示');
+  if(!worldUsedItem&&unlockAch('noitem',true))bonus.push('🎖️ 真本事');
+  persistSave(); updateItems();
+  $('wdSub').innerHTML=
+    (lastPB?'<b style="color:var(--gold)">🏆 新紀錄！</b> ':'')+'用時 <b>'+fmt(lastWorldMs)+'</b>　最佳 <b>'+fmt(save.times[wIdx])+'</b><br>'+
+    '本世界星星 <b>⭐ '+got+'/'+mx+'</b>　總星 <b>'+totalStars()+'</b><br>'+
+    '🎁 通關獎勵 '+reward+
+    (bonus.length?('<br><b style="color:var(--gold)">'+bonus.join('　')+'</b>'):'')+
+    (nextW?('<br>🔓 解鎖新世界：<b>'+nextW.icon+' '+nextW.name+'</b>'):'');
   fillWords(fullWorldLevels(wIdx));
   $('wdNext').textContent= nextW?('進入下一世界 '+nextW.icon+' ▶'):'下一步 ▶';
   $('worldDone').classList.add('show');
@@ -792,7 +1042,9 @@ function showWorldDone(){
 
 function showAllDone(){
   running=false; stopMusic(); sDone();
-  $('doneSub').innerHTML='你走遍 <b>'+WORLDS.length+'</b> 個世界，集滿 <b style="color:var(--gold)">⭐ '+totalStars()+'</b> 顆星，得分 <b style="color:var(--gold)">'+score+'</b>。<br>每個大字，都是幾個小字長出來的。';
+  unlockAch('allclear',true); persistSave();
+  const totalT=fmt(Object.values(save.times||{}).reduce((a,b)=>a+b,0));
+  $('doneSub').innerHTML='你走遍 <b>'+WORLDS.length+'</b> 個世界，集滿 <b style="color:var(--gold)">⭐ '+totalStars()+'</b> 顆星，得分 <b style="color:var(--gold)">'+score+'</b>。<br>總闖關時間 <b style="color:var(--cool2)">⏱ '+totalT+'</b>　最高連擊 <b style="color:var(--warm2)">🔥 '+(save.bestCombo||0)+'</b><br>每個大字，都是幾個小字長出來的。';
   $('doneOvl').classList.add('show');
 }
 
@@ -806,8 +1058,48 @@ $('dAgain').onclick=()=>{ $('doneOvl').classList.remove('show'); if(!actx)aInit(
 $('backMap').onclick=()=>openMap();
 
 /* ===================== 提示 ===================== */
-$('hint').onclick=()=>{
-  if(busy)return;aInit();
+/* ---------- 道具 ---------- */
+const ITEMS=[['freeze','❄️'],['clear','🔍'],['hint','💡']];
+function updateItems(){
+  if(!save.items)return;
+  [['freeze','ctFreeze','itFreeze'],['clear','ctClear','itClear'],['hint','ctHint','itHint']].forEach(([k,c,b])=>{
+    const el=$(c); if(el)el.textContent=save.items[k]||0;
+    const bt=$(b); if(bt)bt.classList.toggle('off',(save.items[k]||0)<=0);
+  });
+}
+function grantItems(n){
+  const got={};
+  for(let i=0;i<n;i++){const it=ITEMS[Math.random()*ITEMS.length|0];save.items[it[0]]=(save.items[it[0]]||0)+1;got[it[1]]=(got[it[1]]||0)+1;}
+  return Object.entries(got).map(([e,c])=>e+'x'+c).join('　');
+}
+function dropItem(){
+  const it=ITEMS[Math.random()*ITEMS.length|0];
+  save.items[it[0]]=(save.items[it[0]]||0)+1; persistSave(); updateItems();
+  setTimeout(()=>toast('🎁 連擊獎勵 '+it[1]+' +1','#7ad0ff'),950);
+}
+
+$('itFreeze').onclick=()=>{
+  if(busy||frozen||!running){return;}
+  if((save.items.freeze||0)<=0){toast('❄️ 凍結用完了','#ffb347');return;}
+  aInit(); worldUsedItem=true; save.items.freeze--; persistSave(); updateItems();
+  frozen=true; $('fuse').classList.add('frozen'); toast('❄️ 凍結引線 5 秒','#7ad0ff'); tone(700,.18,'sine',.12);
+  clearTimeout(_freezeTimer);
+  _freezeTimer=setTimeout(()=>{frozen=false;$('fuse').classList.remove('frozen');},5000);
+};
+$('itClear').onclick=()=>{
+  if(busy)return;
+  if((save.items.clear||0)<=0){toast('🔍 清干擾用完了','#ffb347');return;}
+  const L=curLevels[lIdx];
+  const wrongs=[...document.querySelectorAll('.tile')].filter(t=>!t.classList.contains('used')&&!L.p.some(p=>p.w===t.dataset.w));
+  if(!wrongs.length){toast('沒有干擾卡可清','#ffb347');return;}
+  aInit(); worldUsedItem=true; save.items.clear--; persistSave(); updateItems();
+  shuffle(wrongs).slice(0,2).forEach(t=>{t.classList.add('used');t.style.opacity=.08;});
+  sClear(); toast('🔍 清掉干擾卡','#7ad0ff');
+};
+$('itHint').onclick=()=>{
+  if(busy)return;
+  if((save.items.hint||0)<=0){toast('💡 提示卡用完了','#ffb347');return;}
+  aInit(); combo=0; worldUsedHint=true; worldUsedItem=true;   // 用提示就不算連擊，也影響成就
   const L=curLevels[lIdx];
   for(let i=0;i<L.p.length;i++){
     if(!slots[i]||slots[i].w!==L.p[i].w){
@@ -815,7 +1107,8 @@ $('hint').onclick=()=>{
       slots[i]=L.p[i];renderSlot(i);
       const tile=[...document.querySelectorAll('.tile')].find(x=>x.dataset.w===L.p[i].w&&!x.classList.contains('used'));
       if(tile)tile.classList.add('used');
-      sReveal();vib(10);speak(L.p[i].w);fuseT=Math.min(fuseT+3,fuseMax);updateSubmit();break;
+      save.items.hint--; persistSave(); updateItems();
+      sReveal();vib(10);speak(L.p[i].w);updateSubmit();break;
     }
   }
 };
@@ -823,10 +1116,19 @@ $('hint').onclick=()=>{
 $('mute').onclick=function(){soundOn=!soundOn;this.textContent=soundOn?'🔊':'🔇';if(soundOn){if(actx)startMusic();}else{stopMusic();}};
 
 /* ===================== 啟動 ===================== */
-loadSave();
-score=save.score;
-$('score').textContent=score;
-openMap();
+$('addPlayer').onclick=addPlayerFromInput;
+$('nameInput').addEventListener('keydown',e=>{if(e.key==='Enter')addPlayerFromInput();});
+$('switchP').onclick=()=>{ persistSave(); showPlayers(); };   // 換人前先存好目前進度
+$('dexBtn').onclick=openDex;
+$('dexBack').onclick=openMap;
+
+loadPlayers();
+if(players.current && players.list.includes(players.current)){
+  loadSave(); score=save.score; $('score').textContent=score;
+  openMap();                                                  // 已有上次玩家 → 直接回地圖
+}else{
+  showPlayers();                                              // 第一次 → 先選/建玩家
+}
 </script>
 </body>
 </html>
