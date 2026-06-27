@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<!--
+  詩名 · 互動朗讀注音版
+  更新紀錄：
+    v1.0  初版
+-->
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>琵琶行 ── 白居易</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400&display=swap');
+:root{--ink:#1a1208;--paper:#f5f0e8;--aged:#e8dfc8;--red:#c0392b;--gold:#b5860d;--mist:#7a8c7e;--fade:#9e9585;--green:#2e7d52;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--paper);color:var(--ink);font-family:'Noto Serif TC',serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 80% 20%,rgba(176,136,13,.06) 0%,transparent 70%),radial-gradient(ellipse 40% 60% at 10% 80%,rgba(122,140,126,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+/* progress */
+.prog{position:sticky;top:0;z-index:100;height:3px;background:var(--aged);}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--gold));width:0%;transition:width .1s;}
+
+/* voice bar */
+.vbar{position:sticky;top:3px;z-index:99;background:var(--ink);display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;flex-wrap:wrap;}
+.vbar-label{font-family:'Noto Sans TC',sans-serif;font-size:.7rem;letter-spacing:.15em;color:#a09888;white-space:nowrap;}
+.vb{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:3px;color:var(--paper);font-family:'Noto Sans TC',sans-serif;font-size:.75rem;padding:.3rem .7rem;cursor:pointer;transition:background .2s,border-color .2s;white-space:nowrap;}
+.vb:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.4);}
+.vb.playing{background:var(--green);border-color:var(--green);}
+.vb.stop-btn:hover{background:rgba(192,57,43,.6);border-color:var(--red);}
+.badge{background:var(--gold);color:var(--ink);border-radius:99px;font-size:.65rem;padding:.1rem .45rem;font-weight:700;display:none;margin-left:.2rem;}
+.badge.show{display:inline;}
+.spd-lbl{font-family:'Noto Sans TC',sans-serif;font-size:.7rem;color:#a09888;margin-left:.5rem;}
+#voice-lbl{margin-left:auto;}
+#voice{max-width:11rem;}
+.spd{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:3px;color:var(--paper);font-size:.75rem;padding:.28rem .45rem;cursor:pointer;}
+.spd option{background:#1a1208;}
+
+/* 整首大字注音版（一鍵切換，注音直式排在字右側） */
+body.rubyAll main{max-width:min(1240px,98vw);}
+body.rubyAll .st-text{line-height:2.7;}
+body.rubyAll .st-lbl{font-size:1.05rem;}
+body.rubyAll .st-head{margin-bottom:.8rem;}
+.st-text .zc{display:inline-flex;align-items:center;vertical-align:middle;margin:0 .13em;}
+.st-text .zh{font-size:1.95em;}
+.st-text .zy{position:relative;display:inline-block;padding-right:.55em;margin-left:.07em;font-size:.66em;line-height:1.02;color:#9a6f1f;font-weight:400;font-family:'Noto Sans TC',sans-serif;}
+.st-text .zb{writing-mode:vertical-rl;text-orientation:upright;}
+.st-text .zt{position:absolute;right:0;line-height:1;}
+.st-text .zt-r{bottom:.05em;}            /* 二、三、四聲：右下 */
+.st-text .zt-n{top:-.45em;left:0;right:auto;width:calc(100% - .5em);text-align:center;}  /* 輕聲：上方 */
+body.rubyAll .ltxt .rp{font-size:1.95em;margin:0 .02em;vertical-align:middle;}
+.vb.ruby-on{background:var(--gold);border-color:var(--gold);color:var(--ink);}
+
+/* header */
+header{position:relative;z-index:1;text-align:center;padding:3.5rem 2rem 1.5rem;}
+.eyebrow{font-family:'Noto Sans TC',sans-serif;font-size:.72rem;letter-spacing:.35em;color:var(--mist);margin-bottom:1rem;}
+.credit{position:absolute;top:1rem;right:1.2rem;font-family:'Noto Sans TC',sans-serif;font-size:.72rem;letter-spacing:.08em;color:var(--mist);text-decoration:none;border:1px solid var(--aged);border-radius:99px;padding:.25rem .75rem;transition:color .2s,border-color .2s;z-index:2;}
+.credit:hover{color:var(--gold);border-color:var(--gold);}
+h1{font-size:clamp(3rem,10vw,5.5rem);font-weight:900;letter-spacing:.15em;display:inline-block;color:var(--ink);}
+h1::after{content:'';display:block;width:3rem;height:3px;background:var(--red);margin:1rem auto 0;}
+.sub{font-family:'Noto Sans TC',sans-serif;font-size:.82rem;color:var(--fade);margin-top:.8rem;letter-spacing:.08em;}
+
+/* main */
+main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 .8rem 6rem;transition:max-width .35s;}
+
+/* stanza */
+.stanza{margin-bottom:2.2rem;border-left:2px solid var(--aged);padding-left:1.4rem;opacity:0;transform:translateY(18px);transition:opacity .5s,transform .5s,border-color .3s;}
+.stanza.vis{opacity:1;transform:none;}
+.stanza:hover{border-color:var(--gold);}
+.st-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;}
+.st-lbl{font-family:'Noto Sans TC',sans-serif;font-size:.68rem;letter-spacing:.22em;color:var(--fade);flex:1;}
+.st-play{background:none;border:1px solid var(--aged);border-radius:3px;color:var(--fade);font-size:.7rem;padding:.18rem .55rem;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .2s;white-space:nowrap;}
+.st-play:hover{border-color:var(--gold);color:var(--gold);}
+.st-play.playing{border-color:var(--green);color:var(--green);}
+
+/* line */
+.st-text{font-size:clamp(1.05rem,2.5vw,1.18rem);line-height:2.5;font-weight:400;color:var(--ink);letter-spacing:.05em;}
+.line{display:flex;align-items:center;gap:.4rem;padding:.08em .3em;margin:-.08em -.3em;border-radius:3px;transition:background .15s;}
+.ltxt{flex:1;cursor:pointer;transition:color .2s;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;}
+.ltxt:hover{color:var(--red);}
+.line.sel{background:rgba(181,134,13,.12);}
+.line.sel .ltxt{color:var(--gold);}
+.line.spk{background:rgba(46,125,82,.09);}
+.line.spk .ltxt{color:var(--green);}
+.dot{width:6px;height:6px;background:var(--green);border-radius:50%;display:none;flex-shrink:0;animation:pulse .75s infinite alternate;}
+.line.spk .dot{display:block;}
+@keyframes pulse{from{opacity:1;transform:scale(1);}to{opacity:.35;transform:scale(.55);}}
+.lact{display:flex;gap:.25rem;opacity:0;transition:opacity .15s;}
+.line:hover .lact{opacity:1;}
+.lbtn{background:none;border:1px solid var(--aged);border-radius:3px;color:var(--fade);font-size:.65rem;padding:.12rem .42rem;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .15s;line-height:1.4;}
+.lbtn:hover{border-color:var(--red);color:var(--red);}
+.lbtn.sel-b{border-color:var(--aged);}
+.lbtn.sel-b:hover{border-color:var(--gold);color:var(--gold);}
+.lbtn.sel-b.on{border-color:var(--gold);color:var(--gold);background:rgba(181,134,13,.1);}
+
+/* annotation panel */
+.ann{position:fixed;right:0;top:50%;transform:translateY(-50%) translateX(100%);width:min(310px,90vw);background:var(--ink);color:var(--paper);padding:1.8rem 1.6rem;border-radius:4px 0 0 4px;box-shadow:-4px 0 24px rgba(26,18,8,.22);transition:transform .4s cubic-bezier(.22,1,.36,1);z-index:200;max-height:80vh;overflow-y:auto;}
+.ann.open{transform:translateY(-50%) translateX(0);}
+.ann-x{position:absolute;top:.7rem;right:.7rem;width:2.1rem;height:2.1rem;display:flex;align-items:center;justify-content:center;background:var(--red);border:none;border-radius:50%;color:#fff;font-size:1.15rem;cursor:pointer;line-height:1;box-shadow:0 2px 8px rgba(192,57,43,.4);transition:transform .2s,background .2s;}
+.ann-x:hover{background:#d84436;transform:scale(1.12);}
+.ann-ln{font-size:1.05rem;font-weight:700;letter-spacing:.07em;margin-bottom:.7rem;color:#f5e6c4;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:.7rem;}
+.ann-spk{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:3px;color:var(--paper);font-family:'Noto Sans TC',sans-serif;font-size:.74rem;padding:.32rem .7rem;cursor:pointer;margin-bottom:1rem;transition:background .2s,border-color .2s;}
+.ann-spk:hover{background:rgba(46,125,82,.5);border-color:var(--green);}
+.ann-spk.playing{background:var(--green);border-color:var(--green);}
+.ann-stop{margin-left:.4rem;}
+.ann-stop:hover{background:rgba(192,57,43,.55);border-color:var(--red);}
+.ann-me{font-family:'Noto Sans TC',sans-serif;font-size:.86rem;line-height:1.9;color:#c8c0b0;margin-bottom:1.1rem;}
+.ann-vt{font-family:'Noto Sans TC',sans-serif;font-size:.75rem;color:var(--gold);letter-spacing:.05em;margin-bottom:.3rem;font-weight:600;}
+.ann-wd{display:flex;gap:.4rem;align-items:baseline;margin-bottom:.35rem;}
+.ann-wd .w{color:#f5e6c4;font-size:.87rem;}
+.ann-wd .d{color:#a09888;font-size:.78rem;font-family:'Noto Sans TC',sans-serif;}
+
+/* quiz */
+.quiz-sec{margin-top:4rem;border-top:1px solid var(--aged);padding-top:2.8rem;}
+.quiz-title{font-size:.95rem;letter-spacing:.2em;color:var(--fade);margin-bottom:1.8rem;font-family:'Noto Sans TC',sans-serif;}
+.qcard{background:var(--aged);border-radius:4px;padding:1.6rem;margin-bottom:1.4rem;}
+.qq{font-size:.97rem;line-height:1.8;margin-bottom:1.1rem;}
+.qopts{display:grid;gap:.55rem;}
+.qbtn{background:var(--paper);border:1px solid transparent;border-radius:2px;padding:.65rem .95rem;font-family:'Noto Serif TC',serif;font-size:.88rem;color:var(--ink);cursor:pointer;text-align:left;transition:all .2s;letter-spacing:.03em;}
+.qbtn:hover{border-color:var(--gold);background:#fdf8ef;}
+.qbtn.ok{background:#e8f4e8;border-color:#4a9e4a;color:#2d5a2d;}
+.qbtn.ng{background:#faeaea;border-color:var(--red);color:#7a1a1a;}
+.qbtn:disabled{cursor:default;}
+.qfb{margin-top:.7rem;font-family:'Noto Sans TC',sans-serif;font-size:.8rem;line-height:1.7;color:var(--ink);min-height:1.4em;}
+
+.ver{text-align:center;margin-top:3rem;font-family:'Noto Sans TC',sans-serif;font-size:.7rem;color:var(--fade);letter-spacing:.1em;}
+.wmark{position:fixed;bottom:3rem;right:3rem;font-size:7rem;font-weight:900;color:rgba(181,134,13,.05);pointer-events:none;z-index:0;writing-mode:vertical-rl;letter-spacing:.1em;user-select:none;}
+@media(max-width:600px){.ann{width:90vw;}.wmark{display:none;}.spd-lbl{margin-left:0;}}
+@media(prefers-reduced-motion:reduce){.stanza{opacity:1;transform:none;transition:none;}.ann{transition:none;}}
+</style>
+</head>
+<body>
+
+<div class="prog"><div class="prog-fill" id="prog"></div></div>
+
+<div class="vbar">
+  <span class="vbar-label">🔊 語音</span>
+  <button class="vb" id="btn-all">▶ 全詩</button>
+  <button class="vb" id="btn-sel">▶ 選取句 <span class="badge" id="badge">0</span></button>
+  <button class="vb stop-btn" id="btn-stop">■ 停止</button>
+  <button class="vb" id="btn-clr">清除選取</button>
+  <span class="spd-lbl" id="voice-lbl">音色</span>
+  <select class="spd" id="voice"><option value="">預設</option></select>
+  <span class="spd-lbl">速度</span>
+  <select class="spd" id="spd">
+    <option value="0.45">極慢</option>
+    <option value="0.6">慢速</option>
+    <option value="0.75">適中</option>
+    <option value="0.9" selected>正常</option>
+    <option value="1.1">較快</option>
+    <option value="1.4">快速</option>
+  </select>
+</div>
+
+<div class="wmark">詩</div>
+
+<header>
+  <a class="credit" href="https://stevechou168.github.io/" target="_blank" rel="noopener">永動創意 ↗</a>
+  <p class="eyebrow">唐 · 白居易</p>
+  <h1>琵琶行</h1>
+  <p class="sub">點一下朗讀該句 ・ 長按或右鍵看注釋 ・「選」累積後整批朗讀</p>
+</header>
+
+<main>
+
+<!-- ↓ 每段一個 .stanza：data-s 段號(0起)，data-i 句號(全詩連續,0起)，data-sl 同 data-i。複製增段/句 ↓ -->
+<div class="stanza" data-s="0">
+  <div class="st-head"><span class="st-lbl">第一段 ── 🌃 江頭夜送客</span><button class="st-play" data-sp="0">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="0"><span class="dot"></span><span class="ltxt">潯陽江頭夜送客，楓葉荻花秋瑟瑟。</span><span class="lact"><button class="lbtn sel-b" data-sl="0">選</button></span></span>
+    <span class="line" data-i="1"><span class="dot"></span><span class="ltxt">主人下馬客在船，舉酒欲飲無管絃。</span><span class="lact"><button class="lbtn sel-b" data-sl="1">選</button></span></span>
+    <span class="line" data-i="2"><span class="dot"></span><span class="ltxt">醉不成歡慘將別，別時茫茫江浸月。</span><span class="lact"><button class="lbtn sel-b" data-sl="2">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="1">
+  <div class="st-head"><span class="st-lbl">第二段 ── 🎶 忽聞琵琶聲</span><button class="st-play" data-sp="1">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="3"><span class="dot"></span><span class="ltxt">忽聞水上琵琶聲，主人忘歸客不發。</span><span class="lact"><button class="lbtn sel-b" data-sl="3">選</button></span></span>
+    <span class="line" data-i="4"><span class="dot"></span><span class="ltxt">尋聲暗問彈者誰，琵琶聲停欲語遲。</span><span class="lact"><button class="lbtn sel-b" data-sl="4">選</button></span></span>
+    <span class="line" data-i="5"><span class="dot"></span><span class="ltxt">移船相近邀相見，添酒回燈重開宴。</span><span class="lact"><button class="lbtn sel-b" data-sl="5">選</button></span></span>
+    <span class="line" data-i="6"><span class="dot"></span><span class="ltxt">千呼萬喚始出來，猶抱琵琶半遮面。</span><span class="lact"><button class="lbtn sel-b" data-sl="6">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="2">
+  <div class="st-head"><span class="st-lbl">第三段 ── 🎵 信手續續彈</span><button class="st-play" data-sp="2">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="7"><span class="dot"></span><span class="ltxt">轉軸撥絃三兩聲，未成曲調先有情。</span><span class="lact"><button class="lbtn sel-b" data-sl="7">選</button></span></span>
+    <span class="line" data-i="8"><span class="dot"></span><span class="ltxt">絃絃掩抑聲聲思，似訴平生不得志。</span><span class="lact"><button class="lbtn sel-b" data-sl="8">選</button></span></span>
+    <span class="line" data-i="9"><span class="dot"></span><span class="ltxt">低眉信手續續彈，說盡心中無限事。</span><span class="lact"><button class="lbtn sel-b" data-sl="9">選</button></span></span>
+    <span class="line" data-i="10"><span class="dot"></span><span class="ltxt">輕攏慢撚抹復挑，初為霓裳後六么。</span><span class="lact"><button class="lbtn sel-b" data-sl="10">選</button></span></span>
+  </p>
+</div>
+<div class="stanza" data-s="3">
+  <div class="st-head"><span class="st-lbl">第四段 ── 🎼 絃聲摹寫</span><button class="st-play" data-sp="3">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="11"><span class="dot"></span><span class="ltxt">大絃嘈嘈如急雨，小絃切切如私語。</span><span class="lact"><button class="lbtn sel-b" data-sl="11">選</button></span></span>
+    <span class="line" data-i="12"><span class="dot"></span><span class="ltxt">嘈嘈切切錯雜彈，大珠小珠落玉盤。</span><span class="lact"><button class="lbtn sel-b" data-sl="12">選</button></span></span>
+    <span class="line" data-i="13"><span class="dot"></span><span class="ltxt">間關鶯語花底滑，幽咽泉流水下灘。</span><span class="lact"><button class="lbtn sel-b" data-sl="13">選</button></span></span>
+    <span class="line" data-i="14"><span class="dot"></span><span class="ltxt">水泉冷澀絃凝絕，凝絕不通聲暫歇。</span><span class="lact"><button class="lbtn sel-b" data-sl="14">選</button></span></span>
+    <span class="line" data-i="15"><span class="dot"></span><span class="ltxt">別有幽愁暗恨生，此時無聲勝有聲。</span><span class="lact"><button class="lbtn sel-b" data-sl="15">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="4">
+  <div class="st-head"><span class="st-lbl">第五段 ── 💥 曲終裂帛</span><button class="st-play" data-sp="4">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="16"><span class="dot"></span><span class="ltxt">銀瓶乍破水漿迸，鐵騎突出刀槍鳴。</span><span class="lact"><button class="lbtn sel-b" data-sl="16">選</button></span></span>
+    <span class="line" data-i="17"><span class="dot"></span><span class="ltxt">曲終收撥當心畫，四絃一聲如裂帛。</span><span class="lact"><button class="lbtn sel-b" data-sl="17">選</button></span></span>
+    <span class="line" data-i="18"><span class="dot"></span><span class="ltxt">東船西舫悄無言，唯見江心秋月白。</span><span class="lact"><button class="lbtn sel-b" data-sl="18">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="5">
+  <div class="st-head"><span class="st-lbl">第六段 ── 💃 自述身世（盛時）</span><button class="st-play" data-sp="5">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="19"><span class="dot"></span><span class="ltxt">沉吟放撥插絃中，整頓衣裳起斂容。</span><span class="lact"><button class="lbtn sel-b" data-sl="19">選</button></span></span>
+    <span class="line" data-i="20"><span class="dot"></span><span class="ltxt">自言本是京城女，家在蝦蟆陵下住。</span><span class="lact"><button class="lbtn sel-b" data-sl="20">選</button></span></span>
+    <span class="line" data-i="21"><span class="dot"></span><span class="ltxt">十三學得琵琶成，名屬教坊第一部。</span><span class="lact"><button class="lbtn sel-b" data-sl="21">選</button></span></span>
+    <span class="line" data-i="22"><span class="dot"></span><span class="ltxt">曲罷曾教善才服，妝成每被秋娘妒。</span><span class="lact"><button class="lbtn sel-b" data-sl="22">選</button></span></span>
+    <span class="line" data-i="23"><span class="dot"></span><span class="ltxt">五陵年少爭纏頭，一曲紅綃不知數。</span><span class="lact"><button class="lbtn sel-b" data-sl="23">選</button></span></span>
+    <span class="line" data-i="24"><span class="dot"></span><span class="ltxt">鈿頭銀篦擊節碎，血色羅裙翻酒污。</span><span class="lact"><button class="lbtn sel-b" data-sl="24">選</button></span></span>
+  </p>
+</div>
+<div class="stanza" data-s="6">
+  <div class="st-head"><span class="st-lbl">第七段 ── 🥀 年華老去</span><button class="st-play" data-sp="6">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="25"><span class="dot"></span><span class="ltxt">今年歡笑復明年，秋月春風等閒度。</span><span class="lact"><button class="lbtn sel-b" data-sl="25">選</button></span></span>
+    <span class="line" data-i="26"><span class="dot"></span><span class="ltxt">弟走從軍阿姨死，暮去朝來顏色故。</span><span class="lact"><button class="lbtn sel-b" data-sl="26">選</button></span></span>
+    <span class="line" data-i="27"><span class="dot"></span><span class="ltxt">門前冷落車馬稀，老大嫁作商人婦。</span><span class="lact"><button class="lbtn sel-b" data-sl="27">選</button></span></span>
+    <span class="line" data-i="28"><span class="dot"></span><span class="ltxt">商人重利輕別離，前月浮梁買茶去。</span><span class="lact"><button class="lbtn sel-b" data-sl="28">選</button></span></span>
+    <span class="line" data-i="29"><span class="dot"></span><span class="ltxt">去來江口守空船，繞船明月江水寒。</span><span class="lact"><button class="lbtn sel-b" data-sl="29">選</button></span></span>
+    <span class="line" data-i="30"><span class="dot"></span><span class="ltxt">夜深忽夢少年事，夢啼妝淚紅闌干。</span><span class="lact"><button class="lbtn sel-b" data-sl="30">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="7">
+  <div class="st-head"><span class="st-lbl">第八段 ── 😢 同是天涯淪落人</span><button class="st-play" data-sp="7">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="31"><span class="dot"></span><span class="ltxt">我聞琵琶已嘆息，又聞此語重唧唧。</span><span class="lact"><button class="lbtn sel-b" data-sl="31">選</button></span></span>
+    <span class="line" data-i="32"><span class="dot"></span><span class="ltxt">同是天涯淪落人，相逢何必曾相識！</span><span class="lact"><button class="lbtn sel-b" data-sl="32">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="8">
+  <div class="st-head"><span class="st-lbl">第九段 ── 🏞️ 自述謫居江州</span><button class="st-play" data-sp="8">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="33"><span class="dot"></span><span class="ltxt">我從去年辭帝京，謫居臥病潯陽城。</span><span class="lact"><button class="lbtn sel-b" data-sl="33">選</button></span></span>
+    <span class="line" data-i="34"><span class="dot"></span><span class="ltxt">潯陽地僻無音樂，終歲不聞絲竹聲。</span><span class="lact"><button class="lbtn sel-b" data-sl="34">選</button></span></span>
+    <span class="line" data-i="35"><span class="dot"></span><span class="ltxt">住近湓江地低濕，黃蘆苦竹繞宅生。</span><span class="lact"><button class="lbtn sel-b" data-sl="35">選</button></span></span>
+    <span class="line" data-i="36"><span class="dot"></span><span class="ltxt">其間旦暮聞何物，杜鵑啼血猿哀鳴。</span><span class="lact"><button class="lbtn sel-b" data-sl="36">選</button></span></span>
+    <span class="line" data-i="37"><span class="dot"></span><span class="ltxt">春江花朝秋月夜，往往取酒還獨傾。</span><span class="lact"><button class="lbtn sel-b" data-sl="37">選</button></span></span>
+    <span class="line" data-i="38"><span class="dot"></span><span class="ltxt">豈無山歌與村笛，嘔啞嘲哳難為聽。</span><span class="lact"><button class="lbtn sel-b" data-sl="38">選</button></span></span>
+  </p>
+</div>
+<div class="stanza" data-s="9">
+  <div class="st-head"><span class="st-lbl">第十段 ── 🙏 請為翻作琵琶行</span><button class="st-play" data-sp="9">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="39"><span class="dot"></span><span class="ltxt">今夜聞君琵琶語，如聽仙樂耳暫明。</span><span class="lact"><button class="lbtn sel-b" data-sl="39">選</button></span></span>
+    <span class="line" data-i="40"><span class="dot"></span><span class="ltxt">莫辭更坐彈一曲，為君翻作琵琶行。</span><span class="lact"><button class="lbtn sel-b" data-sl="40">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="10">
+  <div class="st-head"><span class="st-lbl">第十一段 ── 😭 滿座掩泣青衫濕</span><button class="st-play" data-sp="10">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="41"><span class="dot"></span><span class="ltxt">感我此言良久立，卻坐促絃絃轉急。</span><span class="lact"><button class="lbtn sel-b" data-sl="41">選</button></span></span>
+    <span class="line" data-i="42"><span class="dot"></span><span class="ltxt">淒淒不似向前聲，滿座重聞皆掩泣。</span><span class="lact"><button class="lbtn sel-b" data-sl="42">選</button></span></span>
+    <span class="line" data-i="43"><span class="dot"></span><span class="ltxt">座中泣下誰最多，江州司馬青衫濕。</span><span class="lact"><button class="lbtn sel-b" data-sl="43">選</button></span></span>
+  </p>
+</div>
+
+<div class="quiz-sec">
+  <p class="quiz-title">── 📝 詩句理解測驗 ──</p>
+  <!-- 每題一張 .qcard：正解 data-c="true"，每題僅一個正解；選項 3~6 個。QFBS 回饋長度＝選項數 -->
+  <div class="qcard">
+    <p class="qq">一、「同是天涯淪落人，相逢何必曾相識」一句，主要表達作者什麼情感？</p>
+    <div class="qopts">
+      <button class="qbtn" data-c="true">與琵琶女同病相憐、惺惺相惜的感慨</button>
+      <button class="qbtn" data-c="false">對琵琶女技藝高超的純粹讚嘆</button>
+      <button class="qbtn" data-c="false">久別重逢老友的喜悅</button>
+      <button class="qbtn" data-c="false">對京城繁華生活的懷念</button>
+    </div>
+    <p class="qfb"></p>
+  </div>
+  <div class="qcard">
+    <p class="qq">二、下列詩句中，何者是用「比喻」來摹寫琵琶的樂聲？</p>
+    <div class="qopts">
+      <button class="qbtn" data-c="false">千呼萬喚始出來</button>
+      <button class="qbtn" data-c="true">大珠小珠落玉盤</button>
+      <button class="qbtn" data-c="false">整頓衣裳起斂容</button>
+      <button class="qbtn" data-c="false">門前冷落鞍馬稀</button>
+    </div>
+    <p class="qfb"></p>
+  </div>
+  <div class="qcard">
+    <p class="qq">三、「銀瓶乍破水漿迸，鐵騎突出刀槍鳴」描寫的樂聲特點是？</p>
+    <div class="qopts">
+      <button class="qbtn" data-c="false">輕柔細微、宛轉低迴</button>
+      <button class="qbtn" data-c="false">斷斷續續、漸漸停歇</button>
+      <button class="qbtn" data-c="true">由低抑忽轉為激越高亢、氣勢驟起</button>
+      <button class="qbtn" data-c="false">平淡無奇、毫無變化</button>
+    </div>
+    <p class="qfb"></p>
+  </div>
+  <div class="qcard">
+    <p class="qq">四、琵琶女由「盛」轉「衰」的原因，下列何者正確？</p>
+    <div class="qopts">
+      <button class="qbtn" data-c="true">年長色衰，弟走阿姨死，門前冷落，終於嫁作商人婦</button>
+      <button class="qbtn" data-c="false">得罪權貴而被逐出教坊</button>
+      <button class="qbtn" data-c="false">自願離開京城歸隱山林</button>
+      <button class="qbtn" data-c="false">因生病再也不能彈琵琶</button>
+    </div>
+    <p class="qfb"></p>
+  </div>
+  <div class="qcard">
+    <p class="qq">五、「座中泣下誰最多？江州司馬青衫濕。」中的「江州司馬」指誰？「青衫」有何含意？</p>
+    <div class="qopts">
+      <button class="qbtn" data-c="false">指宴會主人；青衫表示年輕</button>
+      <button class="qbtn" data-c="true">指作者白居易自己；青衫是唐代低階官員服色，暗示貶謫失意</button>
+      <button class="qbtn" data-c="false">指琵琶女的丈夫；青衫表示商人身分</button>
+      <button class="qbtn" data-c="false">指彈琵琶的樂師；青衫表示樂工身分</button>
+    </div>
+    <p class="qfb"></p>
+  </div>
+</div>
+
+<p class="ver">琵琶行 · 互動朗讀注音版（台灣教育部讀音）　v1.0</p>
+</main>
+
+<div class="ann" id="ann">
+  <button class="ann-x" id="ann-x">✕</button>
+  <p class="ann-ln" id="ann-ln"></p>
+  <button class="ann-spk" id="ann-spk">🔊 朗讀釋義</button>
+  <button class="ann-spk ann-stop" id="ann-stop">■ 停止</button>
+  <p class="ann-me" id="ann-me"></p>
+  <p class="ann-vt" id="ann-vt"></p>
+  <div id="ann-wd"></div>
+</div>
+
+<script>
+const LINES=[
+'潯陽江頭夜送客，楓葉荻花秋瑟瑟。','主人下馬客在船，舉酒欲飲無管絃。','醉不成歡慘將別，別時茫茫江浸月。',
+'忽聞水上琵琶聲，主人忘歸客不發。','尋聲暗問彈者誰，琵琶聲停欲語遲。','移船相近邀相見，添酒回燈重開宴。','千呼萬喚始出來，猶抱琵琶半遮面。',
+'轉軸撥絃三兩聲，未成曲調先有情。','絃絃掩抑聲聲思，似訴平生不得志。','低眉信手續續彈，說盡心中無限事。','輕攏慢撚抹復挑，初為霓裳後六么。',
+'大絃嘈嘈如急雨，小絃切切如私語。','嘈嘈切切錯雜彈，大珠小珠落玉盤。','間關鶯語花底滑，幽咽泉流水下灘。','水泉冷澀絃凝絕，凝絕不通聲暫歇。','別有幽愁暗恨生，此時無聲勝有聲。',
+'銀瓶乍破水漿迸，鐵騎突出刀槍鳴。','曲終收撥當心畫，四絃一聲如裂帛。','東船西舫悄無言，唯見江心秋月白。',
+'沉吟放撥插絃中，整頓衣裳起斂容。','自言本是京城女，家在蝦蟆陵下住。','十三學得琵琶成，名屬教坊第一部。','曲罷曾教善才服，妝成每被秋娘妒。','五陵年少爭纏頭，一曲紅綃不知數。','鈿頭銀篦擊節碎，血色羅裙翻酒污。',
+'今年歡笑復明年，秋月春風等閒度。','弟走從軍阿姨死，暮去朝來顏色故。','門前冷落車馬稀，老大嫁作商人婦。','商人重利輕別離，前月浮梁買茶去。','去來江口守空船，繞船明月江水寒。','夜深忽夢少年事，夢啼妝淚紅闌干。',
+'我聞琵琶已嘆息，又聞此語重唧唧。','同是天涯淪落人，相逢何必曾相識！',
+'我從去年辭帝京，謫居臥病潯陽城。','潯陽地僻無音樂，終歲不聞絲竹聲。','住近湓江地低濕，黃蘆苦竹繞宅生。','其間旦暮聞何物，杜鵑啼血猿哀鳴。','春江花朝秋月夜，往往取酒還獨傾。','豈無山歌與村笛，嘔啞嘲哳難為聽。',
+'今夜聞君琵琶語，如聽仙樂耳暫明。','莫辭更坐彈一曲，為君翻作琵琶行。',
+'感我此言良久立，卻坐促絃絃轉急。','淒淒不似向前聲，滿座重聞皆掩泣。','座中泣下誰最多，江州司馬青衫濕。'
+];
+
+// stanza -> line indices
+const STANZA_LINES=[[0,1,2],[3,4,5,6],[7,8,9,10],[11,12,13,14,15],[16,17,18],[19,20,21,22,23,24],[25,26,27,28,29,30],[31,32],[33,34,35,36,37,38],[39,40],[41,42,43]];
+
+// 注音（教育部讀音，含破音字正確讀法）；每句以空白分隔，僅對應「漢字」，標點自動略過。
+const RUBY=[
+'ㄒㄩㄣˊ ㄧㄤˊ ㄐㄧㄤ ㄊㄡˊ ㄧㄝˋ ㄙㄨㄥˋ ㄎㄜˋ ㄈㄥ ㄧㄝˋ ㄉㄧˊ ㄏㄨㄚ ㄑㄧㄡ ㄙㄜˋ ㄙㄜˋ',
+'ㄓㄨˇ ㄖㄣˊ ㄒㄧㄚˋ ㄇㄚˇ ㄎㄜˋ ㄗㄞˋ ㄔㄨㄢˊ ㄐㄩˇ ㄐㄧㄡˇ ㄩˋ ㄧㄣˇ ㄨˊ ㄍㄨㄢˇ ㄒㄧㄢˊ',
+'ㄗㄨㄟˋ ㄅㄨˋ ㄔㄥˊ ㄏㄨㄢ ㄘㄢˇ ㄐㄧㄤ ㄅㄧㄝˊ ㄅㄧㄝˊ ㄕˊ ㄇㄤˊ ㄇㄤˊ ㄐㄧㄤ ㄐㄧㄣˋ ㄩㄝˋ',
+'ㄏㄨ ㄨㄣˊ ㄕㄨㄟˇ ㄕㄤˋ ㄆㄧˊ ㄆㄚˊ ㄕㄥ ㄓㄨˇ ㄖㄣˊ ㄨㄤˋ ㄍㄨㄟ ㄎㄜˋ ㄅㄨˋ ㄈㄚ',
+'ㄒㄩㄣˊ ㄕㄥ ㄢˋ ㄨㄣˋ ㄊㄢˊ ㄓㄜˇ ㄕㄟˊ ㄆㄧˊ ㄆㄚˊ ㄕㄥ ㄊㄧㄥˊ ㄩˋ ㄩˇ ㄔˊ',
+'ㄧˊ ㄔㄨㄢˊ ㄒㄧㄤ ㄐㄧㄣˋ ㄧㄠ ㄒㄧㄤ ㄐㄧㄢˋ ㄊㄧㄢ ㄐㄧㄡˇ ㄏㄨㄟˊ ㄉㄥ ㄔㄨㄥˊ ㄎㄞ ㄧㄢˋ',
+'ㄑㄧㄢ ㄏㄨ ㄨㄢˋ ㄏㄨㄢˋ ㄕˇ ㄔㄨ ㄌㄞˊ ㄧㄡˊ ㄅㄠˋ ㄆㄧˊ ㄆㄚˊ ㄅㄢˋ ㄓㄜ ㄇㄧㄢˋ',
+'ㄓㄨㄢˇ ㄓㄡˊ ㄅㄛ ㄒㄧㄢˊ ㄙㄢ ㄌㄧㄤˇ ㄕㄥ ㄨㄟˋ ㄔㄥˊ ㄑㄩˇ ㄉㄧㄠˋ ㄒㄧㄢ ㄧㄡˇ ㄑㄧㄥˊ',
+'ㄒㄧㄢˊ ㄒㄧㄢˊ ㄧㄢˇ ㄧˋ ㄕㄥ ㄕㄥ ㄙ ㄙˋ ㄙㄨˋ ㄆㄧㄥˊ ㄕㄥ ㄅㄨˋ ㄉㄜˊ ㄓˋ',
+'ㄉㄧ ㄇㄟˊ ㄒㄧㄣˋ ㄕㄡˇ ㄒㄩˋ ㄒㄩˋ ㄊㄢˊ ㄕㄨㄛ ㄐㄧㄣˋ ㄒㄧㄣ ㄓㄨㄥ ㄨˊ ㄒㄧㄢˋ ㄕˋ',
+'ㄑㄧㄥ ㄌㄨㄥˇ ㄇㄢˋ ㄋㄧㄢˇ ㄇㄛˇ ㄈㄨˋ ㄊㄧㄠ ㄔㄨ ㄨㄟˊ ㄋㄧˊ ㄕㄤ˙ ㄏㄡˋ ㄌㄧㄡˋ ㄧㄠ',
+'ㄉㄚˋ ㄒㄧㄢˊ ㄘㄠˊ ㄘㄠˊ ㄖㄨˊ ㄐㄧˊ ㄩˇ ㄒㄧㄠˇ ㄒㄧㄢˊ ㄑㄧㄝˋ ㄑㄧㄝˋ ㄖㄨˊ ㄙ ㄩˇ',
+'ㄘㄠˊ ㄘㄠˊ ㄑㄧㄝˋ ㄑㄧㄝˋ ㄘㄨㄛˋ ㄗㄚˊ ㄊㄢˊ ㄉㄚˋ ㄓㄨ ㄒㄧㄠˇ ㄓㄨ ㄌㄨㄛˋ ㄩˋ ㄆㄢˊ',
+'ㄐㄧㄢ ㄍㄨㄢ ㄧㄥ ㄩˇ ㄏㄨㄚ ㄉㄧˇ ㄏㄨㄚˊ ㄧㄡ ㄧㄝˋ ㄑㄩㄢˊ ㄌㄧㄡˊ ㄕㄨㄟˇ ㄒㄧㄚˋ ㄊㄢ',
+'ㄕㄨㄟˇ ㄑㄩㄢˊ ㄌㄥˇ ㄙㄜˋ ㄒㄧㄢˊ ㄋㄧㄥˊ ㄐㄩㄝˊ ㄋㄧㄥˊ ㄐㄩㄝˊ ㄅㄨˋ ㄊㄨㄥ ㄕㄥ ㄓㄢˋ ㄒㄧㄝ',
+'ㄅㄧㄝˊ ㄧㄡˇ ㄧㄡ ㄔㄡˊ ㄢˋ ㄏㄣˋ ㄕㄥ ㄘˇ ㄕˊ ㄨˊ ㄕㄥ ㄕㄥˋ ㄧㄡˇ ㄕㄥ',
+'ㄧㄣˊ ㄆㄧㄥˊ ㄓㄚˋ ㄆㄛˋ ㄕㄨㄟˇ ㄐㄧㄤ ㄅㄥˋ ㄊㄧㄝˇ ㄐㄧˋ ㄊㄨˊ ㄔㄨ ㄉㄠ ㄑㄧㄤ ㄇㄧㄥˊ',
+'ㄑㄩˇ ㄓㄨㄥ ㄕㄡ ㄅㄛ ㄉㄤ ㄒㄧㄣ ㄏㄨㄚˋ ㄙˋ ㄒㄧㄢˊ ㄧ ㄕㄥ ㄖㄨˊ ㄌㄧㄝˋ ㄅㄛˊ',
+'ㄉㄨㄥ ㄔㄨㄢˊ ㄒㄧ ㄈㄤˇ ㄑㄧㄠˇ ㄨˊ ㄧㄢˊ ㄨㄟˊ ㄐㄧㄢˋ ㄐㄧㄤ ㄒㄧㄣ ㄑㄧㄡ ㄩㄝˋ ㄅㄞˊ',
+'ㄔㄣˊ ㄧㄣˊ ㄈㄤˋ ㄅㄛ ㄔㄚ ㄒㄧㄢˊ ㄓㄨㄥ ㄓㄥˇ ㄉㄨㄣˋ ㄧ ㄕㄤ˙ ㄑㄧˇ ㄌㄧㄢˇ ㄖㄨㄥˊ',
+'ㄗˋ ㄧㄢˊ ㄅㄣˇ ㄕˋ ㄐㄧㄥ ㄔㄥˊ ㄋㄩˇ ㄐㄧㄚ ㄗㄞˋ ㄏㄚˊ ㄇㄚˊ ㄌㄧㄥˊ ㄒㄧㄚˋ ㄓㄨˋ',
+'ㄕˊ ㄙㄢ ㄒㄩㄝˊ ㄉㄜˊ ㄆㄧˊ ㄆㄚˊ ㄔㄥˊ ㄇㄧㄥˊ ㄕㄨˇ ㄐㄧㄠ ㄈㄤ ㄉㄧˋ ㄧ ㄅㄨˋ',
+'ㄑㄩˇ ㄅㄚˋ ㄗㄥˊ ㄐㄧㄠˋ ㄕㄢˋ ㄘㄞˊ ㄈㄨˊ ㄓㄨㄤ ㄔㄥˊ ㄇㄟˇ ㄅㄟˋ ㄑㄧㄡ ㄋㄧㄤˊ ㄉㄨˋ',
+'ㄨˇ ㄌㄧㄥˊ ㄋㄧㄢˊ ㄕㄠˋ ㄓㄥ ㄔㄢˊ ㄊㄡˊ ㄧ ㄑㄩˇ ㄏㄨㄥˊ ㄒㄧㄠ ㄅㄨˋ ㄓ ㄕㄨˋ',
+'ㄉㄧㄢˋ ㄊㄡˊ ㄧㄣˊ ㄅㄧˋ ㄐㄧˊ ㄐㄧㄝˊ ㄙㄨㄟˋ ㄒㄧㄝˇ ㄙㄜˋ ㄌㄨㄛˊ ㄑㄩㄣˊ ㄈㄢ ㄐㄧㄡˇ ㄨ',
+'ㄐㄧㄣ ㄋㄧㄢˊ ㄏㄨㄢ ㄒㄧㄠˋ ㄈㄨˋ ㄇㄧㄥˊ ㄋㄧㄢˊ ㄑㄧㄡ ㄩㄝˋ ㄔㄨㄣ ㄈㄥ ㄉㄥˇ ㄒㄧㄢˊ ㄉㄨˋ',
+'ㄉㄧˋ ㄗㄡˇ ㄘㄨㄥˊ ㄐㄩㄣ ㄚˋ ㄧˊ ㄙˇ ㄇㄨˋ ㄑㄩˋ ㄓㄠ ㄌㄞˊ ㄧㄢˊ ㄙㄜˋ ㄍㄨˋ',
+'ㄇㄣˊ ㄑㄧㄢˊ ㄌㄥˇ ㄌㄨㄛˋ ㄐㄩ ㄇㄚˇ ㄒㄧ ㄌㄠˇ ㄉㄚˋ ㄐㄧㄚˋ ㄗㄨㄛˋ ㄕㄤ ㄖㄣˊ ㄈㄨˋ',
+'ㄕㄤ ㄖㄣˊ ㄓㄨㄥˋ ㄌㄧˋ ㄑㄧㄥ ㄅㄧㄝˊ ㄌㄧˊ ㄑㄧㄢˊ ㄩㄝˋ ㄈㄨˊ ㄌㄧㄤˊ ㄇㄞˇ ㄔㄚˊ ㄑㄩˋ',
+'ㄑㄩˋ ㄌㄞˊ ㄐㄧㄤ ㄎㄡˇ ㄕㄡˇ ㄎㄨㄥ ㄔㄨㄢˊ ㄖㄠˋ ㄔㄨㄢˊ ㄇㄧㄥˊ ㄩㄝˋ ㄐㄧㄤ ㄕㄨㄟˇ ㄏㄢˊ',
+'ㄧㄝˋ ㄕㄣ ㄏㄨ ㄇㄥˋ ㄕㄠˋ ㄋㄧㄢˊ ㄕˋ ㄇㄥˋ ㄊㄧˊ ㄓㄨㄤ ㄌㄟˋ ㄏㄨㄥˊ ㄌㄢˊ ㄍㄢ',
+'ㄨㄛˇ ㄨㄣˊ ㄆㄧˊ ㄆㄚˊ ㄧˇ ㄊㄢˋ ㄒㄧˊ ㄧㄡˋ ㄨㄣˊ ㄘˇ ㄩˇ ㄔㄨㄥˊ ㄐㄧˊ ㄐㄧˊ',
+'ㄊㄨㄥˊ ㄕˋ ㄊㄧㄢ ㄧㄚˊ ㄌㄨㄣˊ ㄌㄨㄛˋ ㄖㄣˊ ㄒㄧㄤ ㄈㄥˊ ㄏㄜˊ ㄅㄧˋ ㄗㄥˊ ㄒㄧㄤ ㄕˋ',
+'ㄨㄛˇ ㄘㄨㄥˊ ㄑㄩˋ ㄋㄧㄢˊ ㄘˊ ㄉㄧˋ ㄐㄧㄥ ㄓㄜˊ ㄐㄩ ㄨㄛˋ ㄅㄧㄥˋ ㄒㄩㄣˊ ㄧㄤˊ ㄔㄥˊ',
+'ㄒㄩㄣˊ ㄧㄤˊ ㄉㄧˋ ㄆㄧˋ ㄨˊ ㄧㄣ ㄩㄝˋ ㄓㄨㄥ ㄙㄨㄟˋ ㄅㄨˋ ㄨㄣˊ ㄙ ㄓㄨˊ ㄕㄥ',
+'ㄓㄨˋ ㄐㄧㄣˋ ㄆㄣˊ ㄐㄧㄤ ㄉㄧˋ ㄉㄧ ㄕ ㄏㄨㄤˊ ㄌㄨˊ ㄎㄨˇ ㄓㄨˊ ㄖㄠˋ ㄓㄞˊ ㄕㄥ',
+'ㄑㄧˊ ㄐㄧㄢ ㄉㄢˋ ㄇㄨˋ ㄨㄣˊ ㄏㄜˊ ㄨˋ ㄉㄨˋ ㄐㄩㄢ ㄊㄧˊ ㄒㄧㄝˇ ㄩㄢˊ ㄞ ㄇㄧㄥˊ',
+'ㄔㄨㄣ ㄐㄧㄤ ㄏㄨㄚ ㄓㄠ ㄑㄧㄡ ㄩㄝˋ ㄧㄝˋ ㄨㄤˇ ㄨㄤˇ ㄑㄩˇ ㄐㄧㄡˇ ㄏㄨㄢˊ ㄉㄨˊ ㄑㄧㄥ',
+'ㄑㄧˇ ㄨˊ ㄕㄢ ㄍㄜ ㄩˇ ㄘㄨㄣ ㄉㄧˊ ㄡ ㄧㄚ ㄔㄠˊ ㄓㄚˊ ㄋㄢˊ ㄨㄟˊ ㄊㄧㄥ',
+'ㄐㄧㄣ ㄧㄝˋ ㄨㄣˊ ㄐㄩㄣ ㄆㄧˊ ㄆㄚˊ ㄩˇ ㄖㄨˊ ㄊㄧㄥ ㄒㄧㄢ ㄩㄝˋ ㄦˇ ㄓㄢˋ ㄇㄧㄥˊ',
+'ㄇㄛˋ ㄘˊ ㄍㄥˋ ㄗㄨㄛˋ ㄊㄢˊ ㄧ ㄑㄩˇ ㄨㄟˋ ㄐㄩㄣ ㄈㄢ ㄗㄨㄛˋ ㄆㄧˊ ㄆㄚˊ ㄒㄧㄥˊ',
+'ㄍㄢˇ ㄨㄛˇ ㄘˇ ㄧㄢˊ ㄌㄧㄤˊ ㄐㄧㄡˇ ㄌㄧˋ ㄑㄩㄝˋ ㄗㄨㄛˋ ㄘㄨˋ ㄒㄧㄢˊ ㄒㄧㄢˊ ㄓㄨㄢˇ ㄐㄧˊ',
+'ㄑㄧ ㄑㄧ ㄅㄨˊ ㄙˋ ㄒㄧㄤˋ ㄑㄧㄢˊ ㄕㄥ ㄇㄢˇ ㄗㄨㄛˋ ㄔㄨㄥˊ ㄨㄣˊ ㄐㄧㄝ ㄧㄢˇ ㄑㄧˋ',
+'ㄗㄨㄛˋ ㄓㄨㄥ ㄑㄧˋ ㄒㄧㄚˋ ㄕㄟˊ ㄗㄨㄟˋ ㄉㄨㄛ ㄐㄧㄤ ㄓㄡ ㄙ ㄇㄚˇ ㄑㄧㄥ ㄕㄢ ㄕ'
+];
+
+const ANN={
+  0:{m:'夜裡在潯陽江邊為朋友送行，楓葉與荻花在秋風中沙沙作響。',v:[['潯陽','今江西九江，作者被貶之地。'],['荻','ㄉㄧˊ，像蘆葦的水邊植物。'],['瑟瑟','形容秋風吹動草木的聲音。']]},
+  1:{m:'主人下了馬，客人已在船上，舉起酒要喝，卻沒有音樂助興。',v:[['主人','作者自稱。'],['管絃','管樂與絃樂，泛指音樂。']]},
+  2:{m:'喝醉了也不快樂，淒慘地將要分別；分別時江面茫茫，月影浸在水中。',v:[['慘','悲傷淒涼。'],['浸月','ㄐㄧㄣˋ，月影倒映、浸沒在江水裡。']]},
+  3:{m:'忽然聽見水上傳來琵琶聲，主人忘了回去，客人也不出發了。',v:[['發','出發、啟程。']]},
+  4:{m:'循著聲音輕聲詢問彈琴的是誰，琵琶聲停了，她想說話卻遲疑著。',v:[['暗問','低聲詢問。'],['遲','遲疑、不馬上回應。']]},
+  5:{m:'把船移近、邀請她相見，添了酒、撥亮燈，重新擺開酒宴。',v:[['回燈','重新撥亮燈火。'],['重開宴','ㄔㄨㄥˊ，重新擺設酒席。']]},
+  6:{m:'一再呼喚她才出來，還抱著琵琶遮住半邊臉。',v:[['千呼萬喚','一再地呼喚。'],['猶','還、仍然。']]},
+  7:{m:'轉動琴軸、撥動琴絃試彈幾聲，還沒成曲調就先帶著情感。',v:[['軸','ㄓㄡˊ，琵琶上調絃的弦軸。'],['撥','ㄅㄛ，彈撥。']]},
+  8:{m:'每一根絃聲都低沉壓抑，每個音都含著情思，像在訴說一生的不得志。',v:[['掩抑','聲音低沉壓抑。'],['思','ㄙ，情思、心事。'],['平生','一生、平日。']]},
+  9:{m:'低著眉、隨手不停地彈，把心中說不完的事都傾訴出來。',v:[['信手','隨手。'],['續續','連續不斷。']]},
+  10:{m:'輕輕地攏、慢慢地撚，又抹又挑；先彈〈霓裳羽衣曲〉，再彈〈六么〉。',v:[['攏、撚、抹、挑','四種彈琵琶的指法。'],['霓裳','ㄋㄧˊ ˙ㄕㄤ，〈霓裳羽衣曲〉。'],['六么','ㄌㄧㄡˋ ㄧㄠ，唐代有名的樂曲名。']]},
+  11:{m:'粗絃的聲音沉重繁密像急驟的雨，細絃的聲音輕細像悄悄的私語。',v:[['大絃','粗絃，發音低沉。'],['嘈嘈','ㄘㄠˊ ㄘㄠˊ，聲音沉重繁雜。'],['切切','聲音細碎急促。']]},
+  12:{m:'粗細聲交錯混雜地彈奏，像大大小小的珠子落在玉盤上。',v:[['錯雜','交錯混雜。'],['玉盤','玉製的盤子。']]},
+  13:{m:'樂聲像黃鶯在花下宛轉啼鳴那樣流利，又像泉水流過淺灘那樣艱澀凝滯。',v:[['間關','ㄐㄧㄢ ㄍㄨㄢ，形容鳥鳴宛轉。'],['幽咽','ㄧㄡ ㄧㄝˋ，低聲哭泣，形容水聲。'],['水下灘','ㄕㄨㄟˇ ㄒㄧㄚˋ ㄊㄢ，泉水流過水下淺灘，喻樂聲艱澀凝滯。（一作「冰下難」）']]},
+  14:{m:'像泉水冷凝滯澀，絃聲也凝結中斷；聲音斷絕不通，暫時停歇。',v:[['冷澀','冷凝滯澀。'],['凝絕','凝結中斷。'],['暫歇','暫時停止。']]},
+  15:{m:'另有一種深藏的愁恨悄悄生起，這時候沒有聲音反而勝過有聲音。',v:[['幽愁暗恨','深藏心底的愁苦怨恨。'],['勝','勝過、超過。']]},
+  16:{m:'樂聲忽然像銀瓶破裂、水漿四濺，又像鐵甲騎兵衝出、刀槍齊鳴。',v:[['乍','忽然。'],['迸','ㄅㄥˋ，向外濺射。'],['鐵騎','ㄐㄧˋ，披鐵甲的騎兵。']]},
+  17:{m:'曲子結束時收起撥子，對著琵琶中心一劃，四絃同時發出像撕裂絹帛的聲音。',v:[['收撥','收起撥子。'],['當心畫','對著琵琶中心一劃。'],['裂帛','撕裂絲絹的聲音。']]},
+  18:{m:'東邊西邊的船都靜悄悄沒有人說話，只看見江心一輪潔白的秋月。',v:[['舫','ㄈㄤˇ，船。'],['悄','ㄑㄧㄠˇ，寂靜無聲。']]},
+  19:{m:'她沉思片刻，把撥子插在絃中，整理衣裳、起身收斂神情。',v:[['沉吟','沉思低語。'],['斂容','收斂神情，顯出莊重。']]},
+  20:{m:'她說自己本是京城的女子，家住在蝦蟆陵附近。',v:[['京城','唐代京城長安。'],['蝦蟆陵','ㄏㄚˊ ㄇㄚˊ ㄌㄧㄥˊ，長安城東南的地名，當時歌伎聚居之處。']]},
+  21:{m:'十三歲就學成了琵琶，名字列在教坊第一部。',v:[['教坊','ㄐㄧㄠ ㄈㄤ，唐代管理宮廷音樂歌舞的官署。'],['屬','ㄕㄨˇ，歸屬、列名。']]},
+  22:{m:'彈完一曲常使琵琶名師佩服，妝扮好了又每每被同行歌伎嫉妒。',v:[['善才','唐代對琵琶名師的稱呼。'],['教','ㄐㄧㄠˋ，使、讓。'],['秋娘','唐代歌伎的通稱。'],['妒','ㄉㄨˋ，嫉妒。']]},
+  23:{m:'京城的富家子弟爭著送上賞賜，一曲彈完，賞的紅綃多得數不清。',v:[['五陵年少','京城富貴人家的子弟。'],['纏頭','ㄔㄢˊ ㄊㄡˊ，贈給歌伎的財物。'],['紅綃','ㄒㄧㄠ，紅色的薄絲綢。']]},
+  24:{m:'鑲金花的銀篦打拍子都打碎了，鮮紅的羅裙也被打翻的酒沾污了。',v:[['鈿頭銀篦','ㄉㄧㄢˋ ㄊㄡˊ ㄧㄣˊ ㄅㄧˋ，鑲嵌金花的銀製髮篦。'],['擊節','打拍子。'],['血色','鮮紅色。']]},
+  25:{m:'今年歡笑、明年又歡笑，美好的秋月春風都隨意地度過了。',v:[['復','又、再。'],['等閒','ㄉㄥˇ ㄒㄧㄢˊ，隨便、輕易。']]},
+  26:{m:'弟弟從軍走了，鴇母也死了；日子一天天過去，容貌漸漸衰老。',v:[['阿姨','ㄚˋ ㄧˊ，此指教坊中的鴇母。'],['朝來','ㄓㄠ，早晨來臨。'],['顏色故','容貌衰老。']]},
+  27:{m:'門前冷清，車馬稀少；年紀大了，只好嫁給商人做妻子。',v:[['車馬','ㄐㄩ ㄇㄚˇ，指乘車騎馬而來的賓客。'],['老大','年紀大了。']]},
+  28:{m:'商人看重利益、輕視別離，上個月就到浮梁買茶去了。',v:[['重利','ㄓㄨㄥˋ，看重利益。'],['浮梁','ㄈㄨˊ ㄌㄧㄤˊ，地名，今江西一帶，當時茶葉集散地。']]},
+  29:{m:'他走後我獨自在江口守著空船，只有繞船的明月和冰冷的江水相伴。',v:[['去來','離去。「來」為語助詞。'],['守空船','獨守空船。']]},
+  30:{m:'夜深時忽然夢見年輕時的往事，夢中啼哭，臉上脂粉和淚水縱橫交錯。',v:[['少年事','ㄕㄠˋ，年輕時的事。'],['闌干','ㄌㄢˊ ㄍㄢ，縱橫交錯的樣子。']]},
+  31:{m:'我聽了琵琶聲已經嘆息，又聽了她這番話，更加再三嘆息。',v:[['息','ㄒㄧˊ，嘆息。'],['重','ㄔㄨㄥˊ，再三、又。'],['唧唧','ㄐㄧˊ ㄐㄧˊ，嘆息聲。']]},
+  32:{m:'我們同樣是流落天涯的人，相逢何必一定要早就認識呢！',v:[['天涯淪落','流落在遙遠的他鄉。'],['曾','ㄗㄥˊ，曾經、從前。']]},
+  33:{m:'我從去年離開京城，被貶到潯陽城，臥病在這裡。',v:[['帝京','京城長安。'],['謫居','ㄓㄜˊ，被貶官降職而居住外地。']]},
+  34:{m:'潯陽地處偏僻、沒有音樂，整年聽不到絃管的樂聲。',v:[['地僻','ㄆㄧˋ，地方偏僻。'],['絲竹','絃樂與管樂，泛指音樂。']]},
+  35:{m:'我住處靠近湓江，地勢低窪潮濕，黃蘆和苦竹環繞著房子生長。',v:[['湓江','ㄆㄣˊ，水名，在今江西九江。'],['黃蘆苦竹','枯黃的蘆葦與味苦的竹子。']]},
+  36:{m:'在這裡早晚聽到的是什麼呢？只有杜鵑悲啼泣血、猿猴哀傷地鳴叫。',v:[['旦暮','ㄉㄢˋ ㄇㄨˋ，早晚。'],['杜鵑啼血','相傳杜鵑啼叫到口中流血，聲音淒切。']]},
+  37:{m:'春江花開的早晨、秋月皎潔的夜晚，常常取出酒來，仍是獨自一人飲。',v:[['花朝','ㄓㄠ，百花盛開的早晨。'],['還','ㄏㄨㄢˊ，仍、還是。'],['傾','倒酒、飲酒。']]},
+  38:{m:'難道沒有山歌和村笛嗎？只是那聲音嘈雜難聽，叫人難以入耳。',v:[['嘔啞','ㄡ ㄧㄚ，象聲詞，形容聲音嘈雜。'],['嘲哳','ㄔㄠˊ ㄓㄚˊ，聲音雜亂細碎。'],['難為聽','難以入耳。']]},
+  39:{m:'今夜聽了您的琵琶聲，像聽到仙樂一樣，耳朵頓時清亮起來。',v:[['琵琶語','琵琶彈出的樂聲。'],['仙樂','ㄩㄝˋ，仙界的音樂。'],['暫','頓時、一下子。']]},
+  40:{m:'請不要推辭，再坐下來彈一曲吧，我為您譜寫一首〈琵琶行〉。',v:[['莫辭','不要推辭。'],['更坐','ㄍㄥˋ，再坐下。'],['為','ㄨㄟˋ，替、給。'],['翻作','依曲調寫作新詞。']]},
+  41:{m:'她被我這番話感動，站立了好久；又坐下緊撥琴絃，絃聲變得急促。',v:[['良久','很久。'],['卻坐','ㄑㄩㄝˋ，退回坐下。'],['促絃','把絃擰緊。']]},
+  42:{m:'這淒涼的樂聲不像先前的聲音，滿座的人再次聽了都掩面哭泣。',v:[['向前','ㄒㄧㄤˋ，先前、剛才。'],['重聞','ㄔㄨㄥˊ，再次聽到。'],['掩泣','掩面哭泣。']]},
+  43:{m:'在座的人裡誰流的淚最多呢？是我這個江州司馬，青衫都被淚水沾濕了。',v:[['江州司馬','作者當時被貶的官職。'],['青衫','唐代低階官員的服色，借指失意的官員。']]}
+};
+
+// 每句語譯的關鍵意象 emoji（記憶點）
+const LINE_EMOJI=['🍂','🍶','🌙','🎵','❓','🪔','🙇','🎼','😔','💬','🎶','🌧️','📿','🐦','🧊','🤫','💥','✂️','🌕','🧎','🏠','🎓','💄','💰','🍷','🎉','👵','🐎','🍵','❄️','😭','😞','🤝','🏚️','🤐','🎋','🐒','🍶','🪈','✨','✍️','🎻','😢','👔'];
+
+const QFBS=[
+  ['答對了！兩人一個淪落江湖、一個貶謫天涯，故有「同病相憐」之嘆。','技藝讚嘆是前段內容，並非此句重點。','兩人素昧平生，並非久別重逢。','此句重點在身世之悲，而非懷念繁華。'],
+  ['這是寫琵琶女出場的神態，並非摹寫樂聲。','答對了！以珠落玉盤比喻樂聲清脆圓潤、錯落有致。','這是寫她的動作儀態，並非樂聲。','這是寫她晚景冷清，並非樂聲。'],
+  ['正好相反，此句寫的是激昂猛烈的樂聲。','這是前面「冰泉冷澀…聲暫歇」的情形，並非此句。','答對了！銀瓶乍破、鐵騎刀槍，寫樂聲由靜忽轉為激越高亢。','此句變化極大、氣勢磅礡，並非平淡。'],
+  ['答對了！詩中正寫她年華老去、親故星散，只好下嫁商人。','詩中並未提及得罪權貴一事。','她是不得已下嫁，並非自願歸隱。','詩中並未說她因病不能彈奏。'],
+  ['「江州司馬」是作者自指，並非泛稱主人。','答對了！白居易自稱江州司馬，青衫為卑官服色，寄寓淪落失意之悲。','江州司馬指作者自己，與琵琶女丈夫無關。','此處指作者本人，並非樂師。']
+];
+
+// ─── TTS ───
+const synth = window.speechSynthesis;
+let currentSpk = null;
+
+// 破音字 / 文言讀音修正：把字換成「同音的常用字」只用於朗讀，畫面文字不變。
+// 順序處理，較長的詞放前面，避免被短詞先吃掉。
+const PHON = [
+  // 較長／較特定的詞放前面，避免被短詞先吃掉
+  ['彈','談'],               // 彈ㄊㄢˊ（彈奏，同「談」音）；全詩彈字皆此義，TTS 易誤讀為「蛋」ㄉㄢˋ
+  ['轉軸','轉妯'],           // 轉ㄓㄨㄢˇ（轉動）；拆開名詞「轉軸」避免讀成 ㄓㄨㄢˋ，妯ㄓㄡˊ同「軸」音
+  ['名屬教坊','名鼠交坊'],   // 屬ㄕㄨˇ（屬於）、教ㄐㄧㄠ（一聲）
+  ['曾教善才','曾叫善才'],   // 教ㄐㄧㄠˋ（叫，使、讓）
+  ['滿座重聞','滿座蟲聞'],   // 重ㄔㄨㄥˊ（再次）
+  ['為君翻作','衛君翻作'],   // 為ㄨㄟˋ（替、給）
+  ['翻作琵琶行','翻作琵琶型'],// 行ㄒㄧㄥˊ（歌行體）
+  ['重開宴','蟲開宴'],       // 重ㄔㄨㄥˊ（重新）
+  ['重唧唧','蟲集集'],       // 重ㄔㄨㄥˊ、唧ㄐㄧˊ
+  ['蝦蟆陵','蛤蟆陵'],       // 蝦蟆ㄏㄚˊ ㄇㄚˊ
+  ['暮去朝來','暮去招來'],   // 朝ㄓㄠ（早晨）
+  ['難為聽','難維聽'],       // 為ㄨㄟˊ（難以）
+  ['水漿迸','水漿蹦'],       // 迸ㄅㄥˋ
+  ['鐵騎','鐵寄'],           // 騎ㄐㄧˋ（騎兵）
+  ['鈿頭','電頭'],           // 鈿ㄉㄧㄢˋ
+  ['銀篦','銀必'],           // 篦ㄅㄧˋ
+  ['霓裳','霓商'],           // 裳˙ㄕㄤ（商，輕聲）
+  ['急雨','急與'],           // 雨ㄩˇ（與同音），TTS 易誤讀為 ㄩˋ（欲）
+  ['切切','竊竊'],           // 切ㄑㄧㄝˋ（四聲，竊竊私語），TTS 易誤讀為 ㄑㄧㄝ
+  ['衣裳','衣商'],           // 裳˙ㄕㄤ（商，輕聲）
+  ['六么','六腰'],           // 么ㄧㄠ
+  ['紅綃','紅消'],           // 綃ㄒㄧㄠ
+  ['荻花','笛花'],           // 荻ㄉㄧˊ
+  ['還獨傾','環獨傾'],       // 還ㄏㄨㄢˊ（環，仍、還是）
+  ['初為','初維'],           // 為ㄨㄟˊ（演奏、是）
+  ['嘔啞','歐鴉'],           // 嘔ㄡ、啞ㄧㄚ
+  ['嘲哳','巢札'],           // 嘲ㄔㄠˊ、哳ㄓㄚˊ（皆二聲）
+  ['幽咽','幽夜'],           // 咽ㄧㄝˋ
+  ['謫居','哲居'],           // 謫ㄓㄜˊ
+  ['湓江','盆江'],           // 湓ㄆㄣˊ
+  ['嘈嘈','曹曹'],           // 嘈ㄘㄠˊ
+  ['仙樂','仙月'],           // 樂ㄩㄝˋ
+  ['花朝','花招'],           // 朝ㄓㄠ（早晨）
+  ['等閒','等閑'],           // 閒ㄒㄧㄢˊ
+  ['車馬','居馬'],           // 車ㄐㄩ（古音，車馬），TTS 易誤讀為 ㄔㄜ
+  ['琵琶語','琵琶與'],       // 語ㄩˇ（與同音），TTS 易誤讀為 ㄩˋ（玉）
+  ['地僻','弟僻'],           // 地ㄉㄧˋ（地方），TTS 易誤讀為輕聲「的」
+  ['地低濕','弟低濕'],       // 地ㄉㄧˋ
+  ['血色','寫色'],           // 血ㄒㄧㄝˇ（同「寫」），TTS 易誤讀為 ㄒㄩㄝˋ
+  ['啼血','啼寫'],           // 血ㄒㄧㄝˇ
+];
+function toSpeech(text){
+  let s=text;
+  for(const [from,to] of PHON){ s=s.split(from).join(to); }
+  return s;
+}
+
+let chosenVoiceURI = '';   // 使用者選的音色（空字串＝自動）
+
+// 自動模式：替每個中文語音打分，挑最自然的
+function voiceScore(v){
+  const n=(v.name||'').toLowerCase();
+  let s=0;
+  // 偏好神經 / 線上 / 高品質語音
+  if(/online|natural|neural/.test(n)) s+=40;
+  if(/google/.test(n)) s+=35;
+  if(/mei-?jia|yating|hsiaochen|ting-?ting|sin-?ji|hanhan/.test(n)) s+=25;
+  // 壓低老式機械音
+  if(/desktop/.test(n)) s-=30;
+  if(/espeak|pico|festival/.test(n)) s-=50;
+  // 語系偏好：zh-TW > 其他 zh
+  const lang=(v.lang||'').toLowerCase();
+  if(lang==='zh-tw') s+=20; else if(lang.startsWith('zh')) s+=8;
+  return s;
+}
+function getVoice() {
+  const vs = synth.getVoices();
+  if(chosenVoiceURI){
+    const picked = vs.find(v=>v.voiceURI===chosenVoiceURI);
+    if(picked) return picked;
+  }
+  // 自動：在所有中文語音中挑分數最高者
+  const zh = vs.filter(v=>(v.lang||'').toLowerCase().startsWith('zh'));
+  if(!zh.length) return null;
+  return zh.slice().sort((a,b)=>voiceScore(b)-voiceScore(a))[0];
+}
+
+// 把這台機器上的中文語音填進下拉選單
+function populateVoices(){
+  const sel = document.getElementById('voice');
+  if(!sel) return;
+  const zh = synth.getVoices().filter(v=>v.lang && v.lang.toLowerCase().startsWith('zh'));
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">自動</option>' +
+    zh.map(v=>`<option value="${v.voiceURI}">${v.name} (${v.lang})</option>`).join('');
+  // 還原先前選擇
+  if(prev && zh.some(v=>v.voiceURI===prev)) sel.value = prev;
+  // 沒有任何中文語音時，標示一下
+  document.getElementById('voice-lbl').textContent = zh.length ? '音色' : '音色(無中文)';
+}
+document.getElementById('voice').addEventListener('change', e=>{ chosenVoiceURI = e.target.value; });
+
+function lineEl(i){ return document.querySelector(`.line[data-i="${i}"]`); }
+
+// ─── 整首大字注音版 ───
+// 聲調符號：二聲ˊ 三聲ˇ 四聲ˋ 輕聲˙（一聲不標）
+const TONES={'ˊ':'zt-r','ˇ':'zt-r','ˋ':'zt-r','˙':'zt-n'};
+function zhuyinHtml(z){
+  if(!z) return '';
+  const last=z[z.length-1];
+  if(TONES[last]){
+    return `<span class="zb">${z.slice(0,-1)}</span><span class="zt ${TONES[last]}">${last}</span>`;
+  }
+  return `<span class="zb">${z}</span>`;
+}
+function buildRuby(i){
+  const text=LINES[i];
+  const toks=(RUBY[i]||'').split(' ');
+  let t=0,html='';
+  for(const ch of text){
+    if(/[一-鿿]/.test(ch)){ html+=`<span class="zc"><span class="zh">${ch}</span><span class="zy">${zhuyinHtml(toks[t++]||'')}</span></span>`; }
+    else{ html+=`<span class="rp">${ch}</span>`; }
+  }
+  return html;
+}
+function applyRubyAll(on){
+  document.querySelectorAll('.line').forEach(line=>{
+    const i=parseInt(line.dataset.i);
+    const ltxt=line.querySelector('.ltxt');
+    if(ltxt) ltxt.innerHTML = on ? buildRuby(i) : LINES[i];
+  });
+  document.body.classList.toggle('rubyAll',on);
+}
+
+function highlight(i,on){
+  const el=lineEl(i);
+  if(el){ on?el.classList.add('spk'):el.classList.remove('spk'); }
+}
+
+function clearAllSpk(){ document.querySelectorAll('.line.spk').forEach(el=>el.classList.remove('spk')); }
+function clearAllPlaying(){ document.querySelectorAll('.st-play.playing').forEach(el=>el.classList.remove('playing')); document.getElementById('btn-all').classList.remove('playing'); document.getElementById('btn-sel').classList.remove('playing'); const a=document.getElementById('ann-spk'); if(a)a.classList.remove('playing'); }
+
+let playId=0;   // 播放代號：每次播放遞增，停止時也遞增，讓舊串接失效
+function speak(indices, onDone){
+  synth.cancel();
+  clearAllSpk();
+  clearAllPlaying();
+  const myId=++playId;
+  if(!indices||!indices.length){ onDone&&onDone(); return; }
+  let idx=0;
+  function next(){
+    if(myId!==playId) return;   // 已被停止或新的播放取代
+    if(idx>=indices.length){ clearAllSpk(); onDone&&onDone(); return; }
+    const i=indices[idx++];
+    highlight(i,true);
+    const utt=new SpeechSynthesisUtterance(toSpeech(LINES[i]));
+    utt.lang='zh-TW';
+    utt.rate=parseFloat(document.getElementById('spd').value);
+    const v=getVoice(); if(v) utt.voice=v;
+    utt.onend=()=>{ if(myId!==playId) return; highlight(i,false); next(); };
+    utt.onerror=()=>{ if(myId!==playId) return; highlight(i,false); next(); };
+    currentSpk=utt;
+    synth.speak(utt);
+  }
+  next();
+}
+
+// 朗讀任意文字（注釋語譯用）
+function speakText(text){
+  synth.cancel(); clearAllSpk(); clearAllPlaying();
+  const myId=++playId;
+  if(!text) return;
+  const btn=document.getElementById('ann-spk');
+  btn&&btn.classList.add('playing');
+  const utt=new SpeechSynthesisUtterance(toSpeech(text));
+  utt.lang='zh-TW';
+  utt.rate=parseFloat(document.getElementById('spd').value);
+  const v=getVoice(); if(v) utt.voice=v;
+  utt.onend=()=>{ if(myId!==playId)return; btn&&btn.classList.remove('playing'); };
+  utt.onerror=()=>{ if(myId!==playId)return; btn&&btn.classList.remove('playing'); };
+  currentSpk=utt;
+  synth.speak(utt);
+}
+
+// ─── 選取 ───
+const selected=new Set();
+function updateBadge(){
+  const b=document.getElementById('badge');
+  b.textContent=selected.size;
+  selected.size>0?b.classList.add('show'):b.classList.remove('show');
+}
+function toggleSel(i){
+  const el=lineEl(i);
+  const btn=document.querySelector(`.lbtn.sel-b[data-sl="${i}"]`);
+  if(selected.has(i)){ selected.delete(i); el&&el.classList.remove('sel'); btn&&btn.classList.remove('on'); }
+  else { selected.add(i); el&&el.classList.add('sel'); btn&&btn.classList.add('on'); }
+  updateBadge();
+}
+
+// ─── 按鈕事件 ───
+document.getElementById('btn-all').addEventListener('click',()=>{
+  const btn=document.getElementById('btn-all');
+  btn.classList.add('playing');
+  speak([...Array(LINES.length).keys()],()=>btn.classList.remove('playing'));
+});
+document.getElementById('btn-sel').addEventListener('click',()=>{
+  if(!selected.size) return;
+  const btn=document.getElementById('btn-sel');
+  btn.classList.add('playing');
+  const sorted=[...selected].sort((a,b)=>a-b);
+  speak(sorted,()=>btn.classList.remove('playing'));
+});
+function stopSpeak(){
+  playId++;   // 讓進行中的串接失效，避免 cancel 觸發 onend 又接著播
+  synth.cancel(); clearAllSpk(); clearAllPlaying();
+}
+document.getElementById('btn-stop').addEventListener('click',stopSpeak);
+document.getElementById('btn-clr').addEventListener('click',()=>{
+  selected.clear();
+  document.querySelectorAll('.line.sel').forEach(el=>el.classList.remove('sel'));
+  document.querySelectorAll('.lbtn.sel-b.on').forEach(el=>el.classList.remove('on'));
+  updateBadge();
+});
+
+// 單句選取
+document.querySelectorAll('.lbtn.sel-b[data-sl]').forEach(btn=>{
+  btn.addEventListener('click',e=>{ e.stopPropagation(); toggleSel(parseInt(btn.dataset.sl)); });
+});
+
+// 整段播放
+document.querySelectorAll('.st-play[data-sp]').forEach(btn=>{
+  btn.addEventListener('click',e=>{
+    e.stopPropagation();
+    const si=parseInt(btn.dataset.sp);
+    btn.classList.add('playing');
+    speak(STANZA_LINES[si],()=>btn.classList.remove('playing'));
+  });
+});
+
+// 永遠維持整首大字注音版
+applyRubyAll(true);
+
+// 點句子文字 → 注釋
+const ann=document.getElementById('ann');
+let currentAnn=-1;
+document.getElementById('ann-spk').addEventListener('click',()=>{
+  const d=ANN[currentAnn]; if(!d) return;
+  let txt=d.m;
+  if(d.v&&d.v.length){
+    txt+='。詞語注釋：'+d.v.map(([w,def])=>`${w.replace('/','、')}，${def}`).join('。');
+  }
+  speakText(txt);
+});
+document.getElementById('ann-stop').addEventListener('click',stopSpeak);
+function openAnn(i){
+  const d=ANN[i]; if(!d) return;
+  currentAnn=i;
+  document.getElementById('ann-ln').textContent=(LINE_EMOJI[i]?LINE_EMOJI[i]+' ':'')+LINES[i];
+  document.getElementById('ann-me').textContent=(LINE_EMOJI[i]?LINE_EMOJI[i]+' ':'')+d.m;
+  if(d.v&&d.v.length){
+    document.getElementById('ann-vt').textContent='詞語注釋';
+    document.getElementById('ann-wd').innerHTML=d.v.map(([w,def])=>`<div class="ann-wd"><span class="w">【${w}】</span><span class="d">${def}</span></div>`).join('');
+  }else{
+    document.getElementById('ann-vt').textContent='';
+    document.getElementById('ann-wd').innerHTML='';
+  }
+  ann.classList.add('open');
+}
+// 短按朗讀該行；長按（約 0.45 秒）才顯示注釋
+document.querySelectorAll('.ltxt').forEach(el=>{
+  const i=parseInt(el.closest('.line').dataset.i);
+  let timer=null,longPressed=false;
+  const cancel=()=>{ if(timer){clearTimeout(timer);timer=null;} };
+  el.addEventListener('pointerdown',e=>{
+    if(e.button!==0) return;       // 只有左鍵／觸控啟動長按
+    longPressed=false;
+    timer=setTimeout(()=>{ longPressed=true; openAnn(i); },450);
+  });
+  el.addEventListener('pointerup',e=>{
+    if(e.button!==0) return;
+    cancel(); if(!longPressed) speak([i]);   // 左鍵快放＝朗讀
+  });
+  el.addEventListener('pointerleave',cancel);
+  el.addEventListener('pointercancel',cancel);
+  el.addEventListener('contextmenu',e=>{ e.preventDefault(); openAnn(i); });  // 右鍵直接看注釋
+});
+document.getElementById('ann-x').addEventListener('click',()=>ann.classList.remove('open'));
+
+// 測驗
+document.querySelectorAll('.qcard').forEach((card,qi)=>{
+  const btns=card.querySelectorAll('.qbtn');
+  const fb=card.querySelector('.qfb');
+  btns.forEach((btn,bi)=>{
+    btn.addEventListener('click',()=>{
+      if(btn.disabled)return;
+      btns.forEach((b,j)=>{ b.disabled=true; if(b.dataset.c==='true')b.classList.add('ok'); else if(b===btn)b.classList.add('ng'); });
+      const ok=btn.dataset.c==='true';
+      fb.textContent=(ok?'✅ ':'❌ ')+QFBS[qi][bi];
+    });
+  });
+});
+
+// 進度條
+window.addEventListener('scroll',()=>{
+  const el=document.documentElement;
+  const pct=(el.scrollTop/(el.scrollHeight-el.clientHeight))*100;
+  document.getElementById('prog').style.width=pct+'%';
+});
+
+// Scroll reveal
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis');}),{threshold:.1});
+document.querySelectorAll('.stanza').forEach(s=>obs.observe(s));
+
+// 載入時預取聲音並填充音色下拉
+if(synth) {
+  populateVoices();
+  synth.addEventListener('voiceschanged', populateVoices);
+}
+</script>
+</body>
+</html>
