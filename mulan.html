@@ -130,6 +130,28 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 1.4rem 
 </style>
 </head>
 <body>
+<script>
+(function(){
+  var ua = navigator.userAgent || '';
+  var isInApp = /Line\/|FBAN|FBAV|Instagram|WeChat|MicroMessenger|Twitter|Threads/i.test(ua);
+  if (!isInApp) return;
+
+  // Android: try intent to open in system browser
+  if (/android/i.test(ua)) {
+    var url = location.href;
+    location.href = 'intent://' + url.replace(/^https?:\/\//, '') +
+      '#Intent;scheme=https;package=com.android.chrome;' +
+      'S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
+  }
+
+  // Show banner for all in-app browsers (fallback / iOS)
+  var d = document.createElement('div');
+  d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#c0392b;color:#fff;padding:14px 16px;font:600 15px/1.4 sans-serif;text-align:center;';
+  d.innerHTML = '語音朗讀需使用瀏覽器開啟<br><a href="' + location.href +
+    '" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline;font-size:14px;">點此用瀏覽器開啟 ↗</a>';
+  document.body.prepend(d);
+})();
+</script>
 
 <div class="prog"><div class="prog-fill" id="prog"></div></div>
 
