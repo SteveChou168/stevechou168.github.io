@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+<!--
+  木蘭詩 · 互動朗讀注音版
+  更新紀錄：
+    v1.0  2026-06-27  初版：朗讀（破音字修正）、多音色、整首大字直式注音、
+                       注釋長按/右鍵、釋義朗讀、emoji 記憶點、語速調整
+-->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -48,6 +54,8 @@ body.rubyAll .ltxt .rp{font-size:1.95em;margin:0 .02em;vertical-align:middle;}
 /* header */
 header{position:relative;z-index:1;text-align:center;padding:3.5rem 2rem 1.5rem;}
 .eyebrow{font-family:'Noto Sans TC',sans-serif;font-size:.72rem;letter-spacing:.35em;color:var(--mist);margin-bottom:1rem;}
+.credit{position:absolute;top:1rem;right:1.2rem;font-family:'Noto Sans TC',sans-serif;font-size:.72rem;letter-spacing:.08em;color:var(--mist);text-decoration:none;border:1px solid var(--aged);border-radius:99px;padding:.25rem .75rem;transition:color .2s,border-color .2s;z-index:2;}
+.credit:hover{color:var(--gold);border-color:var(--gold);}
 h1{font-size:clamp(3rem,10vw,5.5rem);font-weight:900;letter-spacing:.15em;display:inline-block;color:var(--ink);}
 h1::after{content:'';display:block;width:3rem;height:3px;background:var(--red);margin:1rem auto 0;}
 .sub{font-family:'Noto Sans TC',sans-serif;font-size:.82rem;color:var(--fade);margin-top:.8rem;letter-spacing:.08em;}
@@ -68,7 +76,7 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 1.4rem 
 /* line */
 .st-text{font-size:clamp(1.05rem,2.5vw,1.18rem);line-height:2.5;font-weight:400;color:var(--ink);letter-spacing:.05em;}
 .line{display:flex;align-items:center;gap:.4rem;padding:.08em .3em;margin:-.08em -.3em;border-radius:3px;transition:background .15s;}
-.ltxt{flex:1;cursor:pointer;transition:color .2s;}
+.ltxt{flex:1;cursor:pointer;transition:color .2s;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;}
 .ltxt:hover{color:var(--red);}
 .line.sel{background:rgba(181,134,13,.12);}
 .line.sel .ltxt{color:var(--gold);}
@@ -88,8 +96,8 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 1.4rem 
 /* annotation panel */
 .ann{position:fixed;right:0;top:50%;transform:translateY(-50%) translateX(100%);width:min(310px,90vw);background:var(--ink);color:var(--paper);padding:1.8rem 1.6rem;border-radius:4px 0 0 4px;box-shadow:-4px 0 24px rgba(26,18,8,.22);transition:transform .4s cubic-bezier(.22,1,.36,1);z-index:200;max-height:80vh;overflow-y:auto;}
 .ann.open{transform:translateY(-50%) translateX(0);}
-.ann-x{position:absolute;top:.9rem;right:.9rem;background:none;border:none;color:var(--fade);font-size:1.1rem;cursor:pointer;line-height:1;}
-.ann-x:hover{color:var(--paper);}
+.ann-x{position:absolute;top:.7rem;right:.7rem;width:2.1rem;height:2.1rem;display:flex;align-items:center;justify-content:center;background:var(--red);border:none;border-radius:50%;color:#fff;font-size:1.15rem;cursor:pointer;line-height:1;box-shadow:0 2px 8px rgba(192,57,43,.4);transition:transform .2s,background .2s;}
+.ann-x:hover{background:#d84436;transform:scale(1.12);}
 .ann-ln{font-size:1.05rem;font-weight:700;letter-spacing:.07em;margin-bottom:.7rem;color:#f5e6c4;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:.7rem;}
 .ann-spk{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:3px;color:var(--paper);font-family:'Noto Sans TC',sans-serif;font-size:.74rem;padding:.32rem .7rem;cursor:pointer;margin-bottom:1rem;transition:background .2s,border-color .2s;}
 .ann-spk:hover{background:rgba(46,125,82,.5);border-color:var(--green);}
@@ -115,6 +123,7 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 1.4rem 
 .qbtn:disabled{cursor:default;}
 .qfb{margin-top:.7rem;font-family:'Noto Sans TC',sans-serif;font-size:.8rem;line-height:1.7;color:var(--ink);min-height:1.4em;}
 
+.ver{text-align:center;margin-top:3rem;font-family:'Noto Sans TC',sans-serif;font-size:.7rem;color:var(--fade);letter-spacing:.1em;}
 .wmark{position:fixed;bottom:3rem;right:3rem;font-size:7rem;font-weight:900;color:rgba(181,134,13,.05);pointer-events:none;z-index:0;writing-mode:vertical-rl;letter-spacing:.1em;user-select:none;}
 @media(max-width:600px){.ann{width:90vw;}.wmark{display:none;}.spd-lbl{margin-left:0;}}
 @media(prefers-reduced-motion:reduce){.stanza{opacity:1;transform:none;transition:none;}.ann{transition:none;}}
@@ -130,13 +139,14 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 1.4rem 
   <button class="vb" id="btn-sel">▶ 選取句 <span class="badge" id="badge">0</span></button>
   <button class="vb stop-btn" id="btn-stop">■ 停止</button>
   <button class="vb" id="btn-clr">清除選取</button>
-  <button class="vb" id="btn-ruby">ㄅㄆ 整首注音</button>
   <span class="spd-lbl" id="voice-lbl">音色</span>
   <select class="spd" id="voice"><option value="">預設</option></select>
   <span class="spd-lbl">速度</span>
   <select class="spd" id="spd">
+    <option value="0.45">極慢</option>
     <option value="0.6">慢速</option>
-    <option value="0.85" selected>正常</option>
+    <option value="0.75">適中</option>
+    <option value="0.9" selected>正常</option>
     <option value="1.1">較快</option>
     <option value="1.4">快速</option>
   </select>
@@ -145,9 +155,10 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 1.4rem 
 <div class="wmark">木蘭</div>
 
 <header>
+  <a class="credit" href="https://stevechou168.github.io/" target="_blank" rel="noopener">永動創意 ↗</a>
   <p class="eyebrow">🌸 南北朝 · 樂府民歌 ⚔️</p>
   <h1>木蘭詩</h1>
-  <p class="sub">點句子看注釋 ・ 按 ▶ 單句朗讀 ・ 按「選」累積選句後整批朗讀</p>
+  <p class="sub">點一下朗讀該句 ・ 長按或右鍵看注釋 ・「選」累積後整批朗讀</p>
 </header>
 
 <main>
@@ -155,73 +166,73 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 1.4rem 
 <div class="stanza" data-s="0">
   <div class="st-head"><span class="st-lbl">第一段 ── 🧵 織機嘆息</span><button class="st-play" data-sp="0">▶ 朗讀本段</button></div>
   <p class="st-text">
-    <span class="line" data-i="0"><span class="dot"></span><span class="ltxt">唧唧復唧唧，木蘭當戶織。</span><span class="lact"><button class="lbtn" data-pl="0">▶</button><button class="lbtn sel-b" data-sl="0">選</button></span></span>
-    <span class="line" data-i="1"><span class="dot"></span><span class="ltxt">不聞機杼聲，惟聞女嘆息。</span><span class="lact"><button class="lbtn" data-pl="1">▶</button><button class="lbtn sel-b" data-sl="1">選</button></span></span>
+    <span class="line" data-i="0"><span class="dot"></span><span class="ltxt">唧唧復唧唧，木蘭當戶織。</span><span class="lact"><button class="lbtn sel-b" data-sl="0">選</button></span></span>
+    <span class="line" data-i="1"><span class="dot"></span><span class="ltxt">不聞機杼聲，惟聞女嘆息。</span><span class="lact"><button class="lbtn sel-b" data-sl="1">選</button></span></span>
   </p>
 </div>
 
 <div class="stanza" data-s="1">
   <div class="st-head"><span class="st-lbl">第二段 ── 📜 父有徵兵</span><button class="st-play" data-sp="1">▶ 朗讀本段</button></div>
   <p class="st-text">
-    <span class="line" data-i="2"><span class="dot"></span><span class="ltxt">問女何所思，問女何所憶？</span><span class="lact"><button class="lbtn" data-pl="2">▶</button><button class="lbtn sel-b" data-sl="2">選</button></span></span>
-    <span class="line" data-i="3"><span class="dot"></span><span class="ltxt">女亦無所思，女亦無所憶。</span><span class="lact"><button class="lbtn" data-pl="3">▶</button><button class="lbtn sel-b" data-sl="3">選</button></span></span>
-    <span class="line" data-i="4"><span class="dot"></span><span class="ltxt">昨夜見軍帖，可汗大點兵，</span><span class="lact"><button class="lbtn" data-pl="4">▶</button><button class="lbtn sel-b" data-sl="4">選</button></span></span>
-    <span class="line" data-i="5"><span class="dot"></span><span class="ltxt">軍書十二卷，卷卷有爺名。</span><span class="lact"><button class="lbtn" data-pl="5">▶</button><button class="lbtn sel-b" data-sl="5">選</button></span></span>
-    <span class="line" data-i="6"><span class="dot"></span><span class="ltxt">阿爺無大兒，木蘭無長兄，</span><span class="lact"><button class="lbtn" data-pl="6">▶</button><button class="lbtn sel-b" data-sl="6">選</button></span></span>
-    <span class="line" data-i="7"><span class="dot"></span><span class="ltxt">願為市鞍馬，從此替爺征。</span><span class="lact"><button class="lbtn" data-pl="7">▶</button><button class="lbtn sel-b" data-sl="7">選</button></span></span>
+    <span class="line" data-i="2"><span class="dot"></span><span class="ltxt">問女何所思，問女何所憶？</span><span class="lact"><button class="lbtn sel-b" data-sl="2">選</button></span></span>
+    <span class="line" data-i="3"><span class="dot"></span><span class="ltxt">女亦無所思，女亦無所憶。</span><span class="lact"><button class="lbtn sel-b" data-sl="3">選</button></span></span>
+    <span class="line" data-i="4"><span class="dot"></span><span class="ltxt">昨夜見軍帖，可汗大點兵，</span><span class="lact"><button class="lbtn sel-b" data-sl="4">選</button></span></span>
+    <span class="line" data-i="5"><span class="dot"></span><span class="ltxt">軍書十二卷，卷卷有爺名。</span><span class="lact"><button class="lbtn sel-b" data-sl="5">選</button></span></span>
+    <span class="line" data-i="6"><span class="dot"></span><span class="ltxt">阿爺無大兒，木蘭無長兄，</span><span class="lact"><button class="lbtn sel-b" data-sl="6">選</button></span></span>
+    <span class="line" data-i="7"><span class="dot"></span><span class="ltxt">願為市鞍馬，從此替爺征。</span><span class="lact"><button class="lbtn sel-b" data-sl="7">選</button></span></span>
   </p>
 </div>
 
 <div class="stanza" data-s="2">
   <div class="st-head"><span class="st-lbl">第三段 ── 🐎 備馬出征</span><button class="st-play" data-sp="2">▶ 朗讀本段</button></div>
   <p class="st-text">
-    <span class="line" data-i="8"><span class="dot"></span><span class="ltxt">東市買駿馬，西市買鞍韉，</span><span class="lact"><button class="lbtn" data-pl="8">▶</button><button class="lbtn sel-b" data-sl="8">選</button></span></span>
-    <span class="line" data-i="9"><span class="dot"></span><span class="ltxt">南市買轡頭，北市買長鞭。</span><span class="lact"><button class="lbtn" data-pl="9">▶</button><button class="lbtn sel-b" data-sl="9">選</button></span></span>
-    <span class="line" data-i="10"><span class="dot"></span><span class="ltxt">旦辭爺娘去，暮宿黃河邊，</span><span class="lact"><button class="lbtn" data-pl="10">▶</button><button class="lbtn sel-b" data-sl="10">選</button></span></span>
-    <span class="line" data-i="11"><span class="dot"></span><span class="ltxt">不聞爺娘喚女聲，但聞黃河流水鳴濺濺。</span><span class="lact"><button class="lbtn" data-pl="11">▶</button><button class="lbtn sel-b" data-sl="11">選</button></span></span>
-    <span class="line" data-i="12"><span class="dot"></span><span class="ltxt">旦辭黃河去，暮至黑山頭，</span><span class="lact"><button class="lbtn" data-pl="12">▶</button><button class="lbtn sel-b" data-sl="12">選</button></span></span>
-    <span class="line" data-i="13"><span class="dot"></span><span class="ltxt">不聞爺娘喚女聲，但聞燕山胡騎鳴啾啾。</span><span class="lact"><button class="lbtn" data-pl="13">▶</button><button class="lbtn sel-b" data-sl="13">選</button></span></span>
+    <span class="line" data-i="8"><span class="dot"></span><span class="ltxt">東市買駿馬，西市買鞍韉，</span><span class="lact"><button class="lbtn sel-b" data-sl="8">選</button></span></span>
+    <span class="line" data-i="9"><span class="dot"></span><span class="ltxt">南市買轡頭，北市買長鞭。</span><span class="lact"><button class="lbtn sel-b" data-sl="9">選</button></span></span>
+    <span class="line" data-i="10"><span class="dot"></span><span class="ltxt">朝辭爺娘去，暮宿黃河邊，</span><span class="lact"><button class="lbtn sel-b" data-sl="10">選</button></span></span>
+    <span class="line" data-i="11"><span class="dot"></span><span class="ltxt">不聞爺娘喚女聲，但聞黃河流水鳴濺濺。</span><span class="lact"><button class="lbtn sel-b" data-sl="11">選</button></span></span>
+    <span class="line" data-i="12"><span class="dot"></span><span class="ltxt">旦辭黃河去，暮至黑山頭，</span><span class="lact"><button class="lbtn sel-b" data-sl="12">選</button></span></span>
+    <span class="line" data-i="13"><span class="dot"></span><span class="ltxt">不聞爺娘喚女聲，但聞燕山胡騎聲啾啾。</span><span class="lact"><button class="lbtn sel-b" data-sl="13">選</button></span></span>
   </p>
 </div>
 
 <div class="stanza" data-s="3">
   <div class="st-head"><span class="st-lbl">第四段 ── ⚔️ 征戰萬里</span><button class="st-play" data-sp="3">▶ 朗讀本段</button></div>
   <p class="st-text">
-    <span class="line" data-i="14"><span class="dot"></span><span class="ltxt">萬里赴戎機，關山度若飛。</span><span class="lact"><button class="lbtn" data-pl="14">▶</button><button class="lbtn sel-b" data-sl="14">選</button></span></span>
-    <span class="line" data-i="15"><span class="dot"></span><span class="ltxt">朔氣傳金柝，寒光照鐵衣。</span><span class="lact"><button class="lbtn" data-pl="15">▶</button><button class="lbtn sel-b" data-sl="15">選</button></span></span>
-    <span class="line" data-i="16"><span class="dot"></span><span class="ltxt">將軍百戰死，壯士十年歸。</span><span class="lact"><button class="lbtn" data-pl="16">▶</button><button class="lbtn sel-b" data-sl="16">選</button></span></span>
+    <span class="line" data-i="14"><span class="dot"></span><span class="ltxt">萬里赴戎機，關山度若飛。</span><span class="lact"><button class="lbtn sel-b" data-sl="14">選</button></span></span>
+    <span class="line" data-i="15"><span class="dot"></span><span class="ltxt">朔氣傳金柝，寒光照鐵衣。</span><span class="lact"><button class="lbtn sel-b" data-sl="15">選</button></span></span>
+    <span class="line" data-i="16"><span class="dot"></span><span class="ltxt">將軍百戰死，壯士十年歸。</span><span class="lact"><button class="lbtn sel-b" data-sl="16">選</button></span></span>
   </p>
 </div>
 
 <div class="stanza" data-s="4">
   <div class="st-head"><span class="st-lbl">第五段 ── 🏆 論功行賞</span><button class="st-play" data-sp="4">▶ 朗讀本段</button></div>
   <p class="st-text">
-    <span class="line" data-i="17"><span class="dot"></span><span class="ltxt">歸來見天子，天子坐明堂。</span><span class="lact"><button class="lbtn" data-pl="17">▶</button><button class="lbtn sel-b" data-sl="17">選</button></span></span>
-    <span class="line" data-i="18"><span class="dot"></span><span class="ltxt">策勳十二轉，賞賜百千強。</span><span class="lact"><button class="lbtn" data-pl="18">▶</button><button class="lbtn sel-b" data-sl="18">選</button></span></span>
-    <span class="line" data-i="19"><span class="dot"></span><span class="ltxt">可汗問所欲，木蘭不用尚書郎，</span><span class="lact"><button class="lbtn" data-pl="19">▶</button><button class="lbtn sel-b" data-sl="19">選</button></span></span>
-    <span class="line" data-i="20"><span class="dot"></span><span class="ltxt">願借明駝千里足，送兒還故鄉。</span><span class="lact"><button class="lbtn" data-pl="20">▶</button><button class="lbtn sel-b" data-sl="20">選</button></span></span>
+    <span class="line" data-i="17"><span class="dot"></span><span class="ltxt">歸來見天子，天子坐明堂。</span><span class="lact"><button class="lbtn sel-b" data-sl="17">選</button></span></span>
+    <span class="line" data-i="18"><span class="dot"></span><span class="ltxt">策勳十二轉，賞賜百千強。</span><span class="lact"><button class="lbtn sel-b" data-sl="18">選</button></span></span>
+    <span class="line" data-i="19"><span class="dot"></span><span class="ltxt">可汗問所欲，木蘭不用尚書郎，</span><span class="lact"><button class="lbtn sel-b" data-sl="19">選</button></span></span>
+    <span class="line" data-i="20"><span class="dot"></span><span class="ltxt">願借明駝千里足，送兒還故鄉。</span><span class="lact"><button class="lbtn sel-b" data-sl="20">選</button></span></span>
   </p>
 </div>
 
 <div class="stanza" data-s="5">
   <div class="st-head"><span class="st-lbl">第六段 ── 🏡 榮歸故里</span><button class="st-play" data-sp="5">▶ 朗讀本段</button></div>
   <p class="st-text">
-    <span class="line" data-i="21"><span class="dot"></span><span class="ltxt">爺娘聞女來，出郭相扶將；</span><span class="lact"><button class="lbtn" data-pl="21">▶</button><button class="lbtn sel-b" data-sl="21">選</button></span></span>
-    <span class="line" data-i="22"><span class="dot"></span><span class="ltxt">阿姊聞妹來，當戶理紅妝；</span><span class="lact"><button class="lbtn" data-pl="22">▶</button><button class="lbtn sel-b" data-sl="22">選</button></span></span>
-    <span class="line" data-i="23"><span class="dot"></span><span class="ltxt">小弟聞姊來，磨刀霍霍向豬羊。</span><span class="lact"><button class="lbtn" data-pl="23">▶</button><button class="lbtn sel-b" data-sl="23">選</button></span></span>
-    <span class="line" data-i="24"><span class="dot"></span><span class="ltxt">開我東閣門，坐我西閣床，</span><span class="lact"><button class="lbtn" data-pl="24">▶</button><button class="lbtn sel-b" data-sl="24">選</button></span></span>
-    <span class="line" data-i="25"><span class="dot"></span><span class="ltxt">脫我戰時袍，著我舊時裳，</span><span class="lact"><button class="lbtn" data-pl="25">▶</button><button class="lbtn sel-b" data-sl="25">選</button></span></span>
-    <span class="line" data-i="26"><span class="dot"></span><span class="ltxt">當窗理雲鬢，對鏡貼花黃。</span><span class="lact"><button class="lbtn" data-pl="26">▶</button><button class="lbtn sel-b" data-sl="26">選</button></span></span>
-    <span class="line" data-i="27"><span class="dot"></span><span class="ltxt">出門看火伴，火伴皆驚忙：</span><span class="lact"><button class="lbtn" data-pl="27">▶</button><button class="lbtn sel-b" data-sl="27">選</button></span></span>
-    <span class="line" data-i="28"><span class="dot"></span><span class="ltxt">同行十二年，不知木蘭是女郎。</span><span class="lact"><button class="lbtn" data-pl="28">▶</button><button class="lbtn sel-b" data-sl="28">選</button></span></span>
+    <span class="line" data-i="21"><span class="dot"></span><span class="ltxt">爺娘聞女來，出郭相扶將；</span><span class="lact"><button class="lbtn sel-b" data-sl="21">選</button></span></span>
+    <span class="line" data-i="22"><span class="dot"></span><span class="ltxt">阿姊聞妹來，當戶理紅妝；</span><span class="lact"><button class="lbtn sel-b" data-sl="22">選</button></span></span>
+    <span class="line" data-i="23"><span class="dot"></span><span class="ltxt">小弟聞姊來，磨刀霍霍向豬羊。</span><span class="lact"><button class="lbtn sel-b" data-sl="23">選</button></span></span>
+    <span class="line" data-i="24"><span class="dot"></span><span class="ltxt">開我東閣門，坐我西閣床，</span><span class="lact"><button class="lbtn sel-b" data-sl="24">選</button></span></span>
+    <span class="line" data-i="25"><span class="dot"></span><span class="ltxt">脫我戰時袍，著我舊時裳，</span><span class="lact"><button class="lbtn sel-b" data-sl="25">選</button></span></span>
+    <span class="line" data-i="26"><span class="dot"></span><span class="ltxt">當窗理雲鬢，對鏡貼花黃。</span><span class="lact"><button class="lbtn sel-b" data-sl="26">選</button></span></span>
+    <span class="line" data-i="27"><span class="dot"></span><span class="ltxt">出門看火伴，火伴皆驚惶：</span><span class="lact"><button class="lbtn sel-b" data-sl="27">選</button></span></span>
+    <span class="line" data-i="28"><span class="dot"></span><span class="ltxt">同行十二年，不知木蘭是女郎。</span><span class="lact"><button class="lbtn sel-b" data-sl="28">選</button></span></span>
   </p>
 </div>
 
 <div class="stanza" data-s="6">
   <div class="st-head"><span class="st-lbl">第七段 ── 🐰 結語比喻</span><button class="st-play" data-sp="6">▶ 朗讀本段</button></div>
   <p class="st-text">
-    <span class="line" data-i="29"><span class="dot"></span><span class="ltxt">雄兔腳撲朔，雌兔眼迷離；</span><span class="lact"><button class="lbtn" data-pl="29">▶</button><button class="lbtn sel-b" data-sl="29">選</button></span></span>
-    <span class="line" data-i="30"><span class="dot"></span><span class="ltxt">兩兔傍地走，安能辨我是雄雌？</span><span class="lact"><button class="lbtn" data-pl="30">▶</button><button class="lbtn sel-b" data-sl="30">選</button></span></span>
+    <span class="line" data-i="29"><span class="dot"></span><span class="ltxt">雄兔腳撲朔，雌兔眼迷離；</span><span class="lact"><button class="lbtn sel-b" data-sl="29">選</button></span></span>
+    <span class="line" data-i="30"><span class="dot"></span><span class="ltxt">兩兔傍地走，安能辨我是雄雌？</span><span class="lact"><button class="lbtn sel-b" data-sl="30">選</button></span></span>
   </p>
 </div>
 
@@ -264,12 +275,14 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 1.4rem 
     <p class="qfb"></p>
   </div>
 </div>
+
+<p class="ver">木蘭詩 · 互動朗讀注音版　v1.0（2026-06-27）</p>
 </main>
 
 <div class="ann" id="ann">
   <button class="ann-x" id="ann-x">✕</button>
   <p class="ann-ln" id="ann-ln"></p>
-  <button class="ann-spk" id="ann-spk">🔊 朗讀語譯</button>
+  <button class="ann-spk" id="ann-spk">🔊 朗讀釋義</button>
   <button class="ann-spk ann-stop" id="ann-stop">■ 停止</button>
   <p class="ann-me" id="ann-me"></p>
   <p class="ann-vt" id="ann-vt"></p>
@@ -283,15 +296,15 @@ const LINES=[
   '昨夜見軍帖，可汗大點兵，','軍書十二卷，卷卷有爺名。',
   '阿爺無大兒，木蘭無長兄，','願為市鞍馬，從此替爺征。',
   '東市買駿馬，西市買鞍韉，','南市買轡頭，北市買長鞭。',
-  '旦辭爺娘去，暮宿黃河邊，','不聞爺娘喚女聲，但聞黃河流水鳴濺濺。',
-  '旦辭黃河去，暮至黑山頭，','不聞爺娘喚女聲，但聞燕山胡騎鳴啾啾。',
+  '朝辭爺娘去，暮宿黃河邊，','不聞爺娘喚女聲，但聞黃河流水鳴濺濺。',
+  '旦辭黃河去，暮至黑山頭，','不聞爺娘喚女聲，但聞燕山胡騎聲啾啾。',
   '萬里赴戎機，關山度若飛。','朔氣傳金柝，寒光照鐵衣。','將軍百戰死，壯士十年歸。',
   '歸來見天子，天子坐明堂。','策勳十二轉，賞賜百千強。',
   '可汗問所欲，木蘭不用尚書郎，','願借明駝千里足，送兒還故鄉。',
   '爺娘聞女來，出郭相扶將；','阿姊聞妹來，當戶理紅妝；',
   '小弟聞姊來，磨刀霍霍向豬羊。',
   '開我東閣門，坐我西閣床，','脫我戰時袍，著我舊時裳，',
-  '當窗理雲鬢，對鏡貼花黃。','出門看火伴，火伴皆驚忙：',
+  '當窗理雲鬢，對鏡貼花黃。','出門看火伴，火伴皆驚惶：',
   '同行十二年，不知木蘭是女郎。',
   '雄兔腳撲朔，雌兔眼迷離；','兩兔傍地走，安能辨我是雄雌？'
 ];
@@ -311,10 +324,10 @@ const RUBY=[
   'ㄩㄢˋ ㄨㄟˋ ㄕˋ ㄢ ㄇㄚˇ ㄘㄨㄥˊ ㄘˇ ㄊㄧˋ ㄧㄝˊ ㄓㄥ',
   'ㄉㄨㄥ ㄕˋ ㄇㄞˇ ㄐㄩㄣˋ ㄇㄚˇ ㄒㄧ ㄕˋ ㄇㄞˇ ㄢ ㄐㄧㄢ',
   'ㄋㄢˊ ㄕˋ ㄇㄞˇ ㄆㄟˋ ㄊㄡˊ ㄅㄟˇ ㄕˋ ㄇㄞˇ ㄔㄤˊ ㄅㄧㄢ',
-  'ㄉㄢˋ ㄘˊ ㄧㄝˊ ㄋㄧㄤˊ ㄑㄩˋ ㄇㄨˋ ㄙㄨˋ ㄏㄨㄤˊ ㄏㄜˊ ㄅㄧㄢ',
-  'ㄅㄨˋ ㄨㄣˊ ㄧㄝˊ ㄋㄧㄤˊ ㄏㄨㄢˋ ㄋㄩˇ ㄕㄥ ㄉㄢˋ ㄨㄣˊ ㄏㄨㄤˊ ㄏㄜˊ ㄌㄧㄡˊ ㄕㄨㄟˇ ㄇㄧㄥˊ ㄐㄧㄢ ㄐㄧㄢ',
+  'ㄓㄠ ㄘˊ ㄧㄝˊ ㄋㄧㄤˊ ㄑㄩˋ ㄇㄨˋ ㄙㄨˋ ㄏㄨㄤˊ ㄏㄜˊ ㄅㄧㄢ',
+  'ㄅㄨˋ ㄨㄣˊ ㄧㄝˊ ㄋㄧㄤˊ ㄏㄨㄢˋ ㄋㄩˇ ㄕㄥ ㄉㄢˋ ㄨㄣˊ ㄏㄨㄤˊ ㄏㄜˊ ㄌㄧㄡˊ ㄕㄨㄟˇ ㄇㄧㄥˊ ㄐㄧㄢˋ ㄐㄧㄢˋ',
   'ㄉㄢˋ ㄘˊ ㄏㄨㄤˊ ㄏㄜˊ ㄑㄩˋ ㄇㄨˋ ㄓˋ ㄏㄟ ㄕㄢ ㄊㄡˊ',
-  'ㄅㄨˋ ㄨㄣˊ ㄧㄝˊ ㄋㄧㄤˊ ㄏㄨㄢˋ ㄋㄩˇ ㄕㄥ ㄉㄢˋ ㄨㄣˊ ㄧㄢ ㄕㄢ ㄏㄨˊ ㄐㄧˋ ㄇㄧㄥˊ ㄐㄧㄡ ㄐㄧㄡ',
+  'ㄅㄨˋ ㄨㄣˊ ㄧㄝˊ ㄋㄧㄤˊ ㄏㄨㄢˋ ㄋㄩˇ ㄕㄥ ㄉㄢˋ ㄨㄣˊ ㄧㄢ ㄕㄢ ㄏㄨˊ ㄐㄧˋ ㄕㄥ ㄐㄧㄡ ㄐㄧㄡ',
   'ㄨㄢˋ ㄌㄧˇ ㄈㄨˋ ㄖㄨㄥˊ ㄐㄧ ㄍㄨㄢ ㄕㄢ ㄉㄨˋ ㄖㄨㄛˋ ㄈㄟ',
   'ㄕㄨㄛˋ ㄑㄧˋ ㄔㄨㄢˊ ㄐㄧㄣ ㄊㄨㄛˋ ㄏㄢˊ ㄍㄨㄤ ㄓㄠˋ ㄊㄧㄝˇ ㄧ',
   'ㄐㄧㄤ ㄐㄩㄣ ㄅㄞˇ ㄓㄢˋ ㄙˇ ㄓㄨㄤˋ ㄕˋ ㄕˊ ㄋㄧㄢˊ ㄍㄨㄟ',
@@ -326,12 +339,12 @@ const RUBY=[
   'ㄚ ㄗˇ ㄨㄣˊ ㄇㄟˋ ㄌㄞˊ ㄉㄤ ㄏㄨˋ ㄌㄧˇ ㄏㄨㄥˊ ㄓㄨㄤ',
   'ㄒㄧㄠˇ ㄉㄧˋ ㄨㄣˊ ㄗˇ ㄌㄞˊ ㄇㄛˊ ㄉㄠ ㄏㄨㄛˋ ㄏㄨㄛˋ ㄒㄧㄤˋ ㄓㄨ ㄧㄤˊ',
   'ㄎㄞ ㄨㄛˇ ㄉㄨㄥ ㄍㄜˊ ㄇㄣˊ ㄗㄨㄛˋ ㄨㄛˇ ㄒㄧ ㄍㄜˊ ㄔㄨㄤˊ',
-  'ㄊㄨㄛ ㄨㄛˇ ㄓㄢˋ ㄕˊ ㄆㄠˊ ㄓㄨㄛˊ ㄨㄛˇ ㄐㄧㄡˋ ㄕˊ ㄔㄤˊ',
+  'ㄊㄨㄛ ㄨㄛˇ ㄓㄢˋ ㄕˊ ㄆㄠˊ ㄓㄨㄛˊ ㄨㄛˇ ㄐㄧㄡˋ ㄕˊ ㄕㄤ˙',
   'ㄉㄤ ㄔㄨㄤ ㄌㄧˇ ㄩㄣˊ ㄅㄧㄣˋ ㄉㄨㄟˋ ㄐㄧㄥˋ ㄊㄧㄝ ㄏㄨㄚ ㄏㄨㄤˊ',
-  'ㄔㄨ ㄇㄣˊ ㄎㄢˋ ㄏㄨㄛˇ ㄅㄢˋ ㄏㄨㄛˇ ㄅㄢˋ ㄐㄧㄝ ㄐㄧㄥ ㄇㄤˊ',
+  'ㄔㄨ ㄇㄣˊ ㄎㄢˋ ㄏㄨㄛˇ ㄅㄢˋ ㄏㄨㄛˇ ㄅㄢˋ ㄐㄧㄝ ㄐㄧㄥ ㄏㄨㄤˊ',
   'ㄊㄨㄥˊ ㄒㄧㄥˊ ㄕˊ ㄦˋ ㄋㄧㄢˊ ㄅㄨˋ ㄓ ㄇㄨˋ ㄌㄢˊ ㄕˋ ㄋㄩˇ ㄌㄤˊ',
-  'ㄒㄩㄥˊ ㄊㄨˋ ㄐㄧㄠˇ ㄆㄨ ㄕㄨㄛˋ ㄘˊ ㄊㄨˋ ㄧㄢˇ ㄇㄧˊ ㄌㄧˊ',
-  'ㄌㄧㄤˇ ㄊㄨˋ ㄅㄤˋ ㄉㄧˋ ㄗㄡˇ ㄢ ㄋㄥˊ ㄅㄧㄢˋ ㄨㄛˇ ㄕˋ ㄒㄩㄥˊ ㄘˊ'
+  'ㄒㄩㄥˊ ㄊㄨˋ ㄐㄧㄠˇ ㄆㄨ ㄕㄨㄛˋ ㄘ ㄊㄨˋ ㄧㄢˇ ㄇㄧˊ ㄌㄧˊ',
+  'ㄌㄧㄤˇ ㄊㄨˋ ㄅㄤˋ ㄉㄧˋ ㄗㄡˇ ㄢ ㄋㄥˊ ㄅㄧㄢˋ ㄨㄛˇ ㄕˋ ㄒㄩㄥˊ ㄘ'
 ];
 
 const ANN={
@@ -345,7 +358,7 @@ const ANN={
   7:{m:'我願去市場購買馬匹和馬具，從此代替父親出征。「願」字展現木蘭主動、果決的性格。',v:[['市','動詞，購買'],['鞍馬','出征所需裝備']]},
   8:{m:'到東邊市場買了駿馬，西邊買了鞍韉。四方向分別購物，形成排比，渲染備戰緊迫。',v:[['駿馬','健壯快速的馬'],['鞍韉','馬鞍與墊子']]},
   9:{m:'南邊買韁繩，北邊買長鞭。四句為「互文」，實是一次備齊所有裝備，強調準備之齊全。',v:[['轡頭','韁繩和套具'],['互文','分開敘述同一件事的修辭法']]},
-  10:{m:'清晨辭別父母，傍晚便在黃河邊住宿。一天趕到黃河，誇張地表現行軍急速。',v:[['旦','清晨'],['辭','辭別，告別'],['暮','傍晚']]},
+  10:{m:'清晨辭別父母，傍晚便在黃河邊住宿。一天趕到黃河，誇張地表現行軍急速。',v:[['朝','清晨、早晨，音ㄓㄠ'],['辭','辭別，告別'],['暮','傍晚']]},
   11:{m:'聽不見父母呼喚，只聽見黃河流水嘩嘩作響。以自然聲替換人情聲，烘托思家之情。',v:[['但聞','只聽見'],['濺濺','水流湍急聲']]},
   12:{m:'清晨離開黃河，傍晚已到達黑山。連續急行，空間跨越越大，離家越遠。',v:[['黑山','燕山一帶，古代北方邊境']]},
   13:{m:'聽不見父母呼喚，只聽見燕山上敵騎鳴叫聲。戰爭氣息代替了家鄉的溫情。',v:[['胡騎','北方遊牧民族騎兵'],['啾啾','馬嘶聲']]},
@@ -362,7 +375,7 @@ const ANN={
   24:{m:'打開我東廂房的門，坐到西廂房的床上。「我」字重複，強調對舊居的親切歸屬感。',v:[['東閣/西閣','東西廂房']]},
   25:{m:'脫下征戰時的戰袍，換上昔日的女裝。從戰士回到女兒，兩個身份在此交替。',v:[['戰時袍','戰衣'],['舊時裳','女子服裝']]},
   26:{m:'對著窗戶梳理如雲的鬢髮，對著鏡子貼上花黃。典型女子梳妝，木蘭回到真實的自己。',v:[['雲鬢','茂密輕柔的鬢髮'],['花黃','貼在額頭的黃色飾品']]},
-  27:{m:'走出門去見昔日戰友，戰友們都驚訝慌亂起來。「皆驚忙」三字把震驚寫得極生動。',v:[['火伴','同伍軍中夥伴'],['驚忙','又驚訝又慌亂']]},
+  27:{m:'走出門去見昔日戰友，戰友們都驚訝慌亂起來。「皆驚惶」三字把震驚寫得極生動。',v:[['火伴','同伍軍中夥伴'],['驚惶','又驚訝又慌亂']]},
   28:{m:'同行征戰十二年，竟不知道木蘭是女子。反差極大，全詩戲劇性在此達到高峰。',v:[['十二年','虛數，形容時間漫長'],['女郎','年輕女子']]},
   29:{m:'雄兔的腳常常跳動，雌兔的眼睛常常瞇縫——這是辨別雌雄的特徵，引出最後比喻。',v:[['撲朔','雄兔跳動的樣子'],['迷離','雌兔眼睛半開半閉']]},
   30:{m:'當兩隻兔子一起在地上奔跑，哪能分辨誰是雄誰是雌？比喻木蘭從軍難以識破，充滿幽默與驕傲。',v:[['傍地走','在地上並排奔跑'],['安能','怎麼能夠']]}
@@ -389,16 +402,24 @@ let currentSpk = null;
 // 破音字 / 文言讀音修正：把字換成「同音的常用字」只用於朗讀，畫面文字不變。
 // 順序處理，較長的詞放前面，避免被短詞先吃掉。
 const PHON = [
-  ['見軍帖','件軍帖'],         // 見 jiàn（看見，非 xiàn）
-  ['著我舊時裳','卓我舊時常'], // 著 zhuó、裳 cháng
-  ['相扶將','相扶江'],         // 將 jiāng（攙扶）
+  ['朝辭','招辭'],             // 朝 zhāo（清晨，非 cháo）
+  ['見軍帖','件軍鐵'],         // 見 jiàn（非 xiàn）、帖 tiě
+  ['願為','願衛'],             // 為 wèi（為了，非 wéi）
+  ['長兄','掌兄'],             // 長 zhǎng（年長，非 cháng）
+  ['同行','同型'],             // 行 xíng（同行，非 háng）
+  ['還故鄉','環故鄉'],         // 還 huán（回去，非 hái）
+  ['卷','倦'],                 // 卷 juàn（書卷量詞，非 juǎn 捲）
+  ['雌兔','疵兔'],             // 雌 ㄘ 一聲
+  ['雌','疵'],                 // 雌 ㄘ 一聲（用「疵」讓 TTS 唸一聲）
+  ['著我舊時裳','卓我舊時商'], // 著 zhuó、裳 ˙shang（輕聲）
+  ['相扶將','鄉扶江'],         // 相 xiāng（互相，非 xiàng）、將 jiāng（攙扶）
   ['可汗','克寒'],             // hán
   ['燕山','煙山'],             // 燕 yān（地名）
   ['胡騎','胡寄'],             // 騎 jì（騎兵）
   ['機杼','機柱'],             // 杼 zhù
   ['金柝','金唾'],             // 柝 tuò
-  ['啾啾','究究'],             // jiū
-  ['濺濺','堅堅'],             // 濺 jiān（水聲）
+  ['啾啾','糾糾'],             // 啾 jiū（TTS 把「究」誤唸 jiù，改用糾）
+  ['濺濺','漸漸'],             // 濺濺 ㄐㄧㄢˋ（教育部修訂本）
   ['鞍韉','鞍兼'],             // 韉 jiān
   ['轡頭','配頭'],             // 轡 pèi
   ['唧唧','集集'],             // 唧 jí（教育部 ㄐㄧˊ）
@@ -461,7 +482,6 @@ document.getElementById('voice').addEventListener('change', e=>{ chosenVoiceURI 
 function lineEl(i){ return document.querySelector(`.line[data-i="${i}"]`); }
 
 // ─── 整首大字注音版 ───
-let rubyAllOn=false;
 // 聲調符號：二聲ˊ 三聲ˇ 四聲ˋ 輕聲˙（一聲不標）
 const TONES={'ˊ':'zt-r','ˇ':'zt-r','ˋ':'zt-r','˙':'zt-n'};
 function zhuyinHtml(z){
@@ -581,13 +601,6 @@ document.getElementById('btn-clr').addEventListener('click',()=>{
   updateBadge();
 });
 
-// 單句播放
-document.querySelectorAll('.lbtn[data-pl]').forEach(btn=>{
-  btn.addEventListener('click',e=>{
-    e.stopPropagation();
-    speak([parseInt(btn.dataset.pl)]);
-  });
-});
 // 單句選取
 document.querySelectorAll('.lbtn.sel-b[data-sl]').forEach(btn=>{
   btn.addEventListener('click',e=>{ e.stopPropagation(); toggleSel(parseInt(btn.dataset.sl)); });
@@ -603,41 +616,52 @@ document.querySelectorAll('.st-play[data-sp]').forEach(btn=>{
   });
 });
 
-// 一鍵整首大字注音版
-function setRubyAll(on){
-  rubyAllOn=on;
-  const btn=document.getElementById('btn-ruby');
-  btn.classList.toggle('ruby-on',on);
-  btn.textContent = on ? 'ㄅㄆ 注音版開' : 'ㄅㄆ 整首注音';
-  applyRubyAll(on);
-}
-document.getElementById('btn-ruby').addEventListener('click',()=>setRubyAll(!rubyAllOn));
-setRubyAll(true);   // 預設開啟大字注音版
+// 永遠維持整首大字注音版
+applyRubyAll(true);
 
 // 點句子文字 → 注釋
 const ann=document.getElementById('ann');
 let currentAnn=-1;
 document.getElementById('ann-spk').addEventListener('click',()=>{
   const d=ANN[currentAnn]; if(!d) return;
-  speakText(d.m);
+  let txt=d.m;
+  if(d.v&&d.v.length){
+    txt+='。詞語注釋：'+d.v.map(([w,def])=>`${w.replace('/','、')}，${def}`).join('。');
+  }
+  speakText(txt);
 });
 document.getElementById('ann-stop').addEventListener('click',stopSpeak);
+function openAnn(i){
+  const d=ANN[i]; if(!d) return;
+  currentAnn=i;
+  document.getElementById('ann-ln').textContent=(LINE_EMOJI[i]?LINE_EMOJI[i]+' ':'')+LINES[i];
+  document.getElementById('ann-me').textContent=(LINE_EMOJI[i]?LINE_EMOJI[i]+' ':'')+d.m;
+  if(d.v&&d.v.length){
+    document.getElementById('ann-vt').textContent='詞語注釋';
+    document.getElementById('ann-wd').innerHTML=d.v.map(([w,def])=>`<div class="ann-wd"><span class="w">【${w}】</span><span class="d">${def}</span></div>`).join('');
+  }else{
+    document.getElementById('ann-vt').textContent='';
+    document.getElementById('ann-wd').innerHTML='';
+  }
+  ann.classList.add('open');
+}
+// 短按朗讀該行；長按（約 0.45 秒）才顯示注釋
 document.querySelectorAll('.ltxt').forEach(el=>{
-  el.addEventListener('click',()=>{
-    const i=parseInt(el.closest('.line').dataset.i);
-    const d=ANN[i]; if(!d) return;
-    currentAnn=i;
-    document.getElementById('ann-ln').textContent=(LINE_EMOJI[i]?LINE_EMOJI[i]+' ':'')+LINES[i];
-    document.getElementById('ann-me').textContent=(LINE_EMOJI[i]?LINE_EMOJI[i]+' ':'')+d.m;
-    if(d.v&&d.v.length){
-      document.getElementById('ann-vt').textContent='詞語注釋';
-      document.getElementById('ann-wd').innerHTML=d.v.map(([w,def])=>`<div class="ann-wd"><span class="w">【${w}】</span><span class="d">${def}</span></div>`).join('');
-    }else{
-      document.getElementById('ann-vt').textContent='';
-      document.getElementById('ann-wd').innerHTML='';
-    }
-    ann.classList.add('open');
+  const i=parseInt(el.closest('.line').dataset.i);
+  let timer=null,longPressed=false;
+  const cancel=()=>{ if(timer){clearTimeout(timer);timer=null;} };
+  el.addEventListener('pointerdown',e=>{
+    if(e.button!==0) return;       // 只有左鍵／觸控啟動長按
+    longPressed=false;
+    timer=setTimeout(()=>{ longPressed=true; openAnn(i); },450);
   });
+  el.addEventListener('pointerup',e=>{
+    if(e.button!==0) return;
+    cancel(); if(!longPressed) speak([i]);   // 左鍵快放＝朗讀
+  });
+  el.addEventListener('pointerleave',cancel);
+  el.addEventListener('pointercancel',cancel);
+  el.addEventListener('contextmenu',e=>{ e.preventDefault(); openAnn(i); });  // 右鍵直接看注釋
 });
 document.getElementById('ann-x').addEventListener('click',()=>ann.classList.remove('open'));
 
