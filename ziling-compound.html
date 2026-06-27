@@ -31,7 +31,9 @@
   .timer{color:var(--cool2);font-weight:800;font-size:14px;min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
   .score{color:var(--gold);font-weight:800;font-size:15px}
 
-  .pips{display:flex;gap:4px;justify-content:center;margin:12px 0 4px;flex-wrap:wrap}
+  .statusrow{position:relative;display:flex;justify-content:center;align-items:center;margin:10px 0 4px;min-height:20px}
+  .lives{position:absolute;right:2px;top:50%;transform:translateY(-50%);font-size:14px;letter-spacing:1px;white-space:nowrap}
+  .pips{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
   .pip{width:12px;height:12px;border-radius:4px;background:var(--machine);border:1px solid var(--line)}
   .pip.on{background:var(--good);border-color:var(--good)}
   .pip.cur{background:var(--gold);border-color:var(--gold)}
@@ -119,6 +121,9 @@
 
   .shake{animation:shake .4s}
   @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
+  .quake{animation:quake .55s}
+  @keyframes quake{0%,100%{transform:translate(0,0)}8%{transform:translate(-10px,6px) rotate(-1deg)}18%{transform:translate(9px,-7px) rotate(1deg)}28%{transform:translate(-11px,-4px)}38%{transform:translate(10px,7px) rotate(1deg)}48%{transform:translate(-8px,5px)}58%{transform:translate(9px,-4px) rotate(-1deg)}68%{transform:translate(-6px,3px)}78%{transform:translate(5px,-3px)}88%{transform:translate(-3px,2px)}}
+  #flash{position:fixed;inset:0;z-index:8;pointer-events:none;background:transparent}
 
   .toast{position:absolute;top:120px;left:0;right:0;text-align:center;font-weight:800;font-size:19px;pointer-events:none;opacity:0}
   .toast.show{animation:toast 1.3s ease forwards}
@@ -139,6 +144,7 @@
   .mapTitle b{color:var(--warm2)}
   .mapSub{color:var(--dim);font-size:13px;margin-top:4px}
   .totStar{margin:12px 0 4px;color:var(--gold);font-weight:800;font-size:17px}
+  .playcount{color:var(--cool2);font-size:12px;font-weight:700;margin-top:4px;height:16px;opacity:.9}
   .worlds{display:flex;flex-direction:column;gap:11px;width:100%;max-width:430px;margin-top:8px}
   .wcard{display:flex;align-items:center;gap:13px;background:linear-gradient(180deg,var(--machine2),var(--machine));
     border:1px solid var(--line);border-radius:18px;padding:13px 15px;cursor:pointer;transition:transform .1s,border-color .2s}
@@ -238,7 +244,10 @@
     <div class="score" id="score">0</div>
   </header>
 
-  <div class="pips" id="pips"></div>
+  <div class="statusrow">
+    <div class="pips" id="pips"></div>
+    <div class="lives" id="lives"></div>
+  </div>
 
   <div class="fuse" id="fuse">
     <div class="cord"></div>
@@ -271,12 +280,14 @@
 </div>
 
 <canvas id="fx"></canvas>
+<div id="flash"></div>
 
 <!-- 玩家選擇 -->
 <div class="mapOvl" id="playerOvl">
   <a class="brand" href="https://stevechou168.github.io/" target="_blank" rel="noopener noreferrer">永動創意 <span class="v"></span></a>
   <div class="mapTitle">字<b>靈</b> · 組字挑戰</div>
   <div class="mapSub">是誰要來玩呢?</div>
+  <div class="playcount">🌍 …</div>
   <div class="players" id="players"></div>
   <div class="newp">
     <input id="nameInput" maxlength="10" placeholder="輸入名字…" autocomplete="off" />
@@ -290,6 +301,7 @@
   <div class="mapTitle">字<b>靈</b> · 組字挑戰</div>
   <div class="curp"><span id="curName">👤</span> <button class="switchbtn" id="dexBtn">📖 圖鑑</button> <button class="switchbtn" id="switchP">換人</button></div>
   <div class="totStar" id="totStar">⭐ 0</div>
+  <div class="playcount">🌍 …</div>
   <div class="worlds" id="worlds"></div>
 </div>
 
@@ -313,6 +325,19 @@
     <div class="pbtns">
       <button class="pri" id="wdNext">進入下一世界 ▶</button>
       <button class="sec" id="wdMap">🗺️ 世界地圖</button>
+    </div>
+  </div>
+</div>
+
+<!-- 闖關失敗(三命用完) -->
+<div class="done" id="failOvl">
+  <div class="panel">
+    <div class="trophy">💥</div>
+    <div class="big" style="color:var(--bad)">闖關失敗</div>
+    <div class="sub">三條命都用完了！<br><b id="failWorld"></b><br>要再挑戰一次嗎?</div>
+    <div class="pbtns">
+      <button class="pri" id="failRetry">🔄 再挑戰一次</button>
+      <button class="sec" id="failMap">🗺️ 回地圖</button>
     </div>
   </div>
 </div>
@@ -548,6 +573,7 @@ let worldMs=0, segStart=0, timing=false, lastWorldMs=0, lastPB=false;   // 闖�
 let combo=0, maxCombo=0, failCount=0;                                   // 連擊 & 防挫折
 let frozen=false, _freezeTimer=null;                                    // 凍結道具
 let worldUsedHint=false, worldUsedItem=false;                           // 成就追蹤(本世界)
+const MAX_LIVES=3; let lives=3;                                         // 每個世界的命
 const $=id=>document.getElementById(id);
 function fmt(ms){ms=Math.max(0,ms|0);const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
 
@@ -558,13 +584,35 @@ function tone(f,d,t="triangle",v=.2,w=0,dest){if(!actx||!soundOn)return;const T=
 const sPick=()=>tone(540,.05,"square",.09);
 const sClear=()=>tone(300,.07,"square",.07);
 const sBad=()=>{tone(170,.16,"sawtooth",.14);tone(140,.2,"sawtooth",.1,.05);};
-const sBoom=()=>{if(!actx||!soundOn)return;const b=actx.createBuffer(1,actx.sampleRate*.5,actx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);const s=actx.createBufferSource();s.buffer=b;const g=actx.createGain();g.gain.value=.4;const f=actx.createBiquadFilter();f.type="lowpass";f.frequency.value=900;s.connect(f);f.connect(g);g.connect(master);s.start();tone(55,.5,"sawtooth",.3);};
+const sBoom=()=>{if(!actx||!soundOn)return;const b=actx.createBuffer(1,actx.sampleRate*.7,actx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.8);const s=actx.createBufferSource();s.buffer=b;const g=actx.createGain();g.gain.value=.6;const f=actx.createBiquadFilter();f.type="lowpass";f.frequency.value=1100;s.connect(f);f.connect(g);g.connect(master);s.start();tone(42,.6,"sawtooth",.45);tone(80,.45,"square",.3,.02);};
 
-/* 背景樂（合成迴圈，低音量） */
-const PROG=[{b:130.81,a:[523.25,659.25,784,659.25]},{b:98,a:[493.88,587.33,784,587.33]},{b:110,a:[440,523.25,659.25,523.25]},{b:87.31,a:[349.23,440,523.25,440]}];
-let mtimer=null,mstep=0,musicGain=null;
-function startMusic(){if(!actx||!soundOn||mtimer)return;if(!musicGain){musicGain=actx.createGain();musicGain.gain.value=.06;musicGain.connect(master);}mstep=0;mtimer=setInterval(()=>{if(!actx||!soundOn)return;const c=PROG[(mstep>>2)%4],beat=mstep&3;if(beat===0)tone(c.b,.7,"sine",.5,0,musicGain);tone(c.a[beat],.4,"triangle",.3,0,musicGain);mstep++;},260);}
+/* 背景樂（合成迴圈，多首，每關隨機）*/
+const TRACKS=[
+  { iv:260, bass:'sine',     lead:'triangle', bv:.5,  lv:.32,   // 1 明亮大調
+    prog:[{b:130.81,a:[523.25,659.25,784,659.25]},{b:98,a:[493.88,587.33,784,587.33]},{b:110,a:[440,523.25,659.25,523.25]},{b:87.31,a:[349.23,440,523.25,440]}]},
+  { iv:220, bass:'triangle', lead:'square',   bv:.42, lv:.24,   // 2 活潑跳躍
+    prog:[{b:146.83,a:[587.33,880,587.33,698.46]},{b:164.81,a:[659.25,987.77,659.25,784]},{b:110,a:[440,659.25,880,659.25]},{b:123.47,a:[493.88,740,622.25,493.88]}]},
+  { iv:300, bass:'sine',     lead:'triangle', bv:.5,  lv:.3,    // 3 神秘小調(魔王感)
+    prog:[{b:110,a:[440,523.25,659.25,523.25]},{b:103.83,a:[415.3,523.25,622.25,523.25]},{b:98,a:[392,493.88,587.33,493.88]},{b:82.41,a:[329.63,415.3,493.88,415.3]}]},
+  { iv:280, bass:'sine',     lead:'sine',     bv:.46, lv:.34,   // 4 溫和可愛
+    prog:[{b:174.61,a:[698.46,880,1046.5,880]},{b:130.81,a:[523.25,659.25,784,659.25]},{b:146.83,a:[587.33,698.46,880,698.46]},{b:98,a:[392,493.88,587.33,493.88]}]},
+];
+let mtimer=null,mstep=0,musicGain=null,curTrack=0;
+function pickTrack(){ let t; do{t=Math.random()*TRACKS.length|0;}while(TRACKS.length>1&&t===curTrack); curTrack=t; }
+function startMusic(){
+  if(!actx||!soundOn||mtimer)return;
+  if(!musicGain){musicGain=actx.createGain();musicGain.gain.value=.16;musicGain.connect(master);}  // 音量加大
+  mstep=0; const T=TRACKS[curTrack];
+  mtimer=setInterval(()=>{
+    if(!actx||!soundOn)return;
+    const c=T.prog[(mstep>>2)%T.prog.length],beat=mstep&3;
+    if(beat===0)tone(c.b,.7,T.bass,T.bv,0,musicGain);
+    tone(c.a[beat],.4,T.lead,T.lv,0,musicGain);
+    mstep++;
+  },T.iv);
+}
 function stopMusic(){if(mtimer){clearInterval(mtimer);mtimer=null;}}
+function restartMusic(){ if(!actx||!soundOn)return; stopMusic(); startMusic(); }   // 換曲用
 const sWhoosh=()=>{if(!actx||!soundOn)return;const b=actx.createBuffer(1,actx.sampleRate*.3,actx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.5);const s=actx.createBufferSource();s.buffer=b;const g=actx.createGain();g.gain.value=.16;const f=actx.createBiquadFilter();f.type="bandpass";f.frequency.value=1200;s.connect(f);f.connect(g);g.connect(master);s.start();};
 const sFuse=()=>[0,4,7,12].forEach((s,i)=>tone(523.25*Math.pow(2,s/12),.22,"triangle",.16,i*.05));
 const sReveal=()=>{tone(880,.1,"sine",.14);tone(1320,.14,"sine",.1,.06);};
@@ -629,14 +677,49 @@ function sparkFlame(){
   for(let i=0;i<2;i++){const a=-Math.PI/2+(Math.random()-.5)*1.4,s=1+Math.random()*2.2;
     parts.push({x:cx0,y:cy0,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,c:["#ffd86b","#ff9a3c","#ff6a3c"][i%3],r:1+Math.random()*1.8});}
 }
+/* ---------- 大爆炸特效 ---------- */
+function flashScreen(){
+  const f=$('flash'); if(!f)return;
+  f.animate([{background:'rgba(255,255,255,.82)'},{background:'rgba(255,90,112,.5)',offset:.2},{background:'transparent'}],{duration:560});
+}
+function shockwave(x,y){
+  const s=document.createElement('div');
+  s.style.cssText='position:fixed;left:'+x+'px;top:'+y+'px;width:24px;height:24px;border-radius:50%;border:6px solid rgba(255,190,110,.95);transform:translate(-50%,-50%);z-index:7;pointer-events:none';
+  document.body.appendChild(s);
+  s.animate([{width:'24px',height:'24px',opacity:1,borderWidth:'8px'},{width:'720px',height:'720px',opacity:0,borderWidth:'1px'}],{duration:660,easing:'ease-out'});
+  setTimeout(()=>s.remove(),680);
+}
+function showBoomFx(x,y){
+  const d=document.createElement('div');d.textContent='💥';
+  d.style.cssText='position:fixed;left:'+x+'px;top:'+y+'px;transform:translate(-50%,-50%);font-size:48px;z-index:9;pointer-events:none;will-change:transform,opacity';
+  document.body.appendChild(d);
+  d.animate([
+    {transform:'translate(-50%,-50%) scale(.2) rotate(-25deg)',opacity:0},
+    {transform:'translate(-50%,-50%) scale(2.8) rotate(8deg)',opacity:1,offset:.35},
+    {transform:'translate(-50%,-50%) scale(3.8) rotate(-4deg)',opacity:0}
+  ],{duration:740,easing:'cubic-bezier(.2,1,.3,1)'});
+  setTimeout(()=>d.remove(),760);
+}
+function bigExplosion(x,y){
+  flashScreen(); shockwave(x,y); showBoomFx(x,y);
+  const app=$('app'); app.classList.remove('quake'); void app.offsetWidth; app.classList.add('quake'); setTimeout(()=>app.classList.remove('quake'),600);
+  const fire=["#fff","#ffd86b","#ff9a3c","#ff5470"], smoke=["#8a8a8a","#aaa","#777","#999"];
+  for(let i=0;i<75;i++){const a=Math.random()*6.28,s=4+Math.random()*16;parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-3,life:1,c:fire[i%fire.length],r:3+Math.random()*5});}      // 第一波：超快火花
+  setTimeout(()=>{for(let i=0;i<48;i++){const a=Math.random()*6.28,s=2+Math.random()*9;parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2,life:1,c:smoke[i%smoke.length],r:4+Math.random()*6});}},120);  // 第二波：煙
+}
 function boom(){
-  if(!running)return; running=false; sBoom(); vib([40,60,40]);
-  combo=0; failCount++;                 // 中斷連擊；累加失敗→下次給更多時間
-  const app=$('app'); app.classList.add('boomflash'); setTimeout(()=>app.classList.remove('boomflash'),500);
-  const fl=$('fflame'); if(fl){const r=fl.getBoundingClientRect();burst(r.left+r.width/2,r.top,["#ff5470","#ff9a3c","#ffd86b"],30);}
-  toast(failCount>=2?"⏰ 別急～慢慢拼就好":"⏰ 時間到，再試一次！","#ffb347");
+  if(!running)return; running=false; sBoom(); vib([70,50,70,40,90]);
+  combo=0; failCount++; lives--; renderLives();    // 中斷連擊、累加失敗、扣一條命
+  const bomb=document.querySelector('.bomb'); let bx=innerWidth/2,by=innerHeight*0.16;
+  if(bomb){const r=bomb.getBoundingClientRect();bx=r.left+r.width/2;by=r.top+r.height/2;}
+  bigExplosion(bx,by);                             // 從炸彈位置引爆
   try{speechSynthesis.cancel();}catch(e){}
-  setTimeout(()=>{ if(!$('mapOvl').classList.contains('show')) load(); }, 1300); // 重來這關，引線重置
+  if(lives<=0){                          // 命用完 → 闖關失敗，問是否重來
+    setTimeout(()=>{ if(!$('mapOvl').classList.contains('show')) showFail(); }, 1000);
+  }else{                                 // 還有命 → 重來這關
+    toast("💔 剩 "+lives+" 條命"+(failCount>=2?"，別急～慢慢拼":"，再試一次！"),"#ffb347");
+    setTimeout(()=>{ if(!$('mapOvl').classList.contains('show')) load(); }, 1300);
+  }
 }
 (function fuseLoop(ts){
   if(!_lastTs)_lastTs=ts; const dt=Math.min((ts-_lastTs)/1000,.1); _lastTs=ts;
@@ -691,8 +774,15 @@ function renderMap(){
 function openMap(){
   running=false; busy=false;
   $('playerOvl').classList.remove('show'); $('dexOvl').classList.remove('show');
-  $('worldDone').classList.remove('show'); $('doneOvl').classList.remove('show');
+  $('worldDone').classList.remove('show'); $('doneOvl').classList.remove('show'); $('failOvl').classList.remove('show');
   renderMap(); $('mapOvl').classList.add('show');
+}
+
+/* 三條命用完 → 闖關失敗 */
+function showFail(){
+  running=false; busy=false;
+  $('failWorld').textContent=WORLDS[wIdx].icon+' '+WORLDS[wIdx].name;
+  $('failOvl').classList.add('show');
 }
 
 /* ---- 單字圖鑑：學會的字點亮，可點擊複習發音 ---- */
@@ -778,7 +868,7 @@ function selectPlayer(name){
   if(isNew)players.list.push(name);
   persistPlayers();
   loadSave();
-  if(isNew){ save.items={freeze:2,clear:2,hint:3}; persistSave(); }   // 新玩家起始道具
+  if(isNew){ save.items={freeze:2,clear:2,hint:3}; persistSave(); bumpPlayCount(); }   // 新玩家：起始道具 + 全球計數 +1
   score=save.score; $('score').textContent=score;
   $('playerOvl').classList.remove('show');
   openMap();
@@ -798,11 +888,13 @@ function enterWorld(w){
   aInit();                       // 使用者手勢，啟動音訊
   wIdx=w; bossRound=null; worldMs=0; combo=0;
   worldUsedHint=false; worldUsedItem=false;
+  lives=MAX_LIVES;                              // 每進一個世界給滿命
   enterStage(0);
 }
 function enterStage(st){
   stage=st; lIdx=0; failCount=0;
   segStart=Date.now(); timing=true;             // 開始/續跑計時
+  pickTrack(); restartMusic();                  // 每個小關段(基礎/進階)換一首 BGM
   curLevels=stageLevels(wIdx,st);
   $('worldDone').classList.remove('show');
   $('mapOvl').classList.remove('show');
@@ -811,6 +903,7 @@ function enterStage(st){
 
 /* ===================== 渲染關卡 ===================== */
 function buildPips(){const wrap=$('pips');wrap.innerHTML='';for(let i=0;i<curLevels.length;i++){const d=document.createElement('div');d.className='pip'+(i<lIdx?' on':i===lIdx?' cur':'');wrap.appendChild(d)}}
+function renderLives(){const el=$('lives');if(el)el.textContent='❤️'.repeat(Math.max(0,lives))+'🤍'.repeat(Math.max(0,MAX_LIVES-lives));}
 
 function load(){
   const L=curLevels[lIdx];
@@ -855,7 +948,7 @@ function load(){
     t.innerHTML='<div class="e">'+item.e+'</div><div class="w">'+item.w+'</div>';
     t.onclick=()=>pick(item,t);bk.appendChild(t);
   });
-  buildPips();updateSubmit();updateItems();
+  buildPips();updateSubmit();updateItems();renderLives();
 }
 
 function renderSlot(i){
@@ -878,8 +971,8 @@ function pick(item,tile){
   const i=slots.findIndex(s=>!s);
   if(i<0)return;
   slots[i]=item;tile.classList.add('used');renderSlot(i);
-  sPick();vib(8);
-  speak(item.w);
+  vib(8);
+  speak(item.w);                          // 只念單字，不再疊一聲「嘟」
   updateSubmit();
 }
 
@@ -902,9 +995,15 @@ $('submit').onclick=()=>{
   if(!ok){
     sBad();vib([30,40,30]); combo=0;    // 答錯中斷連擊
     fuseT=Math.min(fuseT+2.5,fuseMax);  // 答錯：引線快燒
-    slots.forEach((_,i)=>{const el=$('s'+i);el.classList.add('shake');setTimeout(()=>el.classList.remove('shake'),400);});
     const sameSet=slots.map(s=>s.w).sort().join()===L.p.map(p=>p.w).sort().join();
     if(sameSet)toast('順序不對！','#ffb347');
+    slots.forEach((_,i)=>{const el=$('s'+i);el.classList.add('shake');setTimeout(()=>el.classList.remove('shake'),400);});
+    setTimeout(()=>{                     // 抖動提示後，自動清掉錯誤答案讓玩家重填
+      if(busy)return;
+      slots.forEach((s,i)=>{if(s){slots[i]=null;renderSlot(i);}});
+      document.querySelectorAll('.tile.used').forEach(t=>t.classList.remove('used'));
+      updateSubmit();
+    },450);
     return;
   }
   fuse(L);
@@ -1122,14 +1221,23 @@ $('itHint').onclick=()=>{
 
 $('mute').onclick=function(){soundOn=!soundOn;this.textContent=soundOn?'🔊':'🔇';if(soundOn){if(actx)startMusic();}else{stopMusic();}};
 
+/* ===================== 全球計數器(玩過人數，用免費 Abacus 服務) ===================== */
+const CT_NS='ziling-zuzhitiaozhan-stevechou168', CT_KEY='plays';
+function setPlayCount(n){document.querySelectorAll('.playcount').forEach(e=>e.textContent='🌍 已有 '+n.toLocaleString()+' 人玩過字靈');}
+function loadPlayCount(){fetch('https://abacus.jasoncameron.dev/get/'+CT_NS+'/'+CT_KEY).then(r=>r.json()).then(d=>{if(d&&typeof d.value==='number')setPlayCount(d.value);}).catch(()=>{});}
+function bumpPlayCount(){fetch('https://abacus.jasoncameron.dev/hit/'+CT_NS+'/'+CT_KEY).then(r=>r.json()).then(d=>{if(d&&typeof d.value==='number')setPlayCount(d.value);}).catch(()=>{});}
+
 /* ===================== 啟動 ===================== */
 const APP_VER='1.0';
 document.querySelectorAll('.brand .v').forEach(e=>e.textContent='v'+APP_VER);
+loadPlayCount();
 $('addPlayer').onclick=addPlayerFromInput;
 $('nameInput').addEventListener('keydown',e=>{if(e.key==='Enter')addPlayerFromInput();});
 $('switchP').onclick=()=>{ persistSave(); showPlayers(); };   // 換人前先存好目前進度
 $('dexBtn').onclick=openDex;
 $('dexBack').onclick=openMap;
+$('failRetry').onclick=()=>{ $('failOvl').classList.remove('show'); enterWorld(wIdx); };  // 重來本世界
+$('failMap').onclick=()=>{ $('failOvl').classList.remove('show'); openMap(); };
 
 loadPlayers();
 if(players.current && players.list.includes(players.current)){
