@@ -82,7 +82,7 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 .8rem 6
 .line.spk{background:rgba(46,125,82,.09);}
 .line.spk .ltxt{color:var(--green);}
 .dot{width:6px;height:6px;background:var(--green);border-radius:50%;display:none;flex-shrink:0;animation:pulse .75s infinite alternate;}
-.line.spk .dot{display:block;}
+.line.spk .dot{display:none;}
 @keyframes pulse{from{opacity:1;transform:scale(1);}to{opacity:.35;transform:scale(.55);}}
 .lact{display:flex;gap:.25rem;opacity:0;transition:opacity .15s;}
 .line:hover .lact{opacity:1;}
@@ -161,13 +161,11 @@ main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 .8rem 6
   </select>
   <span class="spd-lbl">字級</span>
   <select class="spd" id="fsize">
+    <option value="auto" selected>自動</option>
     <option value="0.62">最小</option>
-    <option value="0.72">極小</option>
     <option value="0.85">小</option>
-    <option value="1" selected>標準</option>
+    <option value="1">標準</option>
     <option value="1.2">大</option>
-    <option value="1.45">特大</option>
-    <option value="1.7">超大</option>
   </select>
 </div>
 
@@ -799,15 +797,26 @@ if(synth) {
   synth.addEventListener('voiceschanged', populateVoices);
 }
 
-// 字級調整（縮放整塊大字＋直式注音，等比；記住選擇）
+// 字級：「自動」依螢幕寬度偵測挑預設（旋轉/縮放即時重算）；手動選則記住、以手動為準
 (function(){
   const sel=document.getElementById('fsize');
   if(!sel) return;
   const KEY='poem-fsize';
-  function apply(v){ document.body.style.setProperty('--rscale', v); }
+  function set(v){ document.body.style.setProperty('--rscale', v); }
+  function autoScale(){
+    const w=window.innerWidth;
+    let v=1;
+    if(w<560) v=0.62;        // 手機 → 最小
+    else if(w<900) v=0.85;   // 平板 → 小
+    else v=1;                // 桌機 → 標準
+    set(v);
+  }
+  function applySel(){ if(sel.value==='auto') autoScale(); else set(sel.value); }
   const saved=localStorage.getItem(KEY);
-  if(saved){ sel.value=saved; apply(saved); }
-  sel.addEventListener('change',()=>{ apply(sel.value); localStorage.setItem(KEY, sel.value); });
+  sel.value=(saved && [...sel.options].some(o=>o.value===saved)) ? saved : 'auto';
+  applySel();
+  sel.addEventListener('change',()=>{ applySel(); localStorage.setItem(KEY, sel.value); });
+  window.addEventListener('resize',()=>{ if(sel.value==='auto') autoScale(); });
 })();
 </script>
 </body>
