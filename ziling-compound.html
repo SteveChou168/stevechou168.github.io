@@ -146,10 +146,38 @@
     text-decoration:none;opacity:.85;z-index:2}
   .brand:hover{color:var(--cool2);opacity:1}
   .brand .v{color:var(--line);font-weight:600}
+  /* 子畫面固定在左上角的「回地圖」浮動鈕(不必捲到底) */
+  .backfab{position:fixed;top:12px;left:14px;z-index:26;background:var(--machine2);border:1px solid var(--line);
+    color:var(--cool2);font-weight:800;font-size:13px;padding:8px 14px;border-radius:999px;cursor:pointer;
+    box-shadow:0 3px 12px rgba(0,0,0,.4)}
+  .backfab:active{transform:translateY(1px)}
   .mapTitle{font-weight:900;font-size:24px;color:var(--ink);letter-spacing:1px}
   .mapTitle b{color:var(--warm2)}
   .mapSub{color:var(--dim);font-size:13px;margin-top:4px}
   .totStar{margin:12px 0 4px;color:var(--gold);font-weight:800;font-size:17px}
+  /* 地圖英雄頭部 + 圖示工具列 */
+  .mapTitleSm{font-weight:900;font-size:18px;color:var(--ink);letter-spacing:1px;margin-top:2px}
+  .mapTitleSm b{color:var(--warm2)}
+  .herocard{display:flex;align-items:center;gap:13px;width:100%;max-width:430px;margin-top:12px;
+    background:linear-gradient(180deg,var(--machine2),var(--machine));border:1px solid var(--line);border-radius:18px;padding:12px 15px}
+  .heroav{flex:0 0 auto;width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:34px;background:radial-gradient(circle at 38% 30%,rgba(255,255,255,.18),rgba(255,255,255,.02) 60%),var(--machine);
+    border:2px solid var(--line);overflow:hidden}
+  .heroav svg{width:100%;height:100%}
+  .heroinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left}
+  .heroname{font-weight:900;font-size:18px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .herostats{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .hstat{font-weight:800;font-size:14px}
+  .hstar{color:var(--gold)}
+  .herocard .playcount{margin-top:1px}
+  .toolbar{display:flex;gap:8px;width:100%;max-width:430px;margin-top:10px}
+  .toolbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px;cursor:pointer;
+    background:var(--machine2);border:1px solid var(--line);border-radius:14px;color:var(--cool2)}
+  .toolbtn:active{transform:translateY(1px)}
+  .toolbtn .ti{font-size:21px;line-height:1}
+  .toolbtn .tl{font-size:11px;font-weight:800}
+  .toolbtn.hell{color:var(--warm2)}
+  .toolbtn.hell.on{background:linear-gradient(180deg,#4a2348,#2a1640);border-color:var(--bad);color:#ff8a8a}
   .playcount{color:var(--cool2);font-size:12px;font-weight:700;margin-top:4px;height:16px;opacity:.9}
   .lbwrap{display:flex;flex-direction:column;gap:8px;width:100%;max-width:430px;margin-top:12px}
   .lbrow{display:flex;align-items:center;gap:12px;background:linear-gradient(180deg,var(--machine2),var(--machine));
@@ -172,6 +200,10 @@
   .wcard .wbar{height:6px;border-radius:3px;background:#1c1742;margin-top:6px;overflow:hidden}
   .wcard .wbar>div{height:100%;width:0;background:linear-gradient(90deg,var(--good),var(--gold));transition:width .4s}
   .wcard .wst{flex:0 0 auto;color:var(--gold);font-weight:800;font-size:13px;text-align:right;min-width:46px}
+  .wcard .wadv{color:var(--warm2);font-weight:800}
+  .wcard .wreplay{flex:0 0 auto;align-self:center;margin-left:2px;font-size:11px;font-weight:800;color:var(--cool2);
+    background:rgba(120,150,255,.14);border:1px solid rgba(120,150,255,.4);border-radius:999px;padding:5px 9px;white-space:nowrap;cursor:pointer}
+  .wcard .wreplay:active{transform:scale(.92)}
   .wcard.lock{opacity:.45;filter:grayscale(.7);cursor:not-allowed}
   .wcard.lock .wst{color:var(--dim)}
   .wcard.cleared{border-color:var(--good)}
@@ -285,6 +317,51 @@
   .wgi .e{font-size:23px;line-height:1}
   .wgi .w{font-size:10px;font-weight:800;color:var(--ink);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .wgi .z{font-size:10px;color:var(--dim);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* ===== 字靈扭蛋機 / 小怪獸收集 ===== */
+  .dustpill{display:inline-flex;align-items:center;gap:4px;background:var(--machine2);border:1px solid var(--line);
+    color:var(--gold);font-weight:800;font-size:13px;padding:5px 11px;border-radius:999px;white-space:nowrap}
+  .gmachine{width:172px;height:206px;margin:16px auto 4px;position:relative}
+  .gdome{position:absolute;left:14px;right:14px;top:0;height:134px;overflow:hidden;
+    border-radius:50% 50% 44% 44%/62% 62% 38% 38%;border:3px solid var(--line);
+    background:radial-gradient(circle at 38% 28%,rgba(255,255,255,.55),rgba(255,255,255,.05) 46%),linear-gradient(180deg,rgba(130,200,255,.28),rgba(130,160,255,.08))}
+  .gdome .cap{position:absolute;width:24px;height:24px;border-radius:50%}
+  .gbase{position:absolute;left:0;right:0;top:122px;height:84px;border-radius:18px;
+    background:linear-gradient(180deg,var(--warm2),var(--warm));border:3px solid rgba(0,0,0,.18)}
+  .gbase .knob{position:absolute;left:50%;top:16px;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff,#bdbdbd);border:3px solid rgba(0,0,0,.18)}
+  .gbase .slot{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);width:62px;height:20px;border-radius:8px;background:rgba(0,0,0,.5)}
+  .gmachine.shake{animation:gshake .42s ease-in-out}
+  @keyframes gshake{0%,100%{transform:translateX(0) rotate(0)}20%{transform:translateX(-6px) rotate(-2deg)}40%{transform:translateX(6px) rotate(2deg)}60%{transform:translateX(-4px) rotate(-1deg)}80%{transform:translateX(4px)}}
+  .gbtns{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+  .gbtn{background:linear-gradient(180deg,var(--warm2),var(--warm));color:#062038;font-weight:800;font-size:15px;
+    line-height:1.25;padding:11px 20px;border:none;border-radius:14px;cursor:pointer;text-align:center}
+  .gbtn:active{transform:translateY(1px)}
+  .gbtn.alt{background:var(--machine2);border:1px solid var(--line);color:var(--cool2);font-size:13px;padding:10px 16px}
+  .gbtn:disabled{opacity:.4;cursor:default}
+  .gpity{color:var(--dim);font-size:12px;margin-top:10px;text-align:center;line-height:1.5}
+  .mongrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:440px}
+  .moncard{background:var(--machine2);border:2px solid var(--line);border-radius:14px;padding:8px 4px 6px;
+    display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer}
+  .moncard svg{width:72px;height:72px}
+  .moncard .mn{font-size:12px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .moncard .mr{font-size:10px;font-weight:800}
+  .moncard.r1{border-color:#7ad0ff}
+  .moncard.r2{border-color:#c08bff;box-shadow:0 0 8px rgba(192,139,255,.35)}
+  .moncard.r3{border-color:var(--gold);box-shadow:0 0 12px rgba(255,216,107,.5)}
+  .moncard.active{outline:2px solid var(--good);outline-offset:1px}
+  .rcol0{color:var(--dim)}.rcol1{color:#7ad0ff}.rcol2{color:#c08bff}.rcol3{color:var(--gold)}
+  .gbig{display:flex;flex-direction:column;align-items:center;gap:6px;animation:gpop .55s cubic-bezier(.2,1.3,.5,1)}
+  .gbig svg{width:168px;height:168px;filter:drop-shadow(0 10px 26px rgba(0,0,0,.5))}
+  @keyframes gpop{0%{transform:scale(.2);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+  #monPvCard.r1{border-color:#7ad0ff}#monPvCard.r2{border-color:#c08bff}#monPvCard.r3{border-color:var(--gold)}
+  /* 出戰夥伴(遊戲畫面角落,不擋操作) */
+  #buddy{position:absolute;left:4px;bottom:80px;width:56px;height:56px;z-index:4;pointer-events:none;display:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
+  #buddy svg{width:100%;height:100%}
+  #buddy.show{display:block;animation:bbob 2.6s ease-in-out infinite}
+  @keyframes bbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  #buddy.cheer{animation:bcheer .65s ease}
+  @keyframes bcheer{0%{transform:translateY(0) scale(1)}30%{transform:translateY(-18px) scale(1.18)}60%{transform:translateY(0) scale(1)}80%{transform:translateY(-7px)}100%{transform:translateY(0)}}
 </style>
 </head>
 <body>
@@ -332,6 +409,7 @@
   </div>
 
   <div class="toast" id="toast"></div>
+  <div id="buddy"></div>
 </div>
 
 <canvas id="fx"></canvas>
@@ -353,20 +431,37 @@
 <!-- 世界地圖 -->
 <div class="mapOvl" id="mapOvl">
   <a class="brand" href="https://stevechou168.github.io/" target="_blank" rel="noopener noreferrer">永動創意 <span class="v"></span></a>
-  <div class="mapTitle">字<b>靈</b> · 組字挑戰</div>
-  <div class="curp"><span id="curName">👤</span> <button class="switchbtn" id="dexBtn">📖 圖鑑</button> <button class="switchbtn" id="lbBtn">🏆 排行</button> <button class="switchbtn" id="hellBtn" style="display:none">🔥 地獄：關</button> <button class="switchbtn" id="switchP">換人</button></div>
-  <div class="totStar" id="totStar">⭐ 0</div>
-  <div class="playcount">🌍 …</div>
+  <div class="mapTitleSm">字<b>靈</b> · 組字挑戰</div>
+  <!-- 英雄頭部:出戰怪獸當頭像 + 玩家 + 星星/星塵 -->
+  <div class="herocard" id="heroCard">
+    <div class="heroav" id="heroAv">👤</div>
+    <div class="heroinfo">
+      <div class="heroname" id="curName">玩家</div>
+      <div class="herostats">
+        <span class="hstat hstar">⭐ <b id="totStar">0</b></span>
+        <span class="hstat dustpill" id="dustMap">✨ 0</span>
+      </div>
+      <div class="playcount">🌍 …</div>
+    </div>
+  </div>
+  <!-- 圖示工具列 -->
+  <div class="toolbar">
+    <button class="toolbtn" id="dexBtn"><span class="ti">📖</span><span class="tl">圖鑑</span></button>
+    <button class="toolbtn" id="gachaBtn"><span class="ti">🎰</span><span class="tl">扭蛋</span></button>
+    <button class="toolbtn" id="lbBtn"><span class="ti">🏆</span><span class="tl">排行</span></button>
+    <button class="toolbtn" id="switchP"><span class="ti">👥</span><span class="tl">換人</span></button>
+    <button class="toolbtn hell" id="hellBtn" style="display:none"><span class="ti">🔥</span><span class="tl">地獄：關</span></button>
+  </div>
   <div class="worlds" id="worlds"></div>
 </div>
 
 <!-- 單字圖鑑 -->
 <div class="mapOvl" id="dexOvl">
+  <button class="backfab" id="dexBack">← 回地圖</button>
   <a class="brand" href="https://stevechou168.github.io/" target="_blank" rel="noopener noreferrer">永動創意 <span class="v"></span></a>
   <div class="mapTitle">📖 單字圖鑑</div>
   <div class="mapSub" id="dexSub">已收集 0 / 0</div>
   <div class="dexwrap" id="dexwrap"></div>
-  <button class="switchbtn" id="dexBack" style="margin-top:16px;padding:11px 22px;font-size:14px">← 回地圖</button>
 </div>
 
 <!-- 圖鑑單字放大預覽(點卡片→放大到畫面中央) -->
@@ -382,6 +477,7 @@
 
 <!-- 全球排行榜 -->
 <div class="mapOvl" id="lbOvl">
+  <button class="backfab" id="lbBack">← 回地圖</button>
   <a class="brand" href="https://stevechou168.github.io/" target="_blank" rel="noopener noreferrer">永動創意 <span class="v"></span></a>
   <div class="mapTitle" id="lbTitle">🏆 全球排行榜</div>
   <div class="lbtabs">
@@ -390,7 +486,47 @@
   </div>
   <div class="mapSub" id="lbSub">看看世界各地的玩家</div>
   <div class="lbwrap" id="lbwrap"></div>
-  <button class="switchbtn" id="lbBack" style="margin-top:16px;padding:11px 22px;font-size:14px">← 回地圖</button>
+</div>
+
+<!-- 🎰 字靈扭蛋機 -->
+<div class="mapOvl" id="gachaOvl">
+  <button class="backfab" id="gBack">← 回地圖</button>
+  <a class="brand" href="https://stevechou168.github.io/" target="_blank" rel="noopener noreferrer">永動創意 <span class="v"></span></a>
+  <div class="mapTitle">🎰 字<b>靈</b>扭蛋機</div>
+  <div class="mapSub">用 ✨星塵 召喚獨一無二的小怪獸</div>
+  <div id="gachaMain" style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:430px">
+    <div class="dustpill" id="gDust" style="margin-top:12px;font-size:15px;padding:7px 16px">✨ 0</div>
+    <div class="gmachine" id="gMachine">
+      <div class="gdome" id="gDome"></div>
+      <div class="gbase"><div class="knob"></div><div class="slot"></div></div>
+    </div>
+    <div class="gbtns">
+      <button class="gbtn" id="gOne">轉一下</button>
+      <button class="gbtn" id="gTen">轉十次</button>
+    </div>
+    <div class="gpity" id="gPity"></div>
+    <div class="gbtns" style="margin-top:16px">
+      <button class="gbtn alt" id="gDex">👾 圖鑑</button>
+    </div>
+  </div>
+  <div id="gachaResult" style="display:none;flex-direction:column;align-items:center;width:100%;max-width:430px;margin-top:16px">
+    <div id="gResultGrid" style="width:100%;display:flex;justify-content:center"></div>
+    <div class="gbtns" style="margin-top:18px">
+      <button class="gbtn" id="gAgain">🎰 再轉</button>
+      <button class="gbtn alt" id="gDex2">👾 圖鑑</button>
+    </div>
+  </div>
+</div>
+
+<!-- 👾 小怪獸放大預覽 -->
+<div class="dexpv" id="monPv">
+  <div class="card" id="monPvCard">
+    <div id="monPvSvg" style="width:152px;height:152px;margin:0 auto"></div>
+    <div class="w" id="monPvName"></div>
+    <div class="z" id="monPvR"></div>
+    <button class="gbtn" id="monSetBtn" style="margin-top:12px;font-size:13px;padding:9px 18px">設為出戰夥伴</button>
+    <div class="hint" style="margin-top:8px">點任意處關閉</div>
+  </div>
 </div>
 
 <!-- 單一世界通關 -->
@@ -650,15 +786,17 @@ function playerTotalTime(name){try{const s=JSON.parse(localStorage.getItem(saveK
 
 let save={unlocked:0, stars:{}, score:0, times:{}};
 function loadSave(){
-  save={unlocked:0,stars:{},score:0,times:{},bestCombo:0,items:{freeze:0,clear:0,hint:0},holo:{},master:{},ach:{},towerBest:0,hell:false};  // 切換玩家時先清乾淨
+  save={unlocked:0,stars:{},score:0,times:{},bestCombo:0,items:{freeze:0,clear:0,hint:0},holo:{},master:{},ach:{},towerBest:0,hell:false,dust:0,monsters:[],activeMon:null,gachaPity:0};  // 切換玩家時先清乾淨
   try{const s=JSON.parse(localStorage.getItem(saveKeyFor(players.current)));
-    if(s&&typeof s==='object'){save.unlocked=s.unlocked|0;save.stars=s.stars||{};save.score=s.score|0;save.times=s.times||{};save.bestCombo=s.bestCombo|0;save.items=Object.assign({freeze:0,clear:0,hint:0},s.items||{});save.holo=s.holo||{};save.master=s.master||{};save.ach=s.ach||{};save.towerBest=s.towerBest|0;save.hell=!!s.hell;}}catch(e){}
+    if(s&&typeof s==='object'){save.unlocked=s.unlocked|0;save.stars=s.stars||{};save.score=s.score|0;save.times=s.times||{};save.bestCombo=s.bestCombo|0;save.items=Object.assign({freeze:0,clear:0,hint:0},s.items||{});save.holo=s.holo||{};save.master=s.master||{};save.ach=s.ach||{};save.towerBest=s.towerBest|0;save.hell=!!s.hell;save.dust=s.dust|0;save.monsters=Array.isArray(s.monsters)?s.monsters:[];save.activeMon=(s.activeMon==null?null:s.activeMon|0);save.gachaPity=s.gachaPity|0;}}catch(e){}
 }
 function persistSave(){if(!players.current)return;try{localStorage.setItem(saveKeyFor(players.current),JSON.stringify(save));}catch(e){}}
 function worldWords(w){const W=WORLDS[w];return W.boss?BOSS_POOL.map(l=>l.whole.w):W.levels.map(l=>l.whole.w);}
 function worldStars(w){return worldWords(w).reduce((t,k)=>t+(save.stars[k]||0),0);}
 function worldMaxStars(w){const W=WORLDS[w];return (W.boss?W.count:W.levels.length)*3;}
 function worldCleared(w){const W=WORLDS[w];const got=worldWords(w).filter(k=>save.stars[k]);return W.boss?got.length>=W.count:got.length>=W.levels.length;}
+/* 基礎段是否已通過：前半每個字都至少拿過 1★(魔王每輪隨機抽,不套用) */
+function basicCleared(w){const W=WORLDS[w];if(W.boss)return false;const half=Math.ceil(W.levels.length/2);return W.levels.slice(0,half).every(L=>save.stars[L.whole.w]>0);}
 function totalStars(){let t=0;for(let w=0;w<WORLDS.length;w++)t+=worldStars(w);return t;}
 
 /* 特殊卡：世界大師 + 成就 */
@@ -691,7 +829,7 @@ function unlockAch(id,silent){
 
 /* ===================== 狀態 ===================== */
 let wIdx=0, lIdx=0, stage=0, bossRound=null, curLevels=[], slots=[], score=0, busy=false;
-let worldMs=0, segStart=0, timing=false, lastWorldMs=0, lastPB=false;   // 闖關計時
+let worldMs=0, segStart=0, timing=false, lastWorldMs=0, lastPB=false, fullRun=true;   // 闖關計時(fullRun=本局含基礎)
 let combo=0, maxCombo=0, failCount=0;                                   // 連擊 & 防挫折
 let frozen=false, _freezeTimer=null;                                    // 凍結道具
 let worldUsedHint=false, worldUsedItem=false;                           // 成就追蹤(本世界)
@@ -902,12 +1040,19 @@ function _runToast(){
 
 /* ===================== 世界地圖 ===================== */
 function renderMap(){
-  $('curName').textContent='👤 '+(players.current||'');
-  $('totStar').textContent='⭐ '+totalStars()+' / '+(WORLDS.reduce((t,_,w)=>t+worldMaxStars(w),0));
+  $('curName').textContent=players.current||'玩家';
+  // 出戰怪獸當頭像(沒有就放預設 emoji);點頭像看那隻怪獸
+  const av=$('heroAv'), list=save.monsters||[], ai=save.activeMon;
+  if(av){
+    if(list.length&&ai!=null&&list[ai]){ av.innerHTML=monSVG(list[ai].s,list[ai].r); av.style.cursor='pointer'; av.onclick=()=>openMonPreview(list[ai]); }
+    else{ av.textContent='👤'; av.style.cursor='default'; av.onclick=null; }
+  }
+  updateDustUI();
+  $('totStar').textContent=totalStars()+' / '+(WORLDS.reduce((t,_,w)=>t+worldMaxStars(w),0));
   const eg=endgameUnlocked();
   // 地獄模式開關(全破後出現)
   const hb=$('hellBtn');
-  if(hb){ hb.style.display=eg?'':'none'; hb.textContent=save.hell?'🔥 地獄：開':'🔥 地獄：關'; hb.classList.toggle('on',!!save.hell); }
+  if(hb){ hb.style.display=eg?'':'none'; const tl=hb.querySelector('.tl'); if(tl)tl.textContent=save.hell?'地獄：開':'地獄：關'; hb.classList.toggle('on',!!save.hell); }
   document.body.classList.toggle('hell', eg&&!!save.hell);
   const wrap=$('worlds');wrap.innerHTML='';
   // 🗼 字靈塔入口:固定顯示一行,全破後解鎖,未解鎖反灰
@@ -931,7 +1076,10 @@ function renderMap(){
     const card=document.createElement('div');
     card.className='wcard'+(locked?' lock':'')+(cleared?' cleared':'')+(W.boss?' boss':'');
     const tot=W.boss?W.count:W.levels.length, half=Math.ceil(tot/2);
-    const desc=W.boss?('魔王亂鬥 · 隨機 '+tot+' 關'):('基礎 '+half+' ＋ 進階 '+(tot-half)+' 關');
+    const advReady=!locked&&basicCleared(w);                              // 基礎已過 → 點卡片直接進進階
+    const desc=W.boss?('魔王亂鬥 · 隨機 '+tot+' 關')
+              :advReady?('<span class="wadv">▶ 繼續：進階篇</span> · 進階 '+(tot-half)+' 關')
+              :('基礎 '+half+' ＋ 進階 '+(tot-half)+' 關');
     const pb=(save.times&&save.times[w]!=null)?(' · ⏱ '+fmt(save.times[w])):'';
     card.innerHTML=
       '<div class="wico">'+(locked?'🔒':W.icon)+'</div>'+
@@ -940,13 +1088,19 @@ function renderMap(){
         '<div class="wbar"><div style="width:'+(mx?Math.round(got/mx*100):0)+'%"></div></div></div>'+
       '<div class="wst">'+(locked?'🔒':('⭐ '+got+'/'+mx))+'</div>';
     if(!locked) card.onclick=()=>enterWorld(w);
+    if(advReady){                                                         // 重玩基礎入口(拿三星/大師卡用),不觸發整卡=進進階
+      const rp=document.createElement('div');rp.className='wreplay';rp.textContent='↻ 基礎';
+      rp.title='重玩基礎篇';
+      rp.onclick=(e)=>{e.stopPropagation();enterWorld(w,0);};
+      card.appendChild(rp);
+    }
     wrap.appendChild(card);
   });
 }
 function openMap(){
   running=false; busy=false; timing=false; mode='world'; stopMusic();   // 離開遊戲 → 停背景樂、回戰役脈絡
   $('playerOvl').classList.remove('show'); $('dexOvl').classList.remove('show'); $('lbOvl').classList.remove('show');
-  $('worldDone').classList.remove('show'); $('doneOvl').classList.remove('show'); $('failOvl').classList.remove('show'); $('towerOvl').classList.remove('show'); closeDexPreview();
+  $('worldDone').classList.remove('show'); $('doneOvl').classList.remove('show'); $('failOvl').classList.remove('show'); $('towerOvl').classList.remove('show'); $('gachaOvl').classList.remove('show'); $('monPv').classList.remove('show'); closeDexPreview();
   renderMap(); $('mapOvl').classList.add('show');
 }
 
@@ -1032,6 +1186,24 @@ function openDex(){
     '<div class="di gold"><span class="k">✨ 閃卡（會發光）</span>用 <b>⭐⭐⭐</b> 拼出某個字時，有機率讓它變成 <b>稀有閃亮卡</b>，會一直發光，越多越厲害！</div>';
   wrap.appendChild(intro);
 
+  // 👾 小怪獸圖鑑(扭蛋收集)
+  const mons=save.monsters||[];
+  const dsec=dexSection('👾 小怪獸圖鑑 ('+mons.length+')','在地圖 🎰 扭蛋機用 ✨星塵 召喚，每隻都獨一無二；點一隻可設為「出戰夥伴」陪你拼字');
+  if(mons.length){
+    const mg2=document.createElement('div'); mg2.className='mongrid';
+    mons.forEach((mo,i)=>{
+      const d=document.createElement('div'); d.className='moncard r'+mo.r+(save.activeMon===i?' active':'');
+      d.innerHTML=monSVG(mo.s,mo.r)+'<div class="mn">'+monName(mo.s)+'</div><div class="mr rcol'+mo.r+'">'+(save.activeMon===i?'★ 出戰':RNAME[mo.r])+'</div>';
+      d.onclick=()=>openMonPreview(mo); mg2.appendChild(d);
+    });
+    dsec.appendChild(mg2);
+  }else{
+    const e=document.createElement('div'); e.className='dexnote'; e.style.padding='8px 0';
+    e.innerHTML='還沒有小怪獸 — 回地圖點 🎰 <b>扭蛋機</b> 召喚第一隻吧！';
+    dsec.appendChild(e);
+  }
+  wrap.appendChild(dsec);
+
   // 🏅 世界大師卡(該世界全 3★ 解鎖)
   let mGot=0; WORLDS.forEach((W,w)=>{if(masterUnlocked(w))mGot++;});
   const msec=dexSection('🏅 世界大師卡 ('+mGot+'/'+WORLDS.length+')','一個世界的每個字都拿到 ⭐⭐⭐ 滿星就解鎖');
@@ -1105,7 +1277,7 @@ function selectPlayer(name){
   if(isNew)players.list.push(name);
   persistPlayers();
   loadSave();
-  if(isNew){ save.items={freeze:2,clear:2,hint:3}; persistSave(); bumpPlayCount(); }   // 新玩家：起始道具 + 全球計數 +1
+  if(isNew){ save.items={freeze:2,clear:2,hint:3}; save.dust=40; persistSave(); bumpPlayCount(); }   // 新玩家：起始道具 + 起始星塵(夠抽一發) + 全球計數 +1
   score=save.score; $('score').textContent=score;
   $('playerOvl').classList.remove('show');
   openMap();
@@ -1121,13 +1293,16 @@ function stageLevels(w,st){
   const half=Math.ceil(full.length/2);
   return shuffle(st===0?full.slice(0,half):full.slice(half));  // 前半=基礎 後半=進階；段內洗牌
 }
-function enterWorld(w){
+function enterWorld(w,forceStage){
   aInit();                       // 使用者手勢，啟動音訊
   mode='world'; curMaxLives=MAX_LIVES;
   wIdx=w; bossRound=null; worldMs=0; combo=0;
   worldUsedHint=false; worldUsedItem=false;
   lives=MAX_LIVES;                              // 每進一個世界給滿命
-  enterStage(0);
+  // 基礎已通過 → 直接從進階開始(forceStage 可指定:重玩基礎傳 0)
+  const st=(forceStage!=null)?forceStage:(basicCleared(w)?1:0);
+  fullRun=(st===0);                             // 只有含基礎的完整局才記/比世界最佳時間
+  enterStage(st);
 }
 
 /* ===================== 字靈塔(全破後解鎖的無盡爬塔) ===================== */
@@ -1217,6 +1392,7 @@ function load(){
     $('lvSep').style.display='';
   }
   document.body.classList.toggle('hell', mode==='world'&&!!save.hell);   // 地獄紅暈只在戰役
+  renderBuddy();                                                         // 出戰夥伴陪玩
   $('meaning').textContent=L.whole.zh;
   $('caption').innerHTML='';
   $('score').textContent=score;
@@ -1316,6 +1492,7 @@ function fuse(L){
   combo++; if(combo>maxCombo)maxCombo=combo; if(combo>(save.bestCombo||0))save.bestCombo=combo;
   failCount=0;                            // 答對清除失敗計數
   if(combo%3===0) dropItem();             // 連擊里程碑(3/6/9…)掉道具
+  if(combo%5===0) addDust(5);             // 連擊里程碑(5/10/15…)賺星塵
   const rem=1-fuseFrac();
   const st=rem>=0.55?3:rem>=0.28?2:1;     // 依剩餘引線給星
   if(rem>=0.75) unlockAch('speed3');      // 閃電手：超快拼對
@@ -1345,6 +1522,7 @@ function fuse(L){
     ge.textContent=L.whole.e;ge.classList.remove('pop');void ge.offsetWidth;ge.classList.add('pop');
     burst(gc.x,gc.y,['#ffd86b','#ff9a3c','#48d6a0','#7ad0ff','#fff'],32);
     sFuse();vib(40);
+    cheerBuddy();                                    // 出戰夥伴歡呼
     revealWord(L.whole.w);
     speak(L.whole.w,1.35);
     $('caption').innerHTML=L.p.map(p=>'<span style="color:var(--ink)">'+p.w+'</span>').join(' + ')+' = <b>'+L.whole.w+'</b>'+
@@ -1354,9 +1532,11 @@ function fuse(L){
     if(combo>=10) unlockAch('combo10');
     if(combo>=20) unlockAch('combo20');
     if(mode==='tower'){                              // 塔:不動戰役分數,結算樓層
+      addDust(1);                                     // 塔每關也賺一點星塵
       setTimeout(()=>{ sWin(combo); const ct=combo>=2?('  🔥x'+combo):''; toast('🗼 第 '+(towerFloor+1)+' 層'+ct,'#ffd86b'); },520);
     }else{
       score+=gain;save.score=score;
+      addDust(2+(st===3?2:0));                        // 拼對 +2、三星再 +2 星塵
       const learned=Object.keys(save.stars).length;
       if(learned>=1) unlockAch('firstword');
       if(learned>=50) unlockAch('collect50');
@@ -1405,11 +1585,12 @@ function finishWorld(){
   if(timing){worldMs+=Date.now()-segStart;timing=false;}      // 結算本世界用時
   lastWorldMs=worldMs;
   const prev=save.times[wIdx];
-  lastPB=(prev==null||worldMs<prev);
+  lastPB=(fullRun&&(prev==null||worldMs<prev));                // 只有完整局(含基礎)才算世界最佳
   if(lastPB)save.times[wIdx]=worldMs;                          // 刷新最佳
   const isLast=(wIdx+1>=WORLDS.length);
   if(!isLast && save.unlocked<wIdx+1){save.unlocked=wIdx+1;}   // 解鎖下一世界
   if(save.hell){ unlockAch('hell'); if(isLast) unlockAch('hellAll'); }   // 地獄模式通關成就
+  addDust(25);                                                 // 世界通關獎勵星塵
   persistSave();
   submitScore();                                              // 上傳成績到全球排行榜
   if(isLast){ showAllDone(); return; }
@@ -1459,10 +1640,13 @@ function showWorldDone(){
   if(!worldUsedHint&&unlockAch('nohint',true))bonus.push('🎖️ 不靠提示');
   if(!worldUsedItem&&unlockAch('noitem',true))bonus.push('🎖️ 真本事');
   persistSave(); updateItems();
+  const timeLine=fullRun
+    ? ((lastPB?'<b style="color:var(--gold)">🏆 新紀錄！</b> ':'')+'用時 <b>'+fmt(lastWorldMs)+'</b>　最佳 <b>'+fmt(save.times[wIdx])+'</b>')
+    : ('🔁 進階重玩　進階用時 <b>'+fmt(lastWorldMs)+'</b>'+(save.times[wIdx]!=null?('　世界最佳 <b>'+fmt(save.times[wIdx])+'</b>'):''));
   $('wdSub').innerHTML=
-    (lastPB?'<b style="color:var(--gold)">🏆 新紀錄！</b> ':'')+'用時 <b>'+fmt(lastWorldMs)+'</b>　最佳 <b>'+fmt(save.times[wIdx])+'</b><br>'+
+    timeLine+'<br>'+
     '本世界星星 <b>⭐ '+got+'/'+mx+'</b>　總星 <b>'+totalStars()+'</b><br>'+
-    '🎁 通關獎勵 '+reward+
+    '🎁 通關獎勵 '+reward+'　<span style="color:var(--gold)">✨ +25 星塵</span>'+
     (bonus.length?('<br><b style="color:var(--gold)">'+bonus.join('　')+'</b>'):'')+
     (nextW?('<br>🔓 解鎖新世界：<b>'+nextW.icon+' '+nextW.name+'</b>'):'');
   fillWords(fullWorldLevels(wIdx));
@@ -1622,8 +1806,175 @@ function openLeaderboard(kind){
   }).catch(e=>{ $('lbSub').textContent='讀取失敗：'+((e&&e.message)||e); });
 }
 
+/* ===================== 字靈扭蛋機 / 小怪獸(收集養成) ===================== */
+/* 設計:每隻怪獸都由 seed「程序化生成」,所以永遠不重複 → 沒有抽到重複的挫折;追的是稀有度。
+   星塵只能靠玩賺(拼字/三星/連擊/通關/爬塔),無金流、無限時池、無每日懲罰 → 兒童健康向。 */
+const GACHA_COST=10, GACHA_COST10=90;                  // 單抽 10/十抽 90(打9折)
+/* 稀有度權重與保底參考主流轉蛋(原神/明日方舟/星穹鐵道):頂級稀有 base 偏低 + 軟保底逐抽遞增 + 硬保底必出 + 十連保底次階。
+   但本作零金流、星塵靠玩賺,刻意比商業手遊佛:傳奇 base 4%(商業多 0.6~2%)、硬保底 50 抽(商業 80~99)。 */
+const RARW=[56,30,10,4], RNAME=['普通','稀有','史詩','傳奇'];   // 普通/稀有/史詩/傳奇 基礎權重(%)
+const LEG_SOFT=40, LEG_HARD=50;        // 傳奇軟保底:第40抽起機率遞增、第50抽必出(save.gachaPity=距上次傳奇的抽數)
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function newSeed(){return (Math.floor(Math.random()*0xFFFFFFFF))>>>0;}
+function rollRarity(){
+  const p=save.gachaPity||0;                            // 距上次傳奇的抽數
+  if(p>=LEG_HARD-1) return 3;                           // 硬保底:第 50 抽必出傳奇
+  let leg=RARW[3];
+  if(p>=LEG_SOFT) leg=RARW[3]+(p-LEG_SOFT+1)*12;        // 軟保底:第 40 抽起每抽 +12% → 飆到必出
+  if(Math.random()*100<leg) return 3;
+  const rest=Math.random()*(RARW[0]+RARW[1]+RARW[2]);   // 其餘三檔按比例(普通/稀有/史詩)
+  return rest<RARW[0]?0:(rest<RARW[0]+RARW[1]?1:2);
+}
+/* 名字:由 seed 決定的可愛音節組合 */
+const NS1=['Mo','Bo','Pip','Lu','Zi','Ka','Fu','Wo','Gi','Ta','Ne','Bli','Pom','Dux','Yo','Mim','Glu','Squ','Nib','Tok','Vi','Ru'];
+const NS2=['bo','zu','la','pi','mo','ko','na','ru','ti','fy','do','gu','mi','po','wa','chi','lu','ni'];
+const NS3=['','','kin','let','zoo','pop','boo','too','ky','lo','sy','dle','nu'];
+function monName(seed){const r=mulberry32((seed>>>0)^0x9e3779b9);const p=a=>a[Math.floor(r()*a.length)];let s=p(NS1)+p(NS2)+p(NS3);return s.charAt(0).toUpperCase()+s.slice(1);}
+/* 由 seed 推導出怪獸的所有外觀特徵(決定論) */
+const M_BODY=['round','tall','squat','blob'],M_EYES=[2,2,2,1,3],M_MOUTH=['smile','open','tooth','flat','cat','ohh'],
+      M_TOP=['none','horns','antenna','ears','sprout','spike','tuft'],M_PAT=['none','none','spots','belly','spots'];
+function monGen(seed,rarity){
+  const r=mulberry32(seed>>>0),pick=a=>a[Math.floor(r()*a.length)];
+  const h1=Math.floor(r()*360),h2=(h1+30+Math.floor(r()*80))%360;
+  return {seed:seed>>>0,rarity:rarity|0,h1,h2,body:pick(M_BODY),eyes:pick(M_EYES),mouth:pick(M_MOUTH),
+          top:pick(M_TOP),pat:pick(M_PAT),cheek:r()<0.82,arms:r()<0.55,feet:r()<0.82};
+}
+function monTop(m,rx,ry,cy,topY,c2,dk){
+  const t=m.top; if(t==='none')return'';
+  if(t==='horns')return '<path d="M'+(60-12)+' '+topY+' L'+(60-16)+' '+(topY-14)+' L'+(60-6)+' '+(topY-2)+' Z" fill="'+c2+'"/><path d="M'+(60+12)+' '+topY+' L'+(60+16)+' '+(topY-14)+' L'+(60+6)+' '+(topY-2)+' Z" fill="'+c2+'"/>';
+  if(t==='antenna')return '<g stroke="'+dk+'" stroke-width="2.4" fill="'+c2+'"><line x1="'+(60-8)+'" y1="'+topY+'" x2="'+(60-13)+'" y2="'+(topY-15)+'"/><line x1="'+(60+8)+'" y1="'+topY+'" x2="'+(60+13)+'" y2="'+(topY-15)+'"/><circle cx="'+(60-13)+'" cy="'+(topY-17)+'" r="4"/><circle cx="'+(60+13)+'" cy="'+(topY-17)+'" r="4"/></g>';
+  if(t==='ears')return '<circle cx="'+(60-rx*0.6)+'" cy="'+(topY+5)+'" r="10" fill="'+c2+'"/><circle cx="'+(60+rx*0.6)+'" cy="'+(topY+5)+'" r="10" fill="'+c2+'"/>';
+  if(t==='sprout')return '<line x1="60" y1="'+topY+'" x2="60" y2="'+(topY-13)+'" stroke="#3aa657" stroke-width="3"/><ellipse cx="'+(60-6)+'" cy="'+(topY-13)+'" rx="7" ry="4" fill="#49c46a" transform="rotate(-30 '+(60-6)+' '+(topY-13)+')"/><ellipse cx="'+(60+6)+'" cy="'+(topY-15)+'" rx="7" ry="4" fill="#49c46a" transform="rotate(30 '+(60+6)+' '+(topY-15)+')"/>';
+  if(t==='spike'){let p='';for(let i=-1;i<=1;i++){const x=60+i*12;p+='<path d="M'+(x-7)+' '+(topY+2)+' L'+x+' '+(topY-12)+' L'+(x+7)+' '+(topY+2)+' Z" fill="'+c2+'"/>';}return p;}
+  if(t==='tuft')return '<path d="M'+(60-11)+' '+(topY+2)+' Q60 '+(topY-20)+' '+(60+11)+' '+(topY+2)+' Z" fill="'+c2+'"/>';
+  return'';
+}
+function monCrown(topY){return '<g transform="translate(60,'+(topY-9)+')"><path d="M-13 6 L-13 -6 L-5 2 L0 -9 L5 2 L13 -6 L13 6 Z" fill="#ffd54a" stroke="#caa01e" stroke-width="1"/><circle cx="0" cy="-9" r="2.2" fill="#ff5470"/></g>';}
+function monFace(m,rx,ry,cy,dk,lt){
+  const ey=cy-5; let xs=[];
+  if(m.eyes===1)xs=[60]; else if(m.eyes===3)xs=[60-16,60,60+16]; else xs=[60-13,60+13];
+  const er=m.eyes===1?11:8; let s='';
+  xs.forEach(x=>{ s+='<ellipse cx="'+x+'" cy="'+ey+'" rx="'+er+'" ry="'+(er+1)+'" fill="#fff"/>';
+    s+='<circle cx="'+x+'" cy="'+(ey+2)+'" r="'+(er*0.5)+'" fill="'+dk+'"/>';
+    s+='<circle cx="'+(x-er*0.28)+'" cy="'+(ey-er*0.25)+'" r="'+(er*0.2)+'" fill="#fff"/>'; });
+  if(m.cheek){ const off=m.eyes===1?18:22, cyy=ey+11;
+    s+='<ellipse cx="'+(60-off)+'" cy="'+cyy+'" rx="6" ry="4" fill="#ff7a99" opacity="0.55"/><ellipse cx="'+(60+off)+'" cy="'+cyy+'" rx="6" ry="4" fill="#ff7a99" opacity="0.55"/>'; }
+  const my=ey+13;
+  if(m.mouth==='smile')s+='<path d="M'+(60-8)+' '+my+' Q60 '+(my+8)+' '+(60+8)+' '+my+'" stroke="'+dk+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+  else if(m.mouth==='open')s+='<ellipse cx="60" cy="'+(my+2)+'" rx="6" ry="5" fill="'+dk+'"/><ellipse cx="60" cy="'+(my+4)+'" rx="3" ry="2.5" fill="#ff6a8a"/>';
+  else if(m.mouth==='tooth')s+='<path d="M'+(60-8)+' '+my+' Q60 '+(my+8)+' '+(60+8)+' '+my+'" stroke="'+dk+'" stroke-width="2.4" fill="none" stroke-linecap="round"/><rect x="'+(60-2)+'" y="'+my+'" width="4" height="4" rx="1" fill="#fff"/>';
+  else if(m.mouth==='cat')s+='<path d="M'+(60-8)+' '+my+' Q'+(60-4)+' '+(my+5)+' 60 '+my+' Q'+(60+4)+' '+(my+5)+' '+(60+8)+' '+my+'" stroke="'+dk+'" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
+  else if(m.mouth==='ohh')s+='<circle cx="60" cy="'+(my+2)+'" r="4" fill="'+dk+'"/>';
+  else s+='<line x1="'+(60-6)+'" y1="'+my+'" x2="'+(60+6)+'" y2="'+my+'" stroke="'+dk+'" stroke-width="2.4" stroke-linecap="round"/>';
+  return s;
+}
+/* 產生一隻怪獸的 SVG 字串(無 width/height,由外層容器決定大小) */
+function monSVG(seed,rarity){
+  const m=monGen(seed,rarity); rarity=m.rarity;
+  const id='mg'+(seed>>>0).toString(36);
+  const c1='hsl('+m.h1+',72%,64%)',c2='hsl('+m.h2+',62%,44%)',dk='hsl('+m.h1+',50%,20%)',lt='hsl('+m.h1+',82%,84%)';
+  let rx=36,ry=33,cy=68;
+  if(m.body==='tall'){rx=29;ry=41;cy=64;} else if(m.body==='squat'){rx=42;ry=27;cy=74;}
+  const topY=cy-ry,botY=cy+ry,S=[];
+  S.push('<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">');
+  S.push('<defs><linearGradient id="'+id+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+c1+'"/><stop offset="1" stop-color="'+c2+'"/></linearGradient></defs>');
+  if(rarity>=3)S.push('<circle cx="60" cy="'+cy+'" r="50" fill="hsl('+m.h1+',95%,68%)" opacity="0.16"/>');
+  if(rarity>=2){S.push('<g opacity="0.9" fill="'+lt+'"><ellipse cx="'+(60-rx+2)+'" cy="'+(cy-2)+'" rx="13" ry="20" transform="rotate(-28 '+(60-rx+2)+' '+(cy-2)+')"/><ellipse cx="'+(60+rx-2)+'" cy="'+(cy-2)+'" rx="13" ry="20" transform="rotate(28 '+(60+rx-2)+' '+(cy-2)+')"/></g>');}
+  if(m.feet)S.push('<ellipse cx="'+(60-rx*0.45)+'" cy="'+(botY-3)+'" rx="9" ry="6" fill="'+c2+'"/><ellipse cx="'+(60+rx*0.45)+'" cy="'+(botY-3)+'" rx="9" ry="6" fill="'+c2+'"/>');
+  if(m.arms)S.push('<ellipse cx="'+(60-rx-2)+'" cy="'+(cy+5)+'" rx="7" ry="10" fill="'+c2+'"/><ellipse cx="'+(60+rx+2)+'" cy="'+(cy+5)+'" rx="7" ry="10" fill="'+c2+'"/>');
+  S.push('<ellipse cx="60" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'" fill="url(#'+id+')"/>');
+  if(m.pat==='spots')S.push('<g fill="'+dk+'" opacity="0.16"><circle cx="'+(60-rx*0.4)+'" cy="'+(cy+ry*0.3)+'" r="5"/><circle cx="'+(60+rx*0.35)+'" cy="'+(cy-ry*0.05)+'" r="4"/><circle cx="60" cy="'+(cy+ry*0.5)+'" r="3.5"/></g>');
+  else if(m.pat==='belly')S.push('<ellipse cx="60" cy="'+(cy+ry*0.28)+'" rx="'+(rx*0.55)+'" ry="'+(ry*0.5)+'" fill="'+lt+'" opacity="0.5"/>');
+  S.push(monTop(m,rx,ry,cy,topY,c2,dk));
+  if(rarity>=3)S.push(monCrown(topY));
+  S.push(monFace(m,rx,ry,cy,dk,lt));
+  if(rarity===1)S.push('<text x="90" y="34" font-size="15">✨</text>');
+  S.push('</svg>');
+  return S.join('');
+}
+
+/* ---- 星塵貨幣 ---- */
+function addDust(n){ if(!n)return; save.dust=(save.dust||0)+n; persistSave(); updateDustUI(); }
+function updateDustUI(){ const a=$('dustMap'); if(a)a.textContent='✨ '+(save.dust||0); const b=$('gDust'); if(b)b.textContent='✨ '+(save.dust||0); }
+
+/* ---- 出戰夥伴(遊戲畫面角落) ---- */
+function renderBuddy(){
+  const b=$('buddy'); if(!b)return;
+  const list=save.monsters||[], i=save.activeMon;
+  if(!list.length||i==null||!list[i]){ b.classList.remove('show'); b.innerHTML=''; return; }
+  b.innerHTML=monSVG(list[i].s,list[i].r); b.classList.add('show');
+}
+function cheerBuddy(){ const b=$('buddy'); if(!b||!b.classList.contains('show'))return; b.classList.remove('cheer'); void b.offsetWidth; b.classList.add('cheer'); }
+
+/* ---- 扭蛋機 ---- */
+function openGacha(){
+  $('mapOvl').classList.remove('show');
+  const dome=$('gDome');
+  if(dome&&!dome.dataset.filled){ let h=''; for(let i=0;i<11;i++){const x=8+Math.random()*128,y=8+Math.random()*96,hue=Math.floor(Math.random()*360);h+='<div class="cap" style="left:'+x+'px;top:'+y+'px;background:radial-gradient(circle at 35% 30%,#fff,hsl('+hue+',70%,60%))"></div>';} dome.innerHTML=h; dome.dataset.filled='1'; }
+  $('gachaResult').style.display='none'; $('gachaMain').style.display='flex';
+  updateDustUI(); updateGachaUI();
+  $('gachaOvl').classList.add('show');
+}
+function updateGachaUI(){
+  $('gOne').innerHTML='轉一下<br><span style="font-size:12px">✨'+GACHA_COST+'</span>';
+  $('gTen').innerHTML='轉十次<br><span style="font-size:12px">✨'+GACHA_COST10+'</span>';
+  const left=Math.max(0,LEG_HARD-(save.gachaPity||0));
+  $('gPity').innerHTML='🌟 距離傳奇保底還有 <b>'+left+'</b> 抽（第 '+LEG_SOFT+' 抽起機率飆升）　·　已收集 <b>'+((save.monsters||[]).length)+'</b> 隻';
+  $('gOne').disabled=(save.dust||0)<GACHA_COST; $('gTen').disabled=(save.dust||0)<GACHA_COST10;
+}
+function doPull(){
+  const r=rollRarity(), mo={s:newSeed(),r:r};
+  save.monsters=save.monsters||[]; save.monsters.push(mo);
+  if(r>=3) save.gachaPity=0; else save.gachaPity=(save.gachaPity||0)+1;   // 只有傳奇重置軟保底計數
+  if(save.activeMon==null) save.activeMon=save.monsters.length-1;   // 第一隻自動出戰
+  return mo;
+}
+function pull(n){
+  const cost=(n===10)?GACHA_COST10:GACHA_COST;
+  if((save.dust||0)<cost){ toast('星塵不夠,多玩幾關賺 ✨','#ff9a3c'); return; }
+  save.dust-=cost; ensureSfx();
+  const got=[]; for(let i=0;i<n;i++) got.push(doPull());
+  if(n>=10 && !got.some(m=>m.r>=1)) got[got.length-1].r=1;   // 十連保底:整把全普通時,把最後一隻升成稀有
+  persistSave(); updateDustUI(); renderBuddy();
+  const mac=$('gMachine'); mac.classList.remove('shake'); void mac.offsetWidth; mac.classList.add('shake'); sStar();
+  setTimeout(()=>showGachaResult(got),470);
+}
+function showGachaResult(got){
+  $('gachaMain').style.display='none';
+  const box=$('gResultGrid'); box.innerHTML='';
+  if(got.length>1){
+    box.style.display='block';
+    const g=document.createElement('div'); g.className='mongrid';
+    got.forEach(mo=>{ const d=document.createElement('div'); d.className='moncard r'+mo.r;
+      d.innerHTML=monSVG(mo.s,mo.r)+'<div class="mn">'+monName(mo.s)+'</div><div class="mr rcol'+mo.r+'">'+RNAME[mo.r]+'</div>';
+      d.onclick=()=>openMonPreview(mo); g.appendChild(d); });
+    box.appendChild(g);
+  }else{
+    box.style.display='flex';
+    const mo=got[0], d=document.createElement('div'); d.className='gbig';
+    d.innerHTML='<div class="rcol'+mo.r+'" style="font-weight:800;font-size:15px">'+RNAME[mo.r]+'　'+monName(mo.s)+'</div>'+monSVG(mo.s,mo.r)+'<div class="hint" style="color:var(--dim);font-size:12px">點我看看 / 設為夥伴</div>';
+    d.onclick=()=>openMonPreview(mo); box.appendChild(d);
+  }
+  dexSparkle(innerWidth/2,innerHeight*0.42,got.some(m=>m.r>=2),$('gachaOvl'));
+  $('gachaResult').style.display='flex'; updateGachaUI();
+}
+
+/* ---- 小怪獸放大預覽 + 設為出戰 ---- */
+let _monPvObj=null;
+function openMonPreview(mo){
+  _monPvObj=mo;
+  $('monPvSvg').innerHTML=monSVG(mo.s,mo.r);
+  $('monPvName').textContent=monName(mo.s);
+  $('monPvR').innerHTML='<span class="rcol'+mo.r+'">'+RNAME[mo.r]+'</span>';
+  $('monPvCard').className='card r'+mo.r;
+  const idx=(save.monsters||[]).indexOf(mo);
+  $('monSetBtn').textContent=(save.activeMon===idx)?'✓ 出戰中':'設為出戰夥伴';
+  $('monPv').classList.add('show');
+  ensureSfx(); sStar(); dexSparkle(innerWidth/2,innerHeight/2,mo.r>=2,$('monPv'));
+}
+
 /* ===================== 啟動 ===================== */
-const APP_VER='1.1';
+const APP_VER='1.3';
 document.querySelectorAll('.brand .v').forEach(e=>e.textContent='v'+APP_VER);
 loadPlayCount();
 $('addPlayer').onclick=addPlayerFromInput;
@@ -1640,6 +1991,21 @@ $('dexPvCard').onclick=(e)=>{                               // 點卡片 → 複
 };
 $('lbBtn').onclick=openLeaderboard;
 $('lbBack').onclick=openMap;
+/* 🎰 扭蛋機 / 👾 小怪獸 */
+$('gachaBtn').onclick=openGacha;
+$('gOne').onclick=()=>pull(1);
+$('gTen').onclick=()=>pull(10);
+$('gBack').onclick=openMap;
+$('gAgain').onclick=()=>{ $('gachaResult').style.display='none'; $('gachaMain').style.display='flex'; updateGachaUI(); };
+$('gDex').onclick=()=>{ $('gachaOvl').classList.remove('show'); openDex(); };
+$('gDex2').onclick=()=>{ $('gachaOvl').classList.remove('show'); openDex(); };
+$('monPv').onclick=()=>$('monPv').classList.remove('show');                 // 點暗區關閉
+$('monPvCard').onclick=(e)=>e.stopPropagation();
+$('monSetBtn').onclick=(e)=>{
+  e.stopPropagation();
+  const idx=(save.monsters||[]).indexOf(_monPvObj);
+  if(idx>=0){ save.activeMon=idx; persistSave(); renderBuddy(); $('monSetBtn').textContent='✓ 出戰中'; sStar(); toast('🤝 '+monName(_monPvObj.s)+' 成為出戰夥伴！','#48d6a0'); }
+};
 $('failRetry').onclick=()=>{ $('failOvl').classList.remove('show'); enterWorld(wIdx); };  // 重來本世界
 $('failMap').onclick=()=>{ $('failOvl').classList.remove('show'); openMap(); };
 $('twAgain').onclick=()=>{ $('towerOvl').classList.remove('show'); enterTower(); };       // 字靈塔再爬一次
