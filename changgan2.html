@@ -43,7 +43,8 @@ body.rubyAll .st-head{margin-bottom:.8rem;}
 .st-text .zc{display:inline-flex;align-items:center;vertical-align:middle;margin:0 .13em;}
 .st-text .zh{font-size:1.95em;}
 .st-text .zy{position:relative;display:inline-block;padding-right:.55em;margin-left:.07em;font-size:.66em;line-height:1.02;color:#9a6f1f;font-weight:400;font-family:'Noto Sans TC',sans-serif;}
-.st-text .zb{writing-mode:vertical-rl;text-orientation:upright;}
+.st-text .zb{display:inline-flex;flex-direction:column;align-items:center;line-height:1.02;}
+.st-text .zbl{display:block;line-height:1.02;}
 .st-text .zt{position:absolute;right:0;line-height:1;}
 .st-text .zt-r{bottom:.05em;}            /* 二、三、四聲：右下 */
 .st-text .zt-n{top:-.45em;left:0;right:auto;width:calc(100% - .5em);text-align:center;}  /* 輕聲：上方 */
@@ -461,10 +462,12 @@ const TONES={'ˊ':'zt-r','ˇ':'zt-r','ˋ':'zt-r','˙':'zt-n'};
 function zhuyinHtml(z){
   if(!z) return '';
   const last=z[z.length-1];
-  if(TONES[last]){
-    return `<span class="zb">${z.slice(0,-1)}</span><span class="zt ${TONES[last]}">${last}</span>`;
-  }
-  return `<span class="zb">${z}</span>`;
+  let body=z, tone='';
+  if(TONES[last]){ body=z.slice(0,-1); tone=last; }
+  const stacked=[...body].map(c=>`<span class="zbl">${c}</span>`).join('');
+  let html=`<span class="zb">${stacked}</span>`;
+  if(tone) html+=`<span class="zt ${TONES[last]}">${tone}</span>`;
+  return html;
 }
 function buildRuby(i){
   const text=LINES[i];
