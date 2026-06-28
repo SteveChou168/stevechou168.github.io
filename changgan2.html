@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<!--
+  詩名 · 互動朗讀注音版
+  更新紀錄：
+    v1.0  初版
+-->
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>長干行之二 ── 李白</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400&display=swap');
+:root{--ink:#1a1208;--paper:#f5f0e8;--aged:#e8dfc8;--red:#c0392b;--gold:#b5860d;--mist:#7a8c7e;--fade:#9e9585;--green:#2e7d52;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--paper);color:var(--ink);font-family:'Noto Serif TC',serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 80% 20%,rgba(176,136,13,.06) 0%,transparent 70%),radial-gradient(ellipse 40% 60% at 10% 80%,rgba(122,140,126,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+/* progress */
+.prog{position:sticky;top:0;z-index:100;height:3px;background:var(--aged);}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--gold));width:0%;transition:width .1s;}
+
+/* voice bar */
+.vbar{position:sticky;top:3px;z-index:99;background:var(--ink);display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;flex-wrap:wrap;}
+.vbar-label{font-family:'Noto Sans TC',sans-serif;font-size:.7rem;letter-spacing:.15em;color:#a09888;white-space:nowrap;}
+.vb{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:3px;color:var(--paper);font-family:'Noto Sans TC',sans-serif;font-size:.75rem;padding:.3rem .7rem;cursor:pointer;transition:background .2s,border-color .2s;white-space:nowrap;}
+.vb:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.4);}
+.vb.playing{background:var(--green);border-color:var(--green);}
+.vb.stop-btn:hover{background:rgba(192,57,43,.6);border-color:var(--red);}
+.badge{background:var(--gold);color:var(--ink);border-radius:99px;font-size:.65rem;padding:.1rem .45rem;font-weight:700;display:none;margin-left:.2rem;}
+.badge.show{display:inline;}
+.spd-lbl{font-family:'Noto Sans TC',sans-serif;font-size:.7rem;color:#a09888;margin-left:.5rem;}
+#voice-lbl{margin-left:auto;}
+#voice{max-width:11rem;}
+.spd{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:3px;color:var(--paper);font-size:.75rem;padding:.28rem .45rem;cursor:pointer;}
+.spd option{background:#1a1208;}
+
+/* 整首大字注音版（一鍵切換，注音直式排在字右側） */
+body.rubyAll main{max-width:min(1040px,95vw);}
+body.rubyAll .st-text{line-height:2.7;}
+body.rubyAll .st-lbl{font-size:1.05rem;}
+body.rubyAll .st-head{margin-bottom:.8rem;}
+.st-text .zc{display:inline-flex;align-items:center;vertical-align:middle;margin:0 .13em;}
+.st-text .zh{font-size:1.95em;}
+.st-text .zy{position:relative;display:inline-block;padding-right:.55em;margin-left:.07em;font-size:.66em;line-height:1.02;color:#9a6f1f;font-weight:400;font-family:'Noto Sans TC',sans-serif;}
+.st-text .zb{writing-mode:vertical-rl;text-orientation:upright;}
+.st-text .zt{position:absolute;right:0;line-height:1;}
+.st-text .zt-r{bottom:.05em;}            /* 二、三、四聲：右下 */
+.st-text .zt-n{top:-.45em;left:0;right:auto;width:calc(100% - .5em);text-align:center;}  /* 輕聲：上方 */
+body.rubyAll .ltxt .rp{font-size:1.95em;margin:0 .02em;vertical-align:middle;}
+.vb.ruby-on{background:var(--gold);border-color:var(--gold);color:var(--ink);}
+
+/* header */
+header{position:relative;z-index:1;text-align:center;padding:3.5rem 2rem 1.5rem;}
+.eyebrow{font-family:'Noto Sans TC',sans-serif;font-size:.72rem;letter-spacing:.35em;color:var(--mist);margin-bottom:1rem;}
+.credit{position:absolute;top:1rem;right:1.2rem;font-family:'Noto Sans TC',sans-serif;font-size:.72rem;letter-spacing:.08em;color:var(--mist);text-decoration:none;border:1px solid var(--aged);border-radius:99px;padding:.25rem .75rem;transition:color .2s,border-color .2s;z-index:2;}
+.credit:hover{color:var(--gold);border-color:var(--gold);}
+h1{font-size:clamp(3rem,10vw,5.5rem);font-weight:900;letter-spacing:.15em;display:inline-block;color:var(--ink);}
+h1::after{content:'';display:block;width:3rem;height:3px;background:var(--red);margin:1rem auto 0;}
+.sub{font-family:'Noto Sans TC',sans-serif;font-size:.82rem;color:var(--fade);margin-top:.8rem;letter-spacing:.08em;}
+
+/* hero banner（可選：水墨圖＋疊上大標題與簡介。不用就不放 .hero markup，這段 CSS 閒置無害） */
+.hero{position:relative;width:min(860px,96%);margin:.8rem auto 1.4rem;border-radius:16px;overflow:hidden;box-shadow:0 10px 34px rgba(26,18,8,.20);border:1px solid var(--aged);}
+.hero img{display:block;width:100%;height:auto;}
+.hero::after{content:'';position:absolute;left:0;right:0;bottom:0;height:30%;background:linear-gradient(to bottom,rgba(245,240,232,0) 0%,var(--paper) 100%);pointer-events:none;}
+.hero-cap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1rem;z-index:1;}
+.hero-cap .eyebrow{margin-bottom:.6rem;color:#3a2c1c;font-weight:600;text-shadow:-1px -1px 0 #f6f1e9,1px -1px 0 #f6f1e9,-1px 1px 0 #f6f1e9,1px 1px 0 #f6f1e9,0 0 6px rgba(246,241,233,.98);}
+.hero-cap h1{margin:0;font-size:clamp(3.4rem,11vw,6.8rem);letter-spacing:.2em;text-shadow:0 3px 22px rgba(245,240,232,.92),0 0 44px rgba(245,240,232,.85),0 1px 4px rgba(245,240,232,1);}
+.hero-cap h1::after{margin:.7rem auto .2rem;}
+.hero-intro{max-width:37rem;margin:.5rem auto 0;font-family:'Noto Sans TC',sans-serif;font-size:clamp(.92rem,1.95vw,1.08rem);line-height:1.95;color:#2e2114;font-weight:500;letter-spacing:.03em;text-align:center;text-wrap:balance;text-shadow:-1px -1px 0 #f6f1e9,1px -1px 0 #f6f1e9,-1px 1px 0 #f6f1e9,1px 1px 0 #f6f1e9,0 -1.3px 0 #f6f1e9,0 1.3px 0 #f6f1e9,-1.3px 0 0 #f6f1e9,1.3px 0 0 #f6f1e9,0 0 9px rgba(246,241,233,.98);}
+.hero-intro .nb{white-space:nowrap;}
+.hero-intro+.hero-intro{margin-top:.6rem;}
+/* 手機：圖太小放不下疊字，改成標題＋簡介落到圖片下方紙色背景，保證不溢出、可讀 */
+@media(max-width:600px){.hero{width:98%;margin-bottom:1rem;}.hero::after{display:none;}.hero-cap{position:static;padding:.9rem .7rem 1.1rem;}.hero-cap .eyebrow{text-shadow:none;color:var(--mist);}.hero-cap h1{font-size:clamp(2.8rem,14vw,4rem);text-shadow:none;}.hero-cap h1::after{margin:.5rem auto .2rem;}.hero-intro{font-size:.92rem;line-height:1.72;max-width:95%;text-shadow:none;color:var(--ink);}.hero-intro+.hero-intro{margin-top:.5rem;}}
+
+/* main */
+main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 1.4rem 6rem;transition:max-width .35s;}
+
+/* stanza */
+.stanza{margin-bottom:2.2rem;border-left:2px solid var(--aged);padding-left:1.4rem;opacity:0;transform:translateY(18px);transition:opacity .5s,transform .5s,border-color .3s;}
+.stanza.vis{opacity:1;transform:none;}
+.stanza:hover{border-color:var(--gold);}
+.st-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;}
+.st-lbl{font-family:'Noto Sans TC',sans-serif;font-size:.68rem;letter-spacing:.22em;color:var(--fade);flex:1;}
+.st-play{background:none;border:1px solid var(--aged);border-radius:3px;color:var(--fade);font-size:.7rem;padding:.18rem .55rem;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .2s;white-space:nowrap;}
+.st-play:hover{border-color:var(--gold);color:var(--gold);}
+.st-play.playing{border-color:var(--green);color:var(--green);}
+
+/* line */
+.st-text{font-size:calc(clamp(1.05rem,2.5vw,1.18rem) * var(--rscale,1));line-height:2.5;font-weight:400;color:var(--ink);letter-spacing:.05em;}
+.line{display:flex;align-items:center;gap:.4rem;padding:.08em .3em;margin:-.08em -.3em;border-radius:3px;transition:background .15s;}
+.ltxt{flex:1;cursor:pointer;transition:color .2s;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;}
+.ltxt:hover{color:var(--red);}
+.line.sel{background:rgba(181,134,13,.12);}
+.line.sel .ltxt{color:var(--gold);}
+.line.spk{background:rgba(46,125,82,.09);}
+.line.spk .ltxt{color:var(--green);}
+.dot{width:6px;height:6px;background:var(--green);border-radius:50%;display:none;flex-shrink:0;animation:pulse .75s infinite alternate;}
+.line.spk .dot{display:none;}
+@keyframes pulse{from{opacity:1;transform:scale(1);}to{opacity:.35;transform:scale(.55);}}
+.lact{display:flex;gap:.25rem;opacity:0;transition:opacity .15s;}
+.line:hover .lact{opacity:1;}
+.lbtn{background:none;border:1px solid var(--aged);border-radius:3px;color:var(--fade);font-size:.65rem;padding:.12rem .42rem;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .15s;line-height:1.4;}
+.lbtn:hover{border-color:var(--red);color:var(--red);}
+.lbtn.sel-b{border-color:var(--aged);}
+.lbtn.sel-b:hover{border-color:var(--gold);color:var(--gold);}
+.lbtn.sel-b.on{border-color:var(--gold);color:var(--gold);background:rgba(181,134,13,.1);}
+
+/* annotation panel */
+.ann{position:fixed;right:0;top:50%;transform:translateY(-50%) translateX(100%);width:min(310px,90vw);background:var(--ink);color:var(--paper);padding:1.8rem 1.6rem;border-radius:4px 0 0 4px;box-shadow:-4px 0 24px rgba(26,18,8,.22);transition:transform .4s cubic-bezier(.22,1,.36,1);z-index:200;max-height:80vh;overflow-y:auto;}
+.ann.open{transform:translateY(-50%) translateX(0);}
+.ann-x{position:absolute;top:.7rem;right:.7rem;width:2.1rem;height:2.1rem;display:flex;align-items:center;justify-content:center;background:var(--red);border:none;border-radius:50%;color:#fff;font-size:1.15rem;cursor:pointer;line-height:1;box-shadow:0 2px 8px rgba(192,57,43,.4);transition:transform .2s,background .2s;}
+.ann-x:hover{background:#d84436;transform:scale(1.12);}
+.ann-ln{font-size:1.05rem;font-weight:700;letter-spacing:.07em;margin-bottom:.7rem;color:#f5e6c4;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:.7rem;}
+.ann-spk{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:3px;color:var(--paper);font-family:'Noto Sans TC',sans-serif;font-size:.74rem;padding:.32rem .7rem;cursor:pointer;margin-bottom:1rem;transition:background .2s,border-color .2s;}
+.ann-spk:hover{background:rgba(46,125,82,.5);border-color:var(--green);}
+.ann-spk.playing{background:var(--green);border-color:var(--green);}
+.ann-stop{margin-left:.4rem;}
+.ann-stop:hover{background:rgba(192,57,43,.55);border-color:var(--red);}
+.ann-me{font-family:'Noto Sans TC',sans-serif;font-size:.86rem;line-height:1.9;color:#c8c0b0;margin-bottom:1.1rem;}
+.ann-vt{font-family:'Noto Sans TC',sans-serif;font-size:.75rem;color:var(--gold);letter-spacing:.05em;margin-bottom:.3rem;font-weight:600;}
+.ann-wd{display:flex;gap:.4rem;align-items:baseline;margin-bottom:.35rem;}
+.ann-wd .w{color:#f5e6c4;font-size:.87rem;}
+.ann-wd .d{color:#a09888;font-size:.78rem;font-family:'Noto Sans TC',sans-serif;}
+
+/* quiz */
+.quiz-sec{margin-top:4rem;border-top:1px solid var(--aged);padding-top:2.8rem;}
+.quiz-title{font-size:.95rem;letter-spacing:.2em;color:var(--fade);margin-bottom:1.8rem;font-family:'Noto Sans TC',sans-serif;}
+.qcard{background:var(--aged);border-radius:4px;padding:1.6rem;margin-bottom:1.4rem;}
+.qq{font-size:.97rem;line-height:1.8;margin-bottom:1.1rem;}
+.qopts{display:grid;gap:.55rem;}
+.qbtn{background:var(--paper);border:1px solid transparent;border-radius:2px;padding:.65rem .95rem;font-family:'Noto Serif TC',serif;font-size:.88rem;color:var(--ink);cursor:pointer;text-align:left;transition:all .2s;letter-spacing:.03em;}
+.qbtn:hover{border-color:var(--gold);background:#fdf8ef;}
+.qbtn.ok{background:#e8f4e8;border-color:#4a9e4a;color:#2d5a2d;}
+.qbtn.ng{background:#faeaea;border-color:var(--red);color:#7a1a1a;}
+.qbtn:disabled{cursor:default;}
+.qfb{margin-top:.7rem;font-family:'Noto Sans TC',sans-serif;font-size:.8rem;line-height:1.7;color:var(--ink);min-height:1.4em;}
+
+.ver{text-align:center;margin-top:3rem;font-family:'Noto Sans TC',sans-serif;font-size:.7rem;color:var(--fade);letter-spacing:.1em;}
+.wmark{position:fixed;bottom:3rem;right:3rem;font-size:7rem;font-weight:900;color:rgba(181,134,13,.05);pointer-events:none;z-index:0;writing-mode:vertical-rl;letter-spacing:.1em;user-select:none;}
+@media(max-width:600px){
+  .ann{width:90vw;}
+  .wmark{display:none;}
+  .vbar{gap:.3rem .4rem;padding:.45rem .55rem;}
+  .vbar-label{display:none;}                 /* 隱藏裝飾性「🔊 語音」省一截寬度 */
+  #voice-lbl{margin-left:0;}                  /* 取消桌機把音色推到最右的 auto */
+  .spd-lbl{margin-left:0;font-size:.64rem;letter-spacing:.03em;}
+  .vb{font-size:.7rem;padding:.3rem .5rem;}
+  .spd{font-size:.7rem;padding:.26rem .3rem;}
+  #voice{max-width:6rem;}
+}
+@media(prefers-reduced-motion:reduce){.stanza{opacity:1;transform:none;transition:none;}.ann{transition:none;}}
+</style>
+</head>
+<body>
+
+<div class="prog"><div class="prog-fill" id="prog"></div></div>
+
+<div class="vbar">
+  <span class="vbar-label">🔊 語音</span>
+  <button class="vb" id="btn-all">▶ 全詩</button>
+  <button class="vb" id="btn-sel">▶ 選取句 <span class="badge" id="badge">0</span></button>
+  <button class="vb stop-btn" id="btn-stop">■ 停止</button>
+  <button class="vb" id="btn-clr">清除選取</button>
+  <span class="spd-lbl" id="voice-lbl">音色</span>
+  <select class="spd" id="voice"><option value="">預設</option></select>
+  <span class="spd-lbl">速度</span>
+  <select class="spd" id="spd">
+    <option value="0.45">極慢</option>
+    <option value="0.6">慢速</option>
+    <option value="0.75">適中</option>
+    <option value="0.9" selected>正常</option>
+    <option value="1.1">較快</option>
+    <option value="1.4">快速</option>
+  </select>
+  <span class="spd-lbl">字級</span>
+  <select class="spd" id="fsize">
+    <option value="auto" selected>自動</option>
+    <option value="0.62">最小</option>
+    <option value="0.85">小</option>
+    <option value="1">標準</option>
+    <option value="1.2">大</option>
+  </select>
+</div>
+
+<div class="wmark">詩</div>
+
+<header>
+  <a class="credit" href="https://stevechou168.github.io/" target="_blank" rel="noopener">永動創意 ↗</a>
+  <p class="eyebrow">唐 · 李白</p>
+  <h1>長干行之二</h1>
+  <!-- 〔可選〕Hero 卡：有配圖時，把上面 eyebrow＋h1 換成下面這塊（圖＋疊字＋簡介）。
+       做法見 SKILL.md「Hero 卡（水墨圖＋疊上大標題與簡介）」。__HERO_SRC__ 用 PowerShell 換成圖片 base64 data URI。
+  <div class="hero"><img alt="一句話描述配圖" src="__HERO_SRC__"><div class="hero-cap">
+    <p class="eyebrow">朝代 · 作者</p>
+    <h1>詩名</h1>
+    <p class="hero-intro">第一段簡介：背景、人物、寫作緣由。用 <span class="nb">不可拆的詞</span> 包住專名避免孤行。</p>
+    <p class="hero-intro">第二段簡介：主題、情感、地位。</p>
+  </div></div>
+  -->
+  <p class="sub">商婦憶昔思夫 ・ 點一下朗讀該句 ・ 長按或右鍵看注釋 ・「選」累積後整批朗讀</p>
+</header>
+
+<main>
+
+<!-- ↓ 每段一個 .stanza：data-s 段號(0起)，data-i 句號(全詩連續,0起)，data-sl 同 data-i。複製增段/句 ↓ -->
+<div class="stanza" data-s="0">
+  <div class="st-head"><span class="st-lbl">第一段 ── 🏠 深閨少女嫁長干</span><button class="st-play" data-sp="0">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="0"><span class="dot"></span><span class="ltxt">憶妾深閨裡，煙塵不曾識。</span><span class="lact"><button class="lbtn sel-b" data-sl="0">選</button></span></span>
+    <span class="line" data-i="1"><span class="dot"></span><span class="ltxt">嫁與長干人，沙頭候風色。</span><span class="lact"><button class="lbtn sel-b" data-sl="1">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="1">
+  <div class="st-head"><span class="st-lbl">第二段 ── 🍃 南北行蹤兩牽掛</span><button class="st-play" data-sp="1">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="2"><span class="dot"></span><span class="ltxt">五月南風興，思君下巴陵。</span><span class="lact"><button class="lbtn sel-b" data-sl="2">選</button></span></span>
+    <span class="line" data-i="3"><span class="dot"></span><span class="ltxt">八月西風起，想君發揚子。</span><span class="lact"><button class="lbtn sel-b" data-sl="3">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="2">
+  <div class="st-head"><span class="st-lbl">第三段 ── 💔 聚少離多夢相隨</span><button class="st-play" data-sp="2">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="4"><span class="dot"></span><span class="ltxt">去來悲如何，見少別離多。</span><span class="lact"><button class="lbtn sel-b" data-sl="4">選</button></span></span>
+    <span class="line" data-i="5"><span class="dot"></span><span class="ltxt">湘潭幾日到，妾夢越風波。</span><span class="lact"><button class="lbtn sel-b" data-sl="5">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="3">
+  <div class="st-head"><span class="st-lbl">第四段 ── 🌪️ 狂風夜驚念行人</span><button class="st-play" data-sp="3">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="6"><span class="dot"></span><span class="ltxt">昨夜狂風度，吹折江頭樹。</span><span class="lact"><button class="lbtn sel-b" data-sl="6">選</button></span></span>
+    <span class="line" data-i="7"><span class="dot"></span><span class="ltxt">淼淼暗無邊，行人在何處。</span><span class="lact"><button class="lbtn sel-b" data-sl="7">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="4">
+  <div class="st-head"><span class="st-lbl">第五段 ── 🦆 盼歸共棲羨雙飛</span><button class="st-play" data-sp="4">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="8"><span class="dot"></span><span class="ltxt">好乘浮雲驄，佳期蘭渚東。</span><span class="lact"><button class="lbtn sel-b" data-sl="8">選</button></span></span>
+    <span class="line" data-i="9"><span class="dot"></span><span class="ltxt">鴛鴦綠蒲上，翡翠錦屏中。</span><span class="lact"><button class="lbtn sel-b" data-sl="9">選</button></span></span>
+  </p>
+</div>
+
+<div class="stanza" data-s="5">
+  <div class="st-head"><span class="st-lbl">第六段 ── 🌸 紅顏自憐愁無盡</span><button class="st-play" data-sp="5">▶ 朗讀本段</button></div>
+  <p class="st-text">
+    <span class="line" data-i="10"><span class="dot"></span><span class="ltxt">自憐十五餘，顏色桃花紅。</span><span class="lact"><button class="lbtn sel-b" data-sl="10">選</button></span></span>
+    <span class="line" data-i="11"><span class="dot"></span><span class="ltxt">那作商人婦，愁水又愁風。</span><span class="lact"><button class="lbtn sel-b" data-sl="11">選</button></span></span>
+  </p>
+</div>
+<!-- 視需要再加更多 .stanza -->
+
+<div class="quiz-sec">
+  <p class="quiz-title">── 📝 詩句理解測驗 ──</p>
+  <!-- 每題一張 .qcard：正解 data-c="true"，每題僅一個正解；選項 3~6 個。QFBS 回饋長度＝選項數 -->
+  <div class="qcard">
+    <p class="qq">一、「沙頭候風色」中的「候風色」是什麼意思？</p>
+    <div class="qopts">
+      <button class="qbtn" data-c="true">在渡口觀察風向天色，盼望行商的丈夫歸來</button>
+      <button class="qbtn" data-c="false">描寫沙灘上風景變化之美</button>
+      <button class="qbtn" data-c="false">等候風停才好出航做生意</button>
+      <button class="qbtn" data-c="false">占卜天氣以決定婚期</button>
+    </div>
+    <p class="qfb"></p>
+  </div>
+
+  <div class="qcard">
+    <p class="qq">二、「見少別離多」一句寫出女子怎樣的處境？</p>
+    <div class="qopts">
+      <button class="qbtn" data-c="true">與丈夫相聚的日子少、分離的日子多</button>
+      <button class="qbtn" data-c="false">朋友來訪少、送別卻多</button>
+      <button class="qbtn" data-c="false">雖思念卻見面從不悲傷</button>
+      <button class="qbtn" data-c="false">嫌丈夫常不在家而想改嫁</button>
+    </div>
+    <p class="qfb"></p>
+  </div>
+
+  <div class="qcard">
+    <p class="qq">三、「鴛鴦綠蒲上，翡翠錦屏中」運用了什麼手法？</p>
+    <div class="qopts">
+      <button class="qbtn" data-c="true">以成雙的鳥反襯自己獨守的孤單</button>
+      <button class="qbtn" data-c="false">寫實描繪庭園中真實的飛禽</button>
+      <button class="qbtn" data-c="false">比喻夫妻終於團圓的喜悅</button>
+      <button class="qbtn" data-c="false">誇耀家中錦屏的華美富貴</button>
+    </div>
+    <p class="qfb"></p>
+  </div>
+
+  <div class="qcard">
+    <p class="qq">四、末句「那作商人婦，愁水復愁風」表達的情感是？</p>
+    <div class="qopts">
+      <button class="qbtn" data-c="true">悔恨嫁作商人婦，終日為行商在外的丈夫提心吊膽</button>
+      <button class="qbtn" data-c="false">埋怨天氣多風多雨壞了生意</button>
+      <button class="qbtn" data-c="false">慶幸嫁得商人而衣食無憂</button>
+      <button class="qbtn" data-c="false">害怕自己容顏漸漸老去</button>
+    </div>
+    <p class="qfb"></p>
+  </div>
+</div>
+
+<p class="ver">長干行之二 · 互動朗讀注音版　v1.0</p>
+</main>
+
+<div class="ann" id="ann">
+  <button class="ann-x" id="ann-x">✕</button>
+  <p class="ann-ln" id="ann-ln"></p>
+  <button class="ann-spk" id="ann-spk">🔊 朗讀釋義</button>
+  <button class="ann-spk ann-stop" id="ann-stop">■ 停止</button>
+  <p class="ann-me" id="ann-me"></p>
+  <p class="ann-vt" id="ann-vt"></p>
+  <div id="ann-wd"></div>
+</div>
+
+<script>
+const LINES=[
+  '憶妾深閨裡，煙塵不曾識。',
+  '嫁與長干人，沙頭候風色。',
+  '五月南風興，思君下巴陵。',
+  '八月西風起，想君發揚子。',
+  '去來悲如何，見少別離多。',
+  '湘潭幾日到，妾夢越風波。',
+  '昨夜狂風度，吹折江頭樹。',
+  '淼淼暗無邊，行人在何處。',
+  '好乘浮雲驄，佳期蘭渚東。',
+  '鴛鴦綠蒲上，翡翠錦屏中。',
+  '自憐十五餘，顏色桃花紅。',
+  '那作商人婦，愁水又愁風。'
+];
+
+// stanza -> line indices
+const STANZA_LINES=[[0,1],[2,3],[4,5],[6,7],[8,9],[10,11]];
+
+// 注音（教育部讀音，含破音字正確讀法）；每句以空白分隔，僅對應「漢字」，標點自動略過。
+const RUBY=[
+  'ㄧˋ ㄑㄧㄝˋ ㄕㄣ ㄍㄨㄟ ㄌㄧˇ ㄧㄢ ㄔㄣˊ ㄅㄨˋ ㄘㄥˊ ㄕˋ',
+  'ㄐㄧㄚˋ ㄩˇ ㄔㄤˊ ㄍㄢ ㄖㄣˊ ㄕㄚ ㄊㄡˊ ㄏㄡˋ ㄈㄥ ㄙㄜˋ',
+  'ㄨˇ ㄩㄝˋ ㄋㄢˊ ㄈㄥ ㄒㄧㄥ ㄙ ㄐㄩㄣ ㄒㄧㄚˋ ㄅㄚ ㄌㄧㄥˊ',
+  'ㄅㄚ ㄩㄝˋ ㄒㄧ ㄈㄥ ㄑㄧˇ ㄒㄧㄤˇ ㄐㄩㄣ ㄈㄚ ㄧㄤˊ ㄗˇ',
+  'ㄑㄩˋ ㄌㄞˊ ㄅㄟ ㄖㄨˊ ㄏㄜˊ ㄐㄧㄢˋ ㄕㄠˇ ㄅㄧㄝˊ ㄌㄧˊ ㄉㄨㄛ',
+  'ㄒㄧㄤ ㄊㄢˊ ㄐㄧˇ ㄖˋ ㄉㄠˋ ㄑㄧㄝˋ ㄇㄥˋ ㄩㄝˋ ㄈㄥ ㄅㄛ',
+  'ㄗㄨㄛˊ ㄧㄝˋ ㄎㄨㄤˊ ㄈㄥ ㄉㄨˋ ㄔㄨㄟ ㄓㄜˊ ㄐㄧㄤ ㄊㄡˊ ㄕㄨˋ',
+  'ㄇㄧㄠˇ ㄇㄧㄠˇ ㄢˋ ㄨˊ ㄅㄧㄢ ㄒㄧㄥˊ ㄖㄣˊ ㄗㄞˋ ㄏㄜˊ ㄔㄨˋ',
+  'ㄏㄠˇ ㄔㄥˊ ㄈㄨˊ ㄩㄣˊ ㄘㄨㄥ ㄐㄧㄚ ㄑㄧˊ ㄌㄢˊ ㄓㄨˇ ㄉㄨㄥ',
+  'ㄩㄢ ㄧㄤ ㄌㄩˋ ㄆㄨˊ ㄕㄤˋ ㄈㄟˇ ㄘㄨㄟˋ ㄐㄧㄣˇ ㄆㄧㄥˊ ㄓㄨㄥ',
+  'ㄗˋ ㄌㄧㄢˊ ㄕˊ ㄨˇ ㄩˊ ㄧㄢˊ ㄙㄜˋ ㄊㄠˊ ㄏㄨㄚ ㄏㄨㄥˊ',
+  'ㄋㄚˇ ㄗㄨㄛˋ ㄕㄤ ㄖㄣˊ ㄈㄨˋ ㄔㄡˊ ㄕㄨㄟˇ ㄧㄡˋ ㄔㄡˊ ㄈㄥ'
+];
+
+const ANN={
+  0:{m:'回想我深居閨房之中的少女時光，從不曾見識過外界塵世的紛擾。',v:[['妾','古代女子自稱。'],['深閨','女子幽居的內室。'],['煙塵','塵世風塵、人世的紛擾；一說指戰亂烽煙。'],['不曾識','未曾見識、不曾經歷。']]},
+  1:{m:'嫁給了長干里的商人，便常在沙岸渡口邊守望著風向天色（盼他歸來）。',v:[['長干','地名，在今南京，多為商賈、船家聚居之地。'],['沙頭','沙岸、江邊渡口。'],['候風色','觀察、等候風向與天色，指盼望行船歸來。']]},
+  2:{m:'五月颳起南風時，便想著你正順風南下巴陵。',v:[['興','ㄒㄧㄥ，起、颳起。'],['下','順流南下。'],['巴陵','地名，今湖南岳陽一帶。']]},
+  3:{m:'八月吹起西風時，又揣想你正從揚子江口出發。',v:[['發','出發。'],['揚子','揚子江（長江下游）渡口，在今江蘇。']]},
+  4:{m:'你來來去去，叫人何等悲傷；相見的日子那麼少，分離的時候卻那麼多。',v:[['去來','往來、來去。'],['悲如何','悲傷得不知如何是好。'],['見少別離多','相聚的少、離別的多。']]},
+  5:{m:'不知你哪一天才能到湘潭？我連在夢裡都追隨你越過重重風浪。',v:[['湘潭','地名，今湖南湘潭。'],['越風波','渡過、越過風浪。']]},
+  6:{m:'昨夜狂風刮過，把江邊的樹木都吹折了。',v:[['度','ㄉㄨˋ，經過、刮過。'],['吹折','吹斷。折，ㄓㄜˊ。'],['江頭','江邊。']]},
+  7:{m:'江水茫茫一片昏暗無邊，遠行的你究竟身在何方？',v:[['淼淼','ㄇㄧㄠˇ ㄇㄧㄠˇ，水勢浩大、茫茫一片的樣子。'],['暗無邊','昏暗而望不到邊際。'],['行人','出門遠行的人，指丈夫。']]},
+  8:{m:'真希望你能騎上那匹駿馬浮雲驄早早趕回，與我相會在長著蘭草的水洲之東。',v:[['好','此處有「但願、最好」之意。'],['浮雲驄','ㄈㄨˊ ㄩㄣˊ ㄘㄨㄥ，駿馬名，毛色青白如浮雲。'],['佳期','相會的美好日子。'],['蘭渚','長著蘭草的小洲。渚，ㄓㄨˇ，水中小塊陸地。']]},
+  9:{m:'鴛鴦雙雙棲在青綠的菖蒲上，翡翠鳥成對繡在錦緞屏風之中——皆成雙成對，反襯自己的孤單。',v:[['鴛鴦','常成雙的水鳥，喻夫妻恩愛。'],['綠蒲','青綠的菖蒲。蒲，ㄆㄨˊ。'],['翡翠','翠鳥，羽色鮮麗，此指屏風上的繡鳥。'],['錦屏','錦緞製成的屏風。']]},
+  10:{m:'自憐自己才十五歲多一點，容貌正像桃花一般紅潤嬌美。',v:[['自憐','自我憐惜。'],['十五餘','十五歲出頭。餘，ㄩˊ。'],['顏色','容貌、面色。'],['桃花紅','形容容顏嬌艷如桃花。']]},
+  11:{m:'怎料竟做了商人的妻子，整日為水路擔憂、又為風浪憂愁。',v:[['那','ㄋㄚˇ，怎、奈何，表悔恨無奈。'],['商人婦','商人的妻子。'],['愁水又愁風','既憂愁水路、又憂愁風浪，指為行商在外的丈夫提心吊膽。']]}
+};
+
+// 每句語譯的關鍵意象 emoji（記憶點）
+const LINE_EMOJI=['🏠','⛵','🌬️','🍂','💔','🌊','🌪️','🌫️','🐎','🦆','🌸','😢'];
+
+const QFBS=[
+  ['答對了！「候風色」是觀察風向天色、守候船隻，寫女子在渡口盼夫歸來的心情。',
+   '這雖是寫景，但「候風色」重點在「等候、盼望」，不只是描寫風景之美。',
+   '不是等風出航；女子守候的是丈夫的歸帆，不是自己要出海做生意。',
+   '與占卜婚期無關；此時女子早已出嫁，是在沙頭盼夫歸來。'],
+  ['正確！「見少別離多」直接點出聚少離多，正是商人婦的典型處境。',
+   '此處的「別離」指與丈夫的分離，並非朋友間的送別。',
+   '恰好相反，思念與分離正帶來深深的悲傷（去來悲如何）。',
+   '詩中只有思念與守候，並無嫌棄、改嫁之意。'],
+  ['答對了！鴛鴦、翡翠都成雙成對，正反襯出女子獨守空閨的孤單。',
+   '翡翠是繡在「錦屏中」的圖案，並非寫實的庭園飛禽。',
+   '此處正是以雙鳥的成對，對比自己的孤單，並非寫團圓。',
+   '重點不在誇富，而在以成雙之物反襯一人之寂寞。'],
+  ['正確！末句以「愁水復愁風」收束，道盡悔嫁商人、為夫擔驚受怕的無奈。',
+   '愁的不是生意好壞，而是行商在外的丈夫安危。',
+   '詩意是悔恨無奈（那作商人婦），並非慶幸。',
+   '雖有「自憐」青春，但末句重點在為丈夫的水路風波而愁。']
+];
+
+// ─── TTS ───
+const synth = window.speechSynthesis;
+let currentSpk = null;
+
+// 破音字 / 文言讀音修正：把字換成「同音的常用字」只用於朗讀，畫面文字不變。
+// 順序處理，較長的詞放前面，避免被短詞先吃掉。
+const PHON = [
+  ['長干','常干'],        // 長 ㄔㄤˊ（長干，地名），避免 TTS 讀成 ㄓㄤˇ
+  ['南風興','南風星'],    // 興 ㄒㄧㄥ（颳起），避免讀成 ㄒㄧㄥˋ（興趣）；星同音
+  ['吹折','吹哲'],        // 折 ㄓㄜˊ（吹斷），避免讀成 ㄓㄜ／ㄕㄜˊ；哲同音
+  ['淼淼','秒秒'],        // 淼 ㄇㄧㄠˇ（罕用字，TTS 多半不會唸）；秒同音
+  ['浮雲驄','浮雲匆'],    // 驄 ㄘㄨㄥ（罕用字）；匆同音
+  ['蘭渚','蘭主'],        // 渚 ㄓㄨˇ；主同音
+  ['綠蒲','慮蒲'],        // 綠 ㄌㄩˋ，避免讀成 ㄌㄨˋ；慮同音
+  ['那作','哪作']         // 那 ㄋㄚˇ（怎、奈何）；哪同音，取其疑問語氣
+];
+function toSpeech(text){
+  let s=text;
+  for(const [from,to] of PHON){ s=s.split(from).join(to); }
+  return s;
+}
+
+let chosenVoiceURI = '';   // 使用者選的音色（空字串＝自動）
+
+// 自動模式：替每個中文語音打分，挑最自然的
+function voiceScore(v){
+  const n=(v.name||'').toLowerCase();
+  let s=0;
+  // 偏好神經 / 線上 / 高品質語音
+  if(/online|natural|neural/.test(n)) s+=40;
+  if(/google/.test(n)) s+=35;
+  if(/mei-?jia|yating|hsiaochen|ting-?ting|sin-?ji|hanhan/.test(n)) s+=25;
+  // 壓低老式機械音
+  if(/desktop/.test(n)) s-=30;
+  if(/espeak|pico|festival/.test(n)) s-=50;
+  // 語系偏好：zh-TW > 其他 zh
+  const lang=(v.lang||'').toLowerCase();
+  if(lang==='zh-tw') s+=20; else if(lang.startsWith('zh')) s+=8;
+  return s;
+}
+function getVoice() {
+  const vs = synth.getVoices();
+  if(chosenVoiceURI){
+    const picked = vs.find(v=>v.voiceURI===chosenVoiceURI);
+    if(picked) return picked;
+  }
+  // 自動：在所有中文語音中挑分數最高者
+  const zh = vs.filter(v=>(v.lang||'').toLowerCase().startsWith('zh'));
+  if(!zh.length) return null;
+  return zh.slice().sort((a,b)=>voiceScore(b)-voiceScore(a))[0];
+}
+
+// 把這台機器上的中文語音填進下拉選單
+function populateVoices(){
+  const sel = document.getElementById('voice');
+  if(!sel) return;
+  const zh = synth.getVoices().filter(v=>v.lang && v.lang.toLowerCase().startsWith('zh'));
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">自動</option>' +
+    zh.map(v=>`<option value="${v.voiceURI}">${v.name} (${v.lang})</option>`).join('');
+  // 還原先前選擇
+  if(prev && zh.some(v=>v.voiceURI===prev)) sel.value = prev;
+  // 沒有任何中文語音時，標示一下
+  document.getElementById('voice-lbl').textContent = zh.length ? '音色' : '音色(無中文)';
+}
+document.getElementById('voice').addEventListener('change', e=>{ chosenVoiceURI = e.target.value; });
+
+function lineEl(i){ return document.querySelector(`.line[data-i="${i}"]`); }
+
+// ─── 整首大字注音版 ───
+// 聲調符號：二聲ˊ 三聲ˇ 四聲ˋ 輕聲˙（一聲不標）
+const TONES={'ˊ':'zt-r','ˇ':'zt-r','ˋ':'zt-r','˙':'zt-n'};
+function zhuyinHtml(z){
+  if(!z) return '';
+  const last=z[z.length-1];
+  if(TONES[last]){
+    return `<span class="zb">${z.slice(0,-1)}</span><span class="zt ${TONES[last]}">${last}</span>`;
+  }
+  return `<span class="zb">${z}</span>`;
+}
+function buildRuby(i){
+  const text=LINES[i];
+  const toks=(RUBY[i]||'').split(' ');
+  let t=0,html='';
+  for(const ch of text){
+    if(/[一-鿿]/.test(ch)){ html+=`<span class="zc"><span class="zh">${ch}</span><span class="zy">${zhuyinHtml(toks[t++]||'')}</span></span>`; }
+    else{ html+=`<span class="rp">${ch}</span>`; }
+  }
+  return html;
+}
+function applyRubyAll(on){
+  document.querySelectorAll('.line').forEach(line=>{
+    const i=parseInt(line.dataset.i);
+    const ltxt=line.querySelector('.ltxt');
+    if(ltxt) ltxt.innerHTML = on ? buildRuby(i) : LINES[i];
+  });
+  document.body.classList.toggle('rubyAll',on);
+}
+
+function highlight(i,on){
+  const el=lineEl(i);
+  if(el){ on?el.classList.add('spk'):el.classList.remove('spk'); }
+}
+
+function clearAllSpk(){ document.querySelectorAll('.line.spk').forEach(el=>el.classList.remove('spk')); }
+function clearAllPlaying(){ document.querySelectorAll('.st-play.playing').forEach(el=>el.classList.remove('playing')); document.getElementById('btn-all').classList.remove('playing'); document.getElementById('btn-sel').classList.remove('playing'); const a=document.getElementById('ann-spk'); if(a)a.classList.remove('playing'); }
+
+let playId=0;   // 播放代號：每次播放遞增，停止時也遞增，讓舊串接失效
+function speak(indices, onDone){
+  synth.cancel();
+  clearAllSpk();
+  clearAllPlaying();
+  const myId=++playId;
+  if(!indices||!indices.length){ onDone&&onDone(); return; }
+  let idx=0;
+  function next(){
+    if(myId!==playId) return;   // 已被停止或新的播放取代
+    if(idx>=indices.length){ clearAllSpk(); onDone&&onDone(); return; }
+    const i=indices[idx++];
+    highlight(i,true);
+    const utt=new SpeechSynthesisUtterance(toSpeech(LINES[i]));
+    utt.lang='zh-TW';
+    utt.rate=parseFloat(document.getElementById('spd').value);
+    const v=getVoice(); if(v) utt.voice=v;
+    utt.onend=()=>{ if(myId!==playId) return; highlight(i,false); next(); };
+    utt.onerror=()=>{ if(myId!==playId) return; highlight(i,false); next(); };
+    currentSpk=utt;
+    synth.speak(utt);
+  }
+  next();
+}
+
+// 朗讀任意文字（注釋語譯用）
+function speakText(text){
+  synth.cancel(); clearAllSpk(); clearAllPlaying();
+  const myId=++playId;
+  if(!text) return;
+  const btn=document.getElementById('ann-spk');
+  btn&&btn.classList.add('playing');
+  const utt=new SpeechSynthesisUtterance(toSpeech(text));
+  utt.lang='zh-TW';
+  utt.rate=parseFloat(document.getElementById('spd').value);
+  const v=getVoice(); if(v) utt.voice=v;
+  utt.onend=()=>{ if(myId!==playId)return; btn&&btn.classList.remove('playing'); };
+  utt.onerror=()=>{ if(myId!==playId)return; btn&&btn.classList.remove('playing'); };
+  currentSpk=utt;
+  synth.speak(utt);
+}
+
+// ─── 選取 ───
+const selected=new Set();
+function updateBadge(){
+  const b=document.getElementById('badge');
+  b.textContent=selected.size;
+  selected.size>0?b.classList.add('show'):b.classList.remove('show');
+}
+function toggleSel(i){
+  const el=lineEl(i);
+  const btn=document.querySelector(`.lbtn.sel-b[data-sl="${i}"]`);
+  if(selected.has(i)){ selected.delete(i); el&&el.classList.remove('sel'); btn&&btn.classList.remove('on'); }
+  else { selected.add(i); el&&el.classList.add('sel'); btn&&btn.classList.add('on'); }
+  updateBadge();
+}
+
+// ─── 按鈕事件 ───
+document.getElementById('btn-all').addEventListener('click',()=>{
+  const btn=document.getElementById('btn-all');
+  btn.classList.add('playing');
+  speak([...Array(LINES.length).keys()],()=>btn.classList.remove('playing'));
+});
+document.getElementById('btn-sel').addEventListener('click',()=>{
+  if(!selected.size) return;
+  const btn=document.getElementById('btn-sel');
+  btn.classList.add('playing');
+  const sorted=[...selected].sort((a,b)=>a-b);
+  speak(sorted,()=>btn.classList.remove('playing'));
+});
+function stopSpeak(){
+  playId++;   // 讓進行中的串接失效，避免 cancel 觸發 onend 又接著播
+  synth.cancel(); clearAllSpk(); clearAllPlaying();
+}
+document.getElementById('btn-stop').addEventListener('click',stopSpeak);
+document.getElementById('btn-clr').addEventListener('click',()=>{
+  selected.clear();
+  document.querySelectorAll('.line.sel').forEach(el=>el.classList.remove('sel'));
+  document.querySelectorAll('.lbtn.sel-b.on').forEach(el=>el.classList.remove('on'));
+  updateBadge();
+});
+
+// 單句選取
+document.querySelectorAll('.lbtn.sel-b[data-sl]').forEach(btn=>{
+  btn.addEventListener('click',e=>{ e.stopPropagation(); toggleSel(parseInt(btn.dataset.sl)); });
+});
+
+// 整段播放
+document.querySelectorAll('.st-play[data-sp]').forEach(btn=>{
+  btn.addEventListener('click',e=>{
+    e.stopPropagation();
+    const si=parseInt(btn.dataset.sp);
+    btn.classList.add('playing');
+    speak(STANZA_LINES[si],()=>btn.classList.remove('playing'));
+  });
+});
+
+// 永遠維持整首大字注音版
+applyRubyAll(true);
+
+// 點句子文字 → 注釋
+const ann=document.getElementById('ann');
+let currentAnn=-1;
+document.getElementById('ann-spk').addEventListener('click',()=>{
+  const d=ANN[currentAnn]; if(!d) return;
+  let txt=d.m;
+  if(d.v&&d.v.length){
+    txt+='。詞語注釋：'+d.v.map(([w,def])=>`${w.replace('/','、')}，${def}`).join('。');
+  }
+  speakText(txt);
+});
+document.getElementById('ann-stop').addEventListener('click',stopSpeak);
+function openAnn(i){
+  const d=ANN[i]; if(!d) return;
+  currentAnn=i;
+  document.getElementById('ann-ln').textContent=(LINE_EMOJI[i]?LINE_EMOJI[i]+' ':'')+LINES[i];
+  document.getElementById('ann-me').textContent=(LINE_EMOJI[i]?LINE_EMOJI[i]+' ':'')+d.m;
+  if(d.v&&d.v.length){
+    document.getElementById('ann-vt').textContent='詞語注釋';
+    document.getElementById('ann-wd').innerHTML=d.v.map(([w,def])=>`<div class="ann-wd"><span class="w">【${w}】</span><span class="d">${def}</span></div>`).join('');
+  }else{
+    document.getElementById('ann-vt').textContent='';
+    document.getElementById('ann-wd').innerHTML='';
+  }
+  ann.classList.add('open');
+}
+// 短按朗讀該行；長按（約 0.45 秒）才顯示注釋
+document.querySelectorAll('.ltxt').forEach(el=>{
+  const i=parseInt(el.closest('.line').dataset.i);
+  let timer=null,longPressed=false;
+  const cancel=()=>{ if(timer){clearTimeout(timer);timer=null;} };
+  el.addEventListener('pointerdown',e=>{
+    if(e.button!==0) return;       // 只有左鍵／觸控啟動長按
+    longPressed=false;
+    timer=setTimeout(()=>{ longPressed=true; openAnn(i); },450);
+  });
+  el.addEventListener('pointerup',e=>{
+    if(e.button!==0) return;
+    cancel(); if(!longPressed) speak([i]);   // 左鍵快放＝朗讀
+  });
+  el.addEventListener('pointerleave',cancel);
+  el.addEventListener('pointercancel',cancel);
+  el.addEventListener('contextmenu',e=>{ e.preventDefault(); openAnn(i); });  // 右鍵直接看注釋
+});
+document.getElementById('ann-x').addEventListener('click',()=>ann.classList.remove('open'));
+
+// 測驗
+document.querySelectorAll('.qcard').forEach((card,qi)=>{
+  const btns=card.querySelectorAll('.qbtn');
+  const fb=card.querySelector('.qfb');
+  btns.forEach((btn,bi)=>{
+    btn.addEventListener('click',()=>{
+      if(btn.disabled)return;
+      btns.forEach((b,j)=>{ b.disabled=true; if(b.dataset.c==='true')b.classList.add('ok'); else if(b===btn)b.classList.add('ng'); });
+      const ok=btn.dataset.c==='true';
+      fb.textContent=(ok?'✅ ':'❌ ')+QFBS[qi][bi];
+    });
+  });
+});
+
+// 進度條
+window.addEventListener('scroll',()=>{
+  const el=document.documentElement;
+  const pct=(el.scrollTop/(el.scrollHeight-el.clientHeight))*100;
+  document.getElementById('prog').style.width=pct+'%';
+});
+
+// Scroll reveal
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis');}),{threshold:.1});
+document.querySelectorAll('.stanza').forEach(s=>obs.observe(s));
+
+// 載入時預取聲音並填充音色下拉
+if(synth) {
+  populateVoices();
+  synth.addEventListener('voiceschanged', populateVoices);
+}
+
+// 字級：「自動」依螢幕寬度偵測挑預設（旋轉/縮放即時重算）；手動選則記住、以手動為準
+(function(){
+  const sel=document.getElementById('fsize');
+  if(!sel) return;
+  const KEY='poem-fsize';
+  function set(v){ document.body.style.setProperty('--rscale', v); }
+  function autoScale(){
+    const w=window.innerWidth;
+    let v=1;
+    if(w<560) v=0.62;        // 手機 → 最小
+    else if(w<900) v=0.85;   // 平板 → 小
+    else v=1;                // 桌機 → 標準
+    set(v);
+  }
+  function applySel(){ if(sel.value==='auto') autoScale(); else set(sel.value); }
+  const saved=localStorage.getItem(KEY);
+  sel.value=(saved && [...sel.options].some(o=>o.value===saved)) ? saved : 'auto';
+  applySel();
+  sel.addEventListener('change',()=>{ applySel(); localStorage.setItem(KEY, sel.value); });
+  window.addEventListener('resize',()=>{ if(sel.value==='auto') autoScale(); });
+})();
+</script>
+</body>
+</html>
