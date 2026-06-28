@@ -180,6 +180,8 @@
   .wcard.tower{border-color:var(--gold);background:linear-gradient(180deg,#3a2e10,#241a08);box-shadow:0 0 14px rgba(255,200,90,.22)}
   .wcard.tower .wnm{color:var(--gold)}
   .wcard.tower .wbar>div{background:linear-gradient(90deg,var(--warm2),var(--gold))}
+  .wcard.tower.lock{border-color:var(--line);box-shadow:none;background:linear-gradient(180deg,var(--machine2),var(--machine))}
+  .wcard.tower.lock .wnm{color:var(--ink)}
   /* 地獄模式：地圖鈕亮 + 全頁紅暈 */
   #hellBtn.on{background:linear-gradient(180deg,#6a1722,#3a0d14);border-color:var(--bad);color:#ff9a9a}
   body.hell #app::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;
@@ -218,9 +220,30 @@
   .dexnote{font-size:11px;color:var(--dim);text-align:left;margin:0 2px 7px}
   .dexgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
   .dxi{background:var(--machine2);border:1px solid var(--line);border-radius:10px;padding:6px 2px;
-    display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;cursor:pointer}
+    display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;cursor:pointer;
+    transition:transform .17s cubic-bezier(.2,1.5,.4,1)}
   .dxi.lock{opacity:.4;cursor:default}
+  .dxi:active{transform:scale(.94)}
   .dxi .e{font-size:22px;line-height:1.1}
+  /* 圖鑑單字放大預覽(燈箱) */
+  .dexpv{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:20px;
+    background:rgba(8,6,24,.82);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+  .dexpv.show{display:flex}
+  .dexpv .card{position:relative;background:var(--machine);border:2px solid var(--gold);border-radius:26px;
+    padding:30px 40px 22px;text-align:center;min-width:210px;max-width:86vw;
+    box-shadow:0 12px 50px rgba(0,0,0,.5),0 0 26px rgba(255,216,107,.35);
+    animation:pvpop .42s cubic-bezier(.2,1.55,.35,1)}
+  .dexpv .card.holo{background:linear-gradient(120deg,#3a2f78,#6a4aa0,#2a6a8b,#6a4aa0,#3a2f78);background-size:300% 300%;
+    animation:pvpop .42s cubic-bezier(.2,1.55,.35,1),holo 3.2s linear infinite}
+  @keyframes pvpop{0%{transform:scale(.25);opacity:0}100%{transform:scale(1);opacity:1}}
+  .dexpv .e{font-size:118px;line-height:1.05}
+  .dexpv .card.holo .e{filter:drop-shadow(0 0 16px var(--gold))}
+  .dexpv .w{font-size:28px;font-weight:900;color:var(--ink);margin-top:8px;letter-spacing:.5px}
+  .dexpv .z{font-size:17px;color:var(--cool2);margin-top:3px}
+  .dexpv .st{font-size:24px;margin-top:10px;letter-spacing:3px;min-height:26px}
+  .dexpv .card.lock{border-color:var(--line);box-shadow:0 12px 50px rgba(0,0,0,.5)}
+  .dexpv .card.lock .e{opacity:.85}
+  .dexpv .hint{font-size:11px;color:var(--dim);margin-top:14px}
   .dxi .w{font-size:9px;font-weight:800;color:var(--ink);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .dxi .z{font-size:9px;color:var(--dim);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .dxi .st{font-size:8px;color:var(--gold);height:10px}
@@ -344,6 +367,17 @@
   <div class="mapSub" id="dexSub">已收集 0 / 0</div>
   <div class="dexwrap" id="dexwrap"></div>
   <button class="switchbtn" id="dexBack" style="margin-top:16px;padding:11px 22px;font-size:14px">← 回地圖</button>
+</div>
+
+<!-- 圖鑑單字放大預覽(點卡片→放大到畫面中央) -->
+<div class="dexpv" id="dexPv">
+  <div class="card" id="dexPvCard">
+    <div class="e" id="dexPvE"></div>
+    <div class="w" id="dexPvW"></div>
+    <div class="z" id="dexPvZ"></div>
+    <div class="st" id="dexPvSt"></div>
+    <div class="hint" id="dexPvHint">🔊 再點一下複習　·　點任意處關閉</div>
+  </div>
 </div>
 
 <!-- 全球排行榜 -->
@@ -876,17 +910,18 @@ function renderMap(){
   if(hb){ hb.style.display=eg?'':'none'; hb.textContent=save.hell?'🔥 地獄：開':'🔥 地獄：關'; hb.classList.toggle('on',!!save.hell); }
   document.body.classList.toggle('hell', eg&&!!save.hell);
   const wrap=$('worlds');wrap.innerHTML='';
-  // 🗼 字靈塔入口(全破後解鎖)
-  if(eg){
+  // 🗼 字靈塔入口:固定顯示一行,全破後解鎖,未解鎖反灰
+  {
     const t=document.createElement('div');
-    t.className='wcard tower';
+    t.className='wcard tower'+(eg?'':' lock');
     t.innerHTML=
-      '<div class="wico">🗼</div>'+
-      '<div class="wmid"><div class="wnm">字靈塔 · 無盡挑戰</div>'+
-        '<div class="wpr">隨機抽字、越爬越快、'+TOWER_LIVES+' 條命 · 看你能爬幾層</div>'+
-        '<div class="wbar"><div style="width:'+Math.min(100,(save.towerBest||0)*4)+'%"></div></div></div>'+
-      '<div class="wst">🗼 '+(save.towerBest||0)+'</div>';
-    t.onclick=()=>enterTower();
+      '<div class="wico">'+(eg?'🗼':'🔒')+'</div>'+
+      '<div class="wmid"><div class="wnm">🗼 字靈塔 · 無盡挑戰</div>'+
+        '<div class="wpr">'+(eg?('隨機抽字、越爬越快、'+TOWER_LIVES+' 條命 · 看你能爬幾層')
+                               :'通關全部世界後解鎖')+'</div>'+
+        '<div class="wbar"><div style="width:'+(eg?Math.min(100,(save.towerBest||0)*4):0)+'%"></div></div></div>'+
+      '<div class="wst">'+(eg?('🗼 '+(save.towerBest||0)):'🔒')+'</div>';
+    if(eg) t.onclick=()=>enterTower();
     wrap.appendChild(t);
   }
   WORLDS.forEach((W,w)=>{
@@ -911,7 +946,7 @@ function renderMap(){
 function openMap(){
   running=false; busy=false; timing=false; mode='world'; stopMusic();   // 離開遊戲 → 停背景樂、回戰役脈絡
   $('playerOvl').classList.remove('show'); $('dexOvl').classList.remove('show'); $('lbOvl').classList.remove('show');
-  $('worldDone').classList.remove('show'); $('doneOvl').classList.remove('show'); $('failOvl').classList.remove('show'); $('towerOvl').classList.remove('show');
+  $('worldDone').classList.remove('show'); $('doneOvl').classList.remove('show'); $('failOvl').classList.remove('show'); $('towerOvl').classList.remove('show'); closeDexPreview();
   renderMap(); $('mapOvl').classList.add('show');
 }
 
@@ -923,6 +958,40 @@ function showFail(){
 }
 
 /* ---- 單字圖鑑：學會的字點亮，可點擊複習發音 ---- */
+/* 選單/圖鑑只要音效,不要啟動背景樂(aInit 會順手 startMusic) */
+function ensureSfx(){ if(actx)return; aInit(); stopMusic(); }
+/* 火花特效:從 (cx,cy) 飛散的小星星(append 到 host,確保浮在最上層可見) */
+function dexSparkle(cx,cy,holo,host){
+  host=host||$('dexPv'); if(!host)return;
+  const set=holo?['✨','💎','⭐','🌟']:['✨','⭐'], n=holo?12:8;
+  for(let i=0;i<n;i++){
+    const s=document.createElement('div'); s.textContent=set[i%set.length];
+    s.style.cssText='position:fixed;left:'+cx+'px;top:'+cy+'px;font-size:'+(16+Math.random()*16)+'px;z-index:40;pointer-events:none;will-change:transform,opacity';
+    host.appendChild(s);
+    const a=Math.random()*6.28, dist=70+Math.random()*90, rot=Math.random()*160-80;
+    s.animate([
+      {transform:'translate(-50%,-50%) scale(.3)',opacity:0},
+      {transform:'translate(-50%,-50%) scale(1)',opacity:1,offset:.25},
+      {transform:'translate(calc(-50% + '+Math.cos(a)*dist+'px),calc(-50% + '+Math.sin(a)*dist+'px)) scale(.5) rotate('+rot+'deg)',opacity:0}
+    ],{duration:680+Math.random()*360,easing:'cubic-bezier(.3,1,.4,1)'});
+    setTimeout(()=>s.remove(),1060);
+  }
+}
+/* 任一張卡(單字/成就/大師)→ 放大到畫面中央展示。o={emoji,title,sub,star,holo,locked,word} */
+let _dexPvWord=null,_dexPvHolo=false;
+function openCardPreview(o){
+  _dexPvWord=o.word||null; _dexPvHolo=!!o.holo;
+  $('dexPvE').textContent=o.emoji;
+  $('dexPvW').textContent=(o.holo?'✨ ':'')+o.title;
+  $('dexPvZ').textContent=o.sub||'';
+  $('dexPvSt').textContent=o.star?'⭐'.repeat(o.star):'';
+  $('dexPvHint').textContent=o.locked?'🔒 還沒解鎖　·　點任意處關閉':(o.word?'🔊 再點一下複習　·　點任意處關閉':'點任意處關閉');
+  $('dexPvCard').className='card'+(o.holo?' holo':'')+(o.locked?' lock':'');
+  $('dexPv').classList.add('show');
+  ensureSfx(); if(o.word) speak(o.word,1.2); sStar();
+  if(!o.locked) dexSparkle(innerWidth/2,innerHeight/2,o.holo);   // 鎖住的不放華麗火花
+}
+function closeDexPreview(){ $('dexPv').classList.remove('show'); }
 function dexSection(title,note){
   const sec=document.createElement('div');sec.className='dexsec';
   const h=document.createElement('h4');h.textContent=title;sec.appendChild(h);
@@ -944,9 +1013,12 @@ function syncAchievements(){
 function specialCard(on,cls,icon,name,desc){
   const d=document.createElement('div');d.className='spc'+(on?(' '+cls):' lock');
   d.innerHTML='<div class="e">'+(on?icon:'🔒')+'</div><div class="w">'+name+'</div><div class="z">'+desc+'</div>';
+  d.style.cursor='pointer';
+  d.onclick=()=>openCardPreview({emoji:on?icon:'🔒',title:name,sub:desc,holo:on,locked:!on});  // 解鎖→流光展示;未解鎖→看達成目標
   return d;
 }
 function openDex(){
+  closeDexPreview();                                         // 重開圖鑑先關掉放大預覽
   syncAchievements();                                        // 先補發可推算的成就
   const wrap=$('dexwrap');wrap.innerHTML='';
 
@@ -991,7 +1063,7 @@ function openDex(){
       const z=document.createElement('div');z.className='z';z.textContent=L.whole.zh;
       const s=document.createElement('div');s.className='st';s.textContent=unlocked?'⭐'.repeat(star):'';
       d.appendChild(e);d.appendChild(w);d.appendChild(z);d.appendChild(s);
-      if(unlocked) d.onclick=()=>{aInit();speak(L.whole.w,1.2);};
+      if(unlocked) d.onclick=()=>openCardPreview({emoji:L.whole.e,title:L.whole.w,sub:L.whole.zh,star,holo,word:L.whole.w});  // 放大到畫面中央
       grid.appendChild(d);
     });
     sec.appendChild(grid);wrap.appendChild(sec);
@@ -1559,6 +1631,13 @@ $('nameInput').addEventListener('keydown',e=>{if(e.key==='Enter')addPlayerFromIn
 $('switchP').onclick=()=>{ persistSave(); showPlayers(); };   // 換人前先存好目前進度
 $('dexBtn').onclick=openDex;
 $('dexBack').onclick=openMap;
+$('dexPv').onclick=closeDexPreview;                          // 點暗區關閉
+$('dexPvCard').onclick=(e)=>{                               // 點卡片 → 複習/再放一次火花(不關閉)
+  e.stopPropagation();
+  ensureSfx(); if(_dexPvWord) speak(_dexPvWord,1.2); sStar();
+  $('dexPvCard').animate([{transform:'scale(1)'},{transform:'scale(1.07)'},{transform:'scale(1)'}],{duration:300,easing:'ease-out'});
+  dexSparkle(innerWidth/2,innerHeight/2,_dexPvHolo);
+};
 $('lbBtn').onclick=openLeaderboard;
 $('lbBack').onclick=openMap;
 $('failRetry').onclick=()=>{ $('failOvl').classList.remove('show'); enterWorld(wIdx); };  // 重來本世界
