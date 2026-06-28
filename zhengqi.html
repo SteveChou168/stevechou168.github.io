@@ -68,8 +68,9 @@ h1::after{content:'';display:block;width:3rem;height:3px;background:var(--red);m
 .hero-intro{max-width:37rem;margin:.5rem auto 0;font-family:'Noto Sans TC',sans-serif;font-size:clamp(.92rem,1.95vw,1.08rem);line-height:1.95;color:#2e2114;font-weight:500;letter-spacing:.03em;text-align:center;text-wrap:balance;text-shadow:-1px -1px 0 #f6f1e9,1px -1px 0 #f6f1e9,-1px 1px 0 #f6f1e9,1px 1px 0 #f6f1e9,0 -1.3px 0 #f6f1e9,0 1.3px 0 #f6f1e9,-1.3px 0 0 #f6f1e9,1.3px 0 0 #f6f1e9,0 0 9px rgba(246,241,233,.98);}
 .hero-intro .nb{white-space:nowrap;}
 .hero-intro+.hero-intro{margin-top:.6rem;}
-@media(max-width:600px){.hero-cap{padding:.6rem;}.hero-intro{font-size:.82rem;line-height:1.68;max-width:95%;}.hero-intro+.hero-intro{margin-top:.4rem;}}
-@media(max-width:600px){.hero{width:98%;margin-bottom:1rem;}}
+/* 手機：圖太小放不下疊字，改成標題＋簡介落到圖片下方紙色背景，保證不溢出、可讀 */
+@media(max-width:600px){.hero{width:98%;margin-bottom:1rem;}.hero::after{display:none;}.hero-cap{position:static;padding:.9rem .7rem 1.1rem;}.hero-cap .eyebrow{text-shadow:none;color:var(--mist);}.hero-cap h1{font-size:clamp(2.8rem,14vw,4rem);text-shadow:none;}.hero-cap h1::after{margin:.5rem auto .2rem;}.hero-intro{font-size:.92rem;line-height:1.72;max-width:95%;text-shadow:none;color:var(--ink);}.hero-intro+.hero-intro{margin-top:.5rem;}}
+
 
 /* main */
 main{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 1.4rem 6rem;transition:max-width .35s;}
