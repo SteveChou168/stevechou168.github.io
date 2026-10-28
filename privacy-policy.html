@@ -86,7 +86,7 @@
 <main>
   <a class="back" href="index.html">← 返回首頁</a>
   <h1>隱私權政策</h1>
-  <p class="updated">最後更新日期：2026 年 7 月 22 日</p>
+  <p class="updated">最後更新日期：2026 年 10 月 28 日</p>
   <div class="divider"></div>
 
   <p>永動創意工作室（以下簡稱「本工作室」）非常重視您的隱私。本政策適用於本工作室開發與發布的所有行動應用程式（以下簡稱「本應用程式」），包括但不限於：拍拍背、圖書館助手、QR Code 工具、手寫生字快查、Nido Player、英語時態速學、數學遊樂園、Super Volume Up - EQ Master。</p>
@@ -98,7 +98,7 @@
     <li><strong>使用資料：</strong>應用程式內的操作記錄（如功能使用頻率），用於改善使用體驗。</li>
     <li><strong>相機與相簿存取：</strong>部分應用程式需使用相機或相簿以提供核心功能（如拍照辨識、QR Code 掃描），僅在您授權後使用，影像資料不會上傳至外部伺服器。</li>
     <li><strong>麥克風存取：</strong>「拍拍背」使用裝置麥克風進行語音辨識與發音練習功能。語音資料僅在裝置本機處理，不會上傳至任何伺服器。此權限僅在您授權後啟用。</li>
-    <li><strong>位置資訊：</strong>「圖書館助手」使用裝置定位功能，協助查詢鄰近圖書館；「QR Code 工具」可選擇性記錄掃描地點的城市／區域。位置資料僅在裝置本機使用，不會上傳至外部伺服器，且可隨時關閉。此權限僅在您授權後啟用。</li>
+    <li><strong>位置資訊：</strong>「圖書館助手」使用裝置定位功能，協助查詢鄰近圖書館；「QR Code 工具」可選擇性記錄掃描地點的城市／區域。對 QR Code 工具而言，只將城市／區域標籤保存在本機，不保存精確 GPS 座標；若啟用，作業系統或系統 geocoder 可能依平台服務暫時處理位置。QR Code 工具不會把位置資料上傳到開發者管理的伺服器，且可隨時關閉。此權限僅在您授權後啟用。</li>
   </ul>
   <p>本應用程式<strong>不會</strong>蒐集您的姓名、電子郵件、電話號碼或其他個人身分識別資訊，除非您主動提供。</p>
 
@@ -174,12 +174,23 @@
     <li><strong>不蒐集其他個人資料：</strong>除廣告 SDK 外，我們不蒐集、不上傳、不分享您的任何個人資料。</li>
   </ul>
 
+  <h2>十二、QR 掃描助手（QR Scanner／QR Code 工具）專項說明</h2>
+  <p>QR 掃描助手（QR Scanner／QR Code 工具）是離線優先的 QR／條碼掃描器與 QR 產生器。掃描、解析與選取圖片的處理在裝置端完成；本 App 不營運保存掃描資料的開發者雲端服務，也不會把掃描內容上傳到開發者管理的伺服器。本 App 無帳號、登入或開發者雲端同步功能。</p>
+  <ul>
+    <li><strong>本機資料：</strong>掃描歷史與解析內容（QR／條碼內容、語意類型與掃描時間）、您選擇保存的掃描預覽或 QR 圖片、設定及本機產生的 QR 資料均保存在裝置上。您可在 App 內清除可刪除的歷史與圖片；解除安裝會依平台規則移除本機 App 資料。</li>
+    <li><strong>選用概略位置：</strong>位置設定預設關閉。若您啟用，App 只請求概略位置，透過作業系統位置服務與系統 geocoder 解析掃描紀錄的城市／區域標籤；只保存該標籤，不保存精確 GPS 座標。作業系統或 geocoder 可能依平台服務暫時處理位置（可能需要網路）；App 不會將位置或掃描資料上傳到開發者管理的伺服器。</li>
+    <li><strong>相機與相片選擇器：</strong>相機用於掃描；系統相片選擇器只用於選取圖片掃描。產生的 QR 圖片若由您選擇保存，則透過平台提供的系統儲存機制；影像與掃描解析在裝置端處理。</li>
+    <li><strong>掃描用 ML Kit：</strong>部分影像掃描功能使用 Google ML Kit；影像與 QR／條碼內容在裝置端處理，不會轉交給第三方。ML Kit 可能收集裝置／App 資訊、每次安裝識別碼，以及效能、API、事件與錯誤指標，用於診斷與使用分析；資料以 HTTPS 傳輸。詳情請參閱 <a href="https://developers.google.com/ml-kit/android-data-disclosure" style="color:var(--accent)">Google ML Kit 資料揭露</a>。</li>
+    <li><strong>廣告與網路：</strong>Google AdMob 及其合作夥伴可能依地區、裝置、同意狀態與 Google 設定收集或分享 IP 位址、概略位置、裝置／廣告識別碼、App／廣告互動資料及診斷資料，用於廣告投放、分析／成效衡量、防詐與服務診斷。AdMob 的網路傳輸依 Google 揭露採用傳輸中加密；實際選項以 Google 的同意控制為準。App 不會把本機掃描歷史、解析內容、保存圖片或城市／區域標籤提供給 AdMob 作為本 App 的廣告整合資料，也不販售掃描資料。詳情請參閱 <a href="https://developers.google.com/admob/android/privacy/play-data-disclosure" style="color:var(--accent)">Google AdMob 代碼安全與資料揭露</a> 及 <a href="https://policies.google.com/privacy" style="color:var(--accent)">Google 隱私權政策</a>。</li>
+    <li><strong>無帳號與通訊錄：</strong>本 App 不要求註冊或登入，也不讀取通訊錄。vCard 是您掃描到的碼內資料，僅可檢視或複製。</li>
+  </ul>
+
   <div class="divider" style="margin-top:56px;"></div>
 
   <h2 style="font-size:13px; letter-spacing:4px; text-transform:uppercase; color:var(--accent); margin:40px 0 24px;">English Version</h2>
 
   <h2>Privacy Policy</h2>
-  <p>Last updated: July 22, 2026</p>
+  <p>Last updated: October 28, 2026</p>
   <p>Perpetual Motion Creative Studio ("we", "our") values your privacy. This policy applies to all mobile applications developed and published by us, including but not limited to: PaiPaiBei (拍拍背), Library Assistant, QR Code Tool, Handwriting Radical Lookup (手寫生字快查), Nido Player, Verb Tenses (英語時態速學), Math Arcade (數學遊樂園), and Super Volume Up - EQ Master.</p>
 
   <h2>1. Data Collection</h2>
@@ -189,7 +200,7 @@
     <li><strong>Usage data:</strong> In-app activity records (e.g., feature usage frequency) to improve user experience.</li>
     <li><strong>Camera and photo library access:</strong> Some apps require camera or photo library access for core features (e.g., photo recognition, QR code scanning). Used only with your permission; image data is not uploaded to external servers.</li>
     <li><strong>Microphone access:</strong> PaiPaiBei (拍拍背) uses the device microphone for speech recognition and pronunciation practice. Audio data is processed locally on your device and is not uploaded to any server. This permission is only activated with your authorization.</li>
-    <li><strong>Location information:</strong> Library Assistant uses device location services to help users find nearby libraries; QR Code Tool can optionally record the city/district of a scan location. Location data is used locally on the device, is not uploaded to external servers, and can be disabled at any time. This permission is only activated with your authorization.</li>
+    <li><strong>Location information:</strong> Library Assistant uses device location services to help users find nearby libraries; QR Code Tool can optionally record the city/district of a scan location. For QR Code Tool specifically, only the city/district label is stored locally and precise GPS coordinates are not stored; when enabled, the operating system or its system geocoder may process location transiently through platform services. QR Code Tool does not upload location data to a developer-operated server, and this permission can be disabled at any time. This permission is only activated with your authorization.</li>
   </ul>
   <p>Our applications <strong>do not</strong> collect your name, email address, phone number, or other personally identifiable information unless you voluntarily provide it.</p>
 
@@ -263,6 +274,17 @@
     <li><strong>Microphone permission:</strong> used only when the user actively runs "Device Check" — the app reads output volume levels via Android's Visualizer to determine whether the device supports gain. No audio is recorded, stored, or transmitted.</li>
     <li><strong>Other permissions:</strong> audio settings (system equalizer and gain), foreground service (keeps effects running in background), notifications (shows gain status), vibration (haptic feedback), display over other apps (floating volume ball), network (ad serving only). Each permission is used solely for its literal purpose.</li>
     <li><strong>No other personal data collected:</strong> apart from the ad SDK, we do not collect, upload, or share any of your personal data.</li>
+  </ul>
+
+  <h2>12. QR掃描助手 (QR Scanner / QR Code Tool) — Specific Disclosures</h2>
+  <p>QR掃描助手 (QR Scanner / QR Code Tool) is an offline-first QR/barcode scanner and QR generator. Scanning, decoding, and selected-image processing take place on the device. The app does not operate a developer cloud service for scan data and does not upload scan content to a developer-operated server. It has no account, sign-in, or developer-cloud sync feature.</p>
+  <ul>
+    <li><strong>Local app data:</strong> Scan history and decoded content (QR/barcode contents, semantic type, and scan time), scan previews or QR images that you choose to save, settings, and locally generated QR data are stored on your device. You can clear removable history and images in the app; uninstalling removes local app data subject to platform rules.</li>
+    <li><strong>Optional approximate location:</strong> Location is off by default. If enabled, the app requests approximate location and uses the operating system’s location service and system geocoder to resolve a city/district label for a scan record. Only that label is saved; precise GPS coordinates are not stored. The OS or geocoder may process location transiently through platform services, potentially over a network; the app does not upload location or scan data to a developer-operated server.</li>
+    <li><strong>Camera and photo picker:</strong> The camera is used for scanning. The system photo picker is used only to select an image to scan. A generated QR image that you choose to save is written through the platform’s system storage mechanism; image and scan processing take place on the device.</li>
+    <li><strong>ML Kit scanning:</strong> Some image-scanning features use Google ML Kit; image data and QR/barcode contents are processed on-device and are not transferred to third parties. ML Kit may collect device/app information, per-installation IDs, and performance, API, event, and error metrics for diagnostics and usage analytics; data is transmitted over HTTPS. See <a href="https://developers.google.com/ml-kit/android-data-disclosure" style="color:var(--accent)">Google’s ML Kit data disclosure</a>.</li>
+    <li><strong>Advertising and network:</strong> Depending on region, device, consent status, and Google settings, Google AdMob and its partners may collect or share IP address, general location, device/advertising identifiers, app/ad interactions, and diagnostics for advertising, analytics/measurement, fraud prevention, and service diagnostics. AdMob network transmission is encrypted in transit according to Google’s disclosure; actual choices are governed by Google’s consent controls. The app does not provide its local scan history, decoded content, saved images, or city/district labels to AdMob for this app’s ad integration, and it does not sell scan data. See <a href="https://developers.google.com/admob/android/privacy/play-data-disclosure" style="color:var(--accent)">Google’s AdMob data disclosure</a> and <a href="https://policies.google.com/privacy" style="color:var(--accent)">Google’s Privacy Policy</a>.</li>
+    <li><strong>No account or contacts:</strong> The app does not require registration or sign-in and does not read contacts. A vCard is data contained in the code you scan and can only be viewed or copied.</li>
   </ul>
 
   <div class="contact-box">
